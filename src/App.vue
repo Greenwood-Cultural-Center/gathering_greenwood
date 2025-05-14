@@ -7,15 +7,21 @@
   import Layer from './components/Layer.vue';
   import HomeButton from './components/HomeButton.vue';
   import ResultsPane from './components/ResultsPane.vue';
-  import YearSelector from './components/YearSelector.vue';
+  import YearSearchBar from './components/YearSearchBar.vue';
 
   // State
-  const appYear = ref('Both');
+  const appYear = ref('');
   const geoJson = ref(null);
   const searchResults = ref([]);
   const resultsCount = ref({});
   const lastSearch = ref('');
   const mapType = ref('MGL'); // or 'MB' for Mapbox GL JS
+
+  // define available years
+  const years = [
+    { year: '1910', date: '1910-04-15' },
+    { year: '1920', date: '1920-01-02' }
+  ];
 
   // Map and ResultsPane ref
   const mglMapRef = ref(null);
@@ -28,7 +34,7 @@
   // Reset handler for app state and map
   function resetApp() {
     // Reset app year to default
-    updateYear('Both');
+    updateYear('');
     if (resultsPaneRef) {
       resultsPaneRef.value.resetState();
     }
@@ -58,7 +64,10 @@ function resetMap() {
 <template>
   <HomeButton @reset="resetApp"/>
   <!-- YearSelector Component to change year -->
-  <YearSelector :onYearChange="updateYear" />
+  <YearSearchBar
+    :searchTerm="lastSearch"
+    :onYearChange="updateYear"
+    :years="years"></YearSearchBar>
 
   <template v-if="mapType === 'MGL'">
     <MglMap :year="appYear" ref="mglMapRef">
@@ -99,5 +108,22 @@ function resetMap() {
   .mgl-map-wrapper {
     height: 97.05vh;
     width: 60vw;
+  }
+  .dialog {
+    border: none;
+    border-radius: 8px;
+    width: 90vw;
+    max-width: 800px;
+    padding: 0;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    color: #333
+  }
+  .close-button {
+    font-size: 2.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    color: var(--gcc-lt-green);
   }
 </style>
