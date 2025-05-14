@@ -12,28 +12,21 @@
   } from '@fortawesome/free-solid-svg-icons';
   import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
   import ResultModal from './ResultModal.vue';
-  import BrokenModal from './BrokenModal.vue';
 
   const props = defineProps({
     item: Object,
     category: String
   });
 
-  const showModal = ref(false);
-
-  const openModal = () => {
-    showModal.value = true;
-  };
-
-  const closeModal = () => {
-    showModal.value = false;
-    console.log(`why the fuck do you not work: ${showModal}`);
-  };
-
+  const dialog = ref(null)
 
   onMounted(() => {
     console.log(`SearchResult ${props.category}${props.category === 'media' ? `-${props.item?.type}` : ``} mounted:`, props.item);
   });
+
+  function showDialog() {
+    dialog.value?.openDialog()
+  }
 
   const icon = computed(() => {
     switch (props.category) {
@@ -54,11 +47,10 @@
 </script>
 
 <template>
-  <div class="search-result" @click="openModal">
+  <div class="search-result" @click="showDialog">
     <FontAwesomeIcon :icon="icon" class="icon" />
     <span>{{ item?.name || item?.description || item?.caption || item?.story?.name }}</span>
-    <BrokenModal v-if="showModal" :category="category" :item="item" @update:showModal="closeModal" />
-    <!--<ResultModal :category="category" :item="item" ref="Modal"/>-->
+    <ResultModal ref="dialog" :item="item" :category="category" />
   </div>
 </template>
 

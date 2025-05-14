@@ -1,6 +1,5 @@
 <script setup>
-  import { VNativeDialog } from "vue-native-dialog";
-  import { onMounted, ref, computed, watch } from 'vue';
+  import { onMounted, onBeforeMount, ref, computed, watch } from 'vue';
   import BuildingForm from './forms/BuildingForm.vue';
   import PersonForm from './forms/PersonForm.vue';
   import DocumentForm from './forms/DocumentForm.vue';
@@ -9,61 +8,74 @@
   import AudioMediaForm from './forms/AudioMediaForm.vue';
   import VideoMediaForm from './forms/VideoMediaForm.vue';
   import PhotoMediaForm from './forms/PhotoMediaForm.vue';
-  import { faWindowClose } from '@fortawesome/free-solid-svg-icons';
-  import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-
-  const open = ref(false);
+  import { HtmlDialog } from 'vue-html-dialog';
+  import 'vue-html-dialog/vue-html-dialog.css';
 
   const props = defineProps({
     item: Object,
     category: String
   });
 
-  defineExpose ({
-    openModal: () => {
-      open.value = true;
-    },
-    closeModal: () => {
-      open.value = false;
-    }
+  defineExpose({
+    openDialog: () => dialogRef.value?.openDialog(),
+    closeDialog: () => dialogRef.value?.closeDialog()
+  })
+
+  const dialogRef = ref(null);
+
+  onBeforeMount(() => {
+    console.log(`ResultModal mounted, dialogRef: ${dialogRef.value}`);
   });
 
-  onMounted(() => {
-    if (open.value) {
-      open.value = true;
-    }
-  });
-
+  // Dynamically resolve the correct form component
   const getComponent = computed(() => {
-    switch (props.category) {
-      case 'buildings': return BuildingForm;
-      case 'people': return PersonForm;
-      case 'documents': return DocumentForm;
-      case 'census_records': return CensusRecordForm;
-      case 'stories': return StoryForm;
-      case 'media':
-        switch (props.item?.type) {
-          case 'photo': return PhotoMediaForm;
-          case 'video': return VideoMediaForm;
-          case 'audio': return AudioMediaForm;
-        }
+    const mediaTypes = {
+      photo: PhotoMediaForm,
+      video: VideoMediaForm,
+      audio: AudioMediaForm
     }
-    return null;
-  });
+
+    const formMap = {
+      buildings: BuildingForm,
+      people: PersonForm,
+      documents: DocumentForm,
+      census_records: CensusRecordForm,
+      stories: StoryForm,
+      media: mediaTypes[props.item?.type]
+    }
+
+    return formMap[props.category] || null
+  })
+
 </script>
 
 <template>
-  <VNativeDialog :open="open">
+  <HtmlDialog ref="dialogRef">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Details</h5>
-        <button class="close-button" @click="open=false"><FontAwesomeIcon :icon="faWindowClose"></FontAwesomeIcon></button>
       </div>
       <div class="modal-body">
         <component :is="getComponent" :item="item" v-if="getComponent" />
         <p v-else>Unknown category: {{ category }}</p>
       </div>
     </div>
-  </VNativeDialog>
-
+  </HtmlDialog>
 </template>
+
+<style scoped>
+  .modal-content {
+    background: white;
+    padding: 1rem;
+    color: #333;
+  }
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+  }
+  .modal-title {
+    margin: 0;
+  }
+</style>

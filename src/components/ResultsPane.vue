@@ -3,6 +3,7 @@
   import SearchBar from './SearchBar.vue';
   import ResultsCount from './ResultsCount.vue';
   import SearchResult from './SearchResult.vue';
+  import LastSearch from './LastSearch.vue'
 
   const props = defineProps({
     year: String
@@ -90,7 +91,9 @@
 
 <template>
   <div class="results-pane">
-    <SearchBar v-model="searchTerm" @search="search" />
+    <LastSearch
+      :lastSearch="lastSearch"
+    />
     <div v-if="loading" class="spinner-container">
       <div class="spinner"></div>
     </div>
@@ -111,6 +114,7 @@
         </div>
       </template>
     </div>
+    <!-- <SearchBar v-model="searchTerm" @search="search" /> -->
   </div>
 </template>
 
@@ -157,6 +161,38 @@
     width: 24px;
     height: 24px;
     animation: spin 0.8s linear infinite;
+  }
+
+    /* width */
+  ::-webkit-scrollbar {
+    width: 20rem;
+  }
+
+  /* Track */
+  ::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 5px grey;
+    border-radius: 10px;
+  }
+
+  ::-webkit-scrollbar-button {
+    background: #e0e0e0;
+    height: 25px;
+    width: 20rem;
+  }
+
+  ::-webkit-scrollbar-button:hover {
+    background: #233e27;
+  }
+
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: #666;
+    border-radius: 10px;
+  }
+
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: #333;
   }
 
   @keyframes spin {

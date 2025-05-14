@@ -17,9 +17,9 @@
     options: [
       { year: '1910', date: '1910-04-15' },
       { year: '1920', date: '1920-01-02' },
-      { year: 'Both', date: '2025-01-01' }
+      { year: '', date: '2025-01-01' }
     ],
-    selected: ref({ year: 'Both', date: '2025-01-01' })
+    selected: ref({ year: '', date: '2025-01-01' })
   };
 
   function changeYear (map, newYear) {

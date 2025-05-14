@@ -2,6 +2,7 @@
 import { ref, watch } from 'vue';
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import LastSearch from './LastSearch.vue'
 
 const model = defineModel();
 const emit = defineEmits(['search']);
@@ -20,14 +21,15 @@ function doSearch() {
 
 <template>
   <div class="search-bar">
-    <div><span v-if="lastSearch" class="search-label">Results for "{{ lastSearch }}"</span></div>
     <span class="input-group">
-      <input
-        v-model="input"
-        @keyup.enter="doSearch"
-        type="text"
-        placeholder="Search..."
-      />
+      <div class="input">
+        <input
+          v-model="input"
+          @keyup.enter="doSearch"
+          type="text"
+          placeholder="Search..."
+        />
+      </div>
       <button @click="doSearch">
         <FontAwesomeIcon :icon="faMagnifyingGlass" />
       </button>
@@ -41,17 +43,6 @@ function doSearch() {
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
-      margin-bottom: 1rem;
-    }
-
-    .search-label {
-      margin-right: auto;
-      font-size: 1.9rem;
-      color: #555;
-      background-color: var(--gcc-v-lt-green);
-      background: radial-gradient(ellipse, rgba(114,169,127,0.6) 30%, rgba(114,169,127,0.02) 99%);
-      flex-grow: 1;
-      padding: 1rem;
     }
 
     .input-group {
@@ -59,20 +50,29 @@ function doSearch() {
       background-color: var(--gcc-dk-green);
     }
 
-    input {
+    .input {
+      background: black;
+      padding-top: 0.1rem;
+      padding-bottom: 0.4rem;
+      padding-left: 0.3rem;
+      padding-right: 0.3rem;
+      display: inline-block;
+      border-radius: 10px;
+    }
+
+    .input input {
       padding: 0.4rem 0.6rem;
       background-color: #fdfdfd;
-      border-color: var(--gcc-dk-green);
+      border-radius: 10px;
+      border: none;
       color: var(--gcc-dk-green);
+      padding: 3px;
       font-size: 2rem;
     }
 
     @media screen and (max-width: 1600px) {
       input {
-        width: 140px;
-      }
-      .search-label {
-        font-size: 1.5rem;
+        width: 20rem;
       }
       .search-bar>div {
         margin-left: 1rem;}
@@ -84,7 +84,7 @@ function doSearch() {
       border: none;
       cursor: pointer;
       color: var(--gcc-orange);
-      font-size: 2rem;
+      font-size: 3rem;
       padding: 0 0.5rem 0 1.5rem;
     }
 </style>
