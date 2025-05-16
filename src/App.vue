@@ -5,7 +5,8 @@
   import MglMap from './components/MglMap.vue';
   import GeoJsonLayer from './components/GeoJsonLayer.vue';
   import Layer from './components/Layer.vue';
-  import HomeButton from './components/HomeButton.vue';
+  import FABMain from './components/FABMain.vue';
+  import FABButton from './components/FABButton.vue';
   import ResultsPane from './components/ResultsPane.vue';
   import YearSearchBar from './components/YearSearchBar.vue';
 
@@ -62,7 +63,11 @@ function resetMap() {
 </script>
 
 <template>
-  <HomeButton @reset="resetApp"/>
+  <FABMain>
+    <FABButton title="Home" :delay=0.3 :icon="['fas', 'house']" />
+    <FABButton title="Help" :delay=0.25 :icon="['fas', 'question']" />
+    <FABButton title="Contrast" :delay=0.2 :icon="['fas', 'circle-half-stroke']" />
+  </FABMain>
   <!-- YearSelector Component to change year -->
   <YearSearchBar
     :searchTerm="lastSearch"
