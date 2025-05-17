@@ -59,7 +59,7 @@
   });
 
   // Map style ref
-  const style = ref('https://www.openhistoricalmap.org/map-styles/main/main.json');
+  const style = ref('/historic.json');
   const center = ref([-95.9872222, 36.1619444]); // starting position [lng, lat]
   const zoom = ref(14); // starting zoom level`
   const accessToken = ref('pk.eyJ1IjoidHVsc2FtYXBwaW5nIiwiYSI6ImNtNm4yeGk2dDBybmcyc3B5Y2kwZmZ1YXoifQ.2rjdphm0vkZ_4FBht5c7AA');
@@ -71,14 +71,6 @@
 
   const layers = [
     {
-      id: 'parcels',
-      url: '/data/parcels/Demo_Parcels.geojson',
-      paint: {
-        'fill-color': '#ff8888',
-        'fill-opacity': 0.5
-      }
-    },
-    {
       id: 'streets',
       url: '/data/streets/Demo_Street_Labels.geojson',
       paint: {
@@ -86,14 +78,22 @@
         'line-width': 2
       }
     },
-    // {
-    //   id: 'blocks',
-    //   url: '/data/blocks/Demo_Blocks.geojson',
-    //   paint: {
-    //     'fill-color': '#88ff88',
-    //     'fill-opacity': 0.5
-    //   }
-    // }
+    {
+      id: 'blocks',
+      url: '/data/blocks/Demo_Blocks.geojson',
+      paint: {
+        'fill-color': '#333',
+        'fill-opacity': 0.5
+      }
+    },
+    {
+      id: 'parcels',
+      url: '/data/parcels/Demo_Parcels.geojson',
+      paint: {
+        'fill-color': '#eee',
+        'fill-opacity': 0.5
+      }
+    }
   ];
 
   // Store reference to map instance (if needed for advanced interactions)
@@ -148,7 +148,6 @@
 
 <template>
   <MglMap
-
     :accessToken="accessToken"
     :mapStyle="style"
     :center="center"
@@ -156,8 +155,8 @@
     @load="onMapLoaded"
   >
     <!-- Controls -->
-    <MglNavigationControl position="top-right" />
-    <MglFullscreenControl position="top-right" />
+    <MglNavigationControl position="bottom-right" />
+    <MglFullscreenControl position="bottom-right" />
     <MglAttributionControl
       position="bottom-right"
       :custom-attribution="'<a href=&quot;https://www.openhistoricalmap.org/&quot; target=&quot;_blank&quot;>OpenHistoricalMap</a>'"
@@ -207,3 +206,76 @@
     <slot></slot>
   </MglMap>
 </template>
+
+<style>
+  .mapboxgl-ctrl-attrib.mapboxgl-compact {
+    right: 0.17rem;
+  }
+
+  .mapboxgl-ctrl-attrib-inner {
+    background-color: var(--gcc-dk-green);
+  }
+
+  .mapboxgl-ctrl, .mapboxgl-ctrl-attrib.mapboxgl-compact {
+    background-color: var(--gcc-dk-green);
+    color: var(--gcc-white);
+  }
+
+  button[class^=mapboxgl-ctrl-] {
+    background-image: none;
+  }
+
+  .mapboxgl-ctrl-group button[class^=mapboxgl-ctrl-] {
+    background-color: var(--gcc-dk-green);
+  }
+
+  .mapboxgl-ctrl button[class^=mapboxgl-ctrl-] span.mapboxgl-ctrl-icon {
+    background-color: var(--gcc-orange);
+    background-image: none;
+  }
+
+  .mapboxgl-ctrl button:not(:disabled):hover .mapboxgl-ctrl-icon, .mapboxgl-ctrl-attrib button.mapboxgl-ctrl-attrib-button:not(:disabled):hover, .mapboxgl-ctrl-attrib.mapboxgl-compact-show .mapboxgl-ctrl-attrib-button {
+    background-color: var(--gcc-map);
+  }
+
+  .mapboxgl-ctrl-fullscreen .mapboxgl-ctrl-icon {
+    --svg:url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' fill='%23333' viewBox='0 0 29 29'><path d='M24 16v5.5c0 1.75-.75 2.5-2.5 2.5H16v-1l3-1.5-4-5.5 1-1 5.5 4 1.5-3h1zM6 16l1.5 3 5.5-4 1 1-4 5.5 3 1.5v1H7.5C5.75 24 5 23.25 5 21.5V16h1zm7-11v1l-3 1.5 4 5.5-1 1-5.5-4L6 13H5V7.5C5 5.75 5.75 5 7.5 5H13zm11 2.5c0-1.75-.75-2.5-2.5-2.5H16v1l3 1.5-4 5.5 1 1 5.5-4 1.5 3h1V7.5z'/></svg>");
+    -webkit-mask: var(--svg);
+    mask: var(--svg);
+  }
+
+  .mapboxgl-ctrl-zoom-in .mapboxgl-ctrl-icon {
+    --svg:url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' fill='%23333' viewBox='0 0 29 29'><path d='M14.5 8.5c-.75 0-1.5.75-1.5 1.5v3h-3c-.75 0-1.5.75-1.5 1.5S9.25 16 10 16h3v3c0 .75.75 1.5 1.5 1.5S16 19.75 16 19v-3h3c.75 0 1.5-.75 1.5-1.5S19.75 13 19 13h-3v-3c0-.75-.75-1.5-1.5-1.5z'/></svg>");
+    -webkit-mask: var(--svg);
+    mask: var(--svg);
+  }
+
+  .mapboxgl-ctrl-zoom-out .mapboxgl-ctrl-icon {
+    --svg:url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' fill='%23333' viewBox='0 0 29 29'><path d='M10 13c-.75 0-1.5.75-1.5 1.5S9.25 16 10 16h9c.75 0 1.5-.75 1.5-1.5S19.75 13 19 13h-9z'/></svg>");
+    -webkit-mask: var(--svg);
+    mask: var(--svg);
+  }
+
+  .mapboxgl-ctrl-compass .mapboxgl-ctrl-icon {
+    --svg:url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' fill='%23333' viewBox='0 0 29 29'><path d='M10.5 14l4-8 4 8h-8z'/><path id='south' d='M10.5 16l4 8 4-8h-8z' fill='%23ccc'/></svg>");
+    -webkit-mask: var(--svg);
+    mask: var(--svg);
+  }
+
+  .mapboxgl-ctrl-attrib-button {
+    background-color: var(--gcc-orange);
+    padding: 0.6rem 0.7rem;
+    --svg: url("data:image/svg+xml;charset=utf-8,<svg viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg' fill-rule='evenodd'><path d='M4 10a6 6 0 1 0 12 0 6 6 0 1 0-12 0m5-3a1 1 0 1 0 2 0 1 1 0 1 0-2 0m0 3a1 1 0 1 1 2 0v3a1 1 0 1 1-2 0'/></svg>");
+    -webkit-mask: var(--svg);
+    mask: var(--svg);
+  }
+
+  .mapboxgl-ctrl-attrib a {
+    color: var(--gcc-white);
+  }
+
+  .mapboxgl-ctrl-bottom-right {
+    bottom: 130px;
+    right: 0px;
+  }
+</style>

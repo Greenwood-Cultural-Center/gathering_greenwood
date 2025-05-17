@@ -41,10 +41,7 @@
     clearResults();
 
     // Reset map zoom and center to default values
-    if (mglMapRef) {
-      mglMapRef.value.resetMap();
-      geoJson.value = null;
-    }
+    resetMap();
   }
 
   function handleGeojson(newGeojson) {
@@ -61,8 +58,16 @@
     }
   }
 
+  function resetMap() {
+    if (mglMapRef) {
+      mglMapRef.value.resetMap();
+      geoJson.value = null;
+    }
+  }
+
   function handleSearch(searchValue) {
     clearResults();
+    resetMap();
     if (resultsPaneRef) {
       resultsPaneRef.value.search(searchValue);
     }
