@@ -11,12 +11,19 @@
     years: {
       type: Array,
       required: true
-    }
+    },
+    onSearch: {
+      type: Function,
+      required: true
+    },
   });
 
   function updateYear(year) {
-    console.warn(`Selected year: ${year}`);
     props.onYearChange(year);
+  }
+
+  function passSearch(searchValue) {
+    props.onSearch(searchValue);
   }
 
 </script>
@@ -24,8 +31,8 @@
 
 <template>
   <div class="year-search-bar">
-    <YearSelector :onYearChange="updateYear" :yearArray="props.years"/>
-    <SearchBar v-model="searchTerm" @search="search" />
+    <YearSelector :onYearChange="props.onYearChange" :yearArray="props.years"/>
+    <SearchBar :onSearch="props.onSearch"/>
   </div>
 </template>
 
