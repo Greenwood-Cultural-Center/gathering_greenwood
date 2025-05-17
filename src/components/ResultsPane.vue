@@ -122,7 +122,7 @@
   .results-pane {
     width: 38vw;
     height: 95vh;
-    background: #fdfdfd;
+    background: var(--gcc-white);
     padding: 1rem;
     color: #333;
     overflow-y: auto;
