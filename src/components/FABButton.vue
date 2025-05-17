@@ -55,7 +55,7 @@ const cssVars = computed(() => ({
       margin: 10px auto 0;
       line-height: 1.15;
       background-color: var(--gcc-dk-green);
-      color: #fff;
+      color: var(--gcc-white);
       opacity: 0;
       visibility: hidden;
       position: relative;
