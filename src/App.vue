@@ -36,9 +36,10 @@
   function resetApp() {
     // Reset app year to default
     updateYear('');
-    if (resultsPaneRef) {
-      resultsPaneRef.value.resetState();
-    }
+
+    // Reset search results
+    clearResults();
+
     // Reset map zoom and center to default values
     if (mglMapRef) {
       mglMapRef.value.resetMap();
@@ -46,19 +47,26 @@
     }
   }
 
-function handleGeojson(newGeojson) {
-  // console.log('Received new geojson:', newGeojson);
-  // if (mglMapRef.value) {
-  //   geoJson.value = newGeojson;
-  //   mglMapRef.value.loadDynamicLayer(newGeojson);
-  // }
-}
-
-function resetMap() {
-  if (mglMapRef.value) {
-    mglMapRef.value.resetMap();
+  function handleGeojson(newGeojson) {
+    // console.log('Received new geojson:', newGeojson);
+    // if (mglMapRef.value) {
+    //   geoJson.value = newGeojson;
+    //   mglMapRef.value.loadDynamicLayer(newGeojson);
+    // }
   }
-}
+
+  function clearResults() {
+    if (resultsPaneRef) {
+      resultsPaneRef.value.resetState();
+    }
+  }
+
+  function handleSearch(searchValue) {
+    clearResults();
+    if (resultsPaneRef) {
+      resultsPaneRef.value.search(searchValue);
+    }
+  }
 
 </script>
 
@@ -70,7 +78,7 @@ function resetMap() {
   </FABMain>
   <!-- YearSelector Component to change year -->
   <YearSearchBar
-    :searchTerm="lastSearch"
+    :onSearch="handleSearch"
     :onYearChange="updateYear"
     :years="years"></YearSearchBar>
 
@@ -100,7 +108,6 @@ function resetMap() {
     ref="resultsPaneRef"
     :year="appYear"
     @update:geojson="handleGeojson"
-    @update:resetMap="resetMap"
     v-model:geoJson="geoJson"
     />
 </template>

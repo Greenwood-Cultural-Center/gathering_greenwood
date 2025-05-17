@@ -2,35 +2,40 @@
 import { ref, watch } from 'vue';
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import LastSearch from './LastSearch.vue'
 
-const model = defineModel();
-const emit = defineEmits(['search']);
+const searchValue = ref({});
 
-const input = ref('');
-const lastSearch = ref('');
-
-watch(input, () => model.value = input.value);
+const props = defineProps({
+  onSearch: {
+    type: Function,
+    required: true
+  }
+});
 
 function doSearch() {
   if (!input.value.trim()) return;
   lastSearch.value = input.value;
-  emit('search', input.value);
+  searchValue.value = {
+    search: input.value,
+    lastSearch: lastSearch.value
+  };
+  props.onSearch(searchValue.value);
 }
 </script>
 
 <template>
-  <div class="search-bar">
+  <div class="search-bar" role="search">
     <span class="input-group">
       <div class="input">
         <input
           v-model="input"
           @keyup.enter="doSearch"
-          type="text"
+          aria-description="search results will appear above"
+          type="search"
           placeholder="Search..."
         />
       </div>
-      <button @click="doSearch">
+      <button @click="doSearch" aria-label="search">
         <FontAwesomeIcon :icon="faMagnifyingGlass" />
       </button>
     </span>
@@ -62,7 +67,7 @@ function doSearch() {
 
     .input input {
       padding: 0.4rem 0.6rem;
-      background-color: #fdfdfd;
+      background-color: var(--gcc-white);
       border-radius: 10px;
       border: none;
       color: var(--gcc-dk-green);
@@ -84,7 +89,10 @@ function doSearch() {
       border: none;
       cursor: pointer;
       color: var(--gcc-orange);
-      font-size: 3rem;
-      padding: 0 0.5rem 0 1.5rem;
+      font-size: 3.5rem;
+      padding: 0px 0.5rem 0 1.5rem;
+      position: relative;
+      top: 10.5px;
+      left: 6px;
     }
 </style>
