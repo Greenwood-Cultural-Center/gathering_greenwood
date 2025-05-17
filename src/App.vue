@@ -77,9 +77,44 @@
 
 <template>
   <FABMain>
-    <FABButton title="Home" :delay=0.3 :icon="['fas', 'house']" />
-    <FABButton title="Help" :delay=0.25 :icon="['fas', 'question']" />
-    <FABButton title="Contrast" :delay=0.2 :icon="['fas', 'circle-half-stroke']" />
+    <FABButton
+      title="Home"
+      :delay=0.3
+      :icon="['fas', 'house']"
+      ariaLabel="reset"
+      ariaDescription="reset map and clear search results"
+      :shadowX=3
+      :shadowY=3
+      :shadowBlurTop=0
+      :shadowBlurBottom=1
+      :shadowWidth=0.5
+      :shadowColor="'#eee'"
+    />
+    <FABButton
+      title="Help"
+      :delay=0.25
+      :icon="['fas', 'question']"
+      ariaLabel="help"
+      ariaDescription="show help video"
+      :shadowX=3
+      :shadowY=3
+      :shadowBlurTop=0
+      :shadowBlurBottom=1
+      :shadowWidth=0.5
+      :shadowColor="'#eee'"
+    />
+    <FABButton
+      title="Contrast"
+      :delay=0.2
+      ariaLabel="contrast mode"
+      ariaDescription="enable high contrast mode"
+      :shadowX=3
+      :shadowY=3
+      :shadowBlurTop=0
+      :shadowBlurBottom=1
+      :shadowWidth=0.5
+      :shadowColor="'#eee'"
+    />
   </FABMain>
   <!-- YearSelector Component to change year -->
   <YearSearchBar
@@ -142,5 +177,8 @@
     cursor: pointer;
     padding: 0;
     color: var(--gcc-lt-green);
+  }
+  .fabInnerButton[title="Contrast"] {
+    background-image: linear-gradient(to right, var(--gcc-dk-green) 50%, var(--gcc-white) 50%);
   }
 </style>

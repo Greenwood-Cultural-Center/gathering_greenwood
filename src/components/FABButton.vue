@@ -19,18 +19,67 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  ariaLabel: {
+    type: String,
+    default: '',
+  },
+  ariaDescription: {
+    type: String,
+    default: '',
+  },
+  shadowX: {
+    type: Number,
+    default: 3,
+  },
+  shadowY: {
+    type: Number,
+    default: 3,
+  },
+  shadowBlurTop: {
+    type: Number,
+    default: 0,
+  },
+  shadowBlurBottom: {
+    type: Number,
+    default: 1,
+  },
+  shadowWidth: {
+    type: Number,
+    default: 0.5,
+  },
+  shadowColor: {
+    type: String,
+    default: '#eee',
+  },
 });
 
 const delayRef = toRef(props, 'delay');
+const shadowXRef = toRef(props, 'shadowX');
+const shadowYRef = toRef(props, 'shadowY');
+const shadowBlurTopRef = toRef(props, 'shadowBlurTop');
+const shadowBlurBottomRef = toRef(props, 'shadowBlurBottom');
+const shadowWidthRef = toRef(props, 'shadowWidth');
+const shadowColorRef = toRef(props, 'shadowColor');
 
 const cssVars = computed(() => ({
   "--transitionDelay": `${delayRef.value}s`,
+  "--x-offset": `${shadowXRef.value}px`,
+  "--x-offset-neg": `-${shadowXRef.value}px`,
+  "--y-offset": `${shadowYRef.value}px`,
+  "--y-offset-neg": `-${shadowYRef.value}px`,
+  "--t-blur": `${shadowBlurTopRef.value}px`,
+  "--b-blur": `${shadowBlurBottomRef.value}px`,
+  "--shadow-width": `${shadowWidthRef.value}px`,
+  "--shadow-color": shadowColorRef.value,
 }));
 
 </script>
 
 <template>
-  <a href="#" :style="{cssVars}" :title="title" class="fabInnerButton"><FontAwesomeIcon :icon="icon" :class="`icon ${iconClass}`" /></a><div :style="{cssVars}" class="fabLabel">{{ title }}</div>
+  <a href="#" :style="cssVars" :title="title" class="fabInnerButton" :aria-label="ariaLabel" role="button" :aria-description="ariaDescription">
+    <FontAwesomeIcon :icon="icon" :class="`icon ${iconClass}`" />
+  </a>
+  <div :style="cssVars" class="fabLabel">{{ title }}</div>
 </template>
 
 <style>
@@ -65,7 +114,8 @@ const cssVars = computed(() => ({
 
   a .icon {
       position: absolute;
-      top: 50%; left: 50%;
+      top: 47%;
+      left: 50%;
       transform: translate(-50%, -50%);
     }
 
@@ -78,7 +128,8 @@ const cssVars = computed(() => ({
     transition: opacity .2s ease-in-out var(--transitionDelay), transform .15s ease-in-out;
     opacity: 0;
     visibility: hidden;
-    text-shadow: 2px 1px 0px #eee
+    -webkit-text-stroke: var(--shadow-width) var(--shadow-color);
+    text-shadow: var(--x-offset) var(--y-offset) var(--t-blur) var(--shadow-color), var(--x-offset-neg) var(--y-offset) var(--t-blur) var(--shadow-color), var(--x-offset-neg) var(--y-offset-neg) var(--b-blur) var(--shadow-color), var(--x-offset) var(--y-offset-neg) var(--b-blur) var(--shadow-color);
   }
 
 </style>

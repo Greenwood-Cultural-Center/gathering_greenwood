@@ -3,8 +3,8 @@
 
 <template>
   <div class="fab">
-    <input type="checkbox" name="fabToggle" class="fabToggle" />
-    <a class="fabButton" href="#!"><img src="/gcc.png" /></a>
+    <input type="checkbox" name="fabToggle" class="fabToggle" aria-label="floating action button" />
+    <a class="fabButton" href="#!"><img src="/gcc.png" alt="Greenwood Cultural Center Icon"/></a>
     <div class="fabButtons">
       <slot></slot>
     </div>
@@ -46,6 +46,7 @@
 
   .fabToggle {
     -webkit-appearance: none;
+    appearance: none;
     position: absolute;
     border-radius: 50%;
     top: 0; left: 0;
