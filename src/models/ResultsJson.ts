@@ -6,29 +6,37 @@ const centuryPrefixes:Array<String> = ["18", "19", "20", "21", "22", "23"];
 class ResultsJson {
   public buildings: Array<any>;
   public people: Array<any>;
+  public census_records: Array<any>;
   public documents: Array<any>;
-  public stories: Array<any>;
   public media: Array<any>;
+  public stories: Array<any>;
   public count: Array<Count>;
 
 
   private constructor(params: {
     buildings: Array<any>;
     people: Array<any>;
+    census_records: Array<any>;
     documents: Array<any>;
-    stories: Array<any>;
     media: Array<any>;
+    stories: Array<any>;
     count: Array<Count>;
   }) {
-    this.buildings = params.buildings;
-    this.people = params.people;
-    this.documents = params.documents;
-    this.stories = params.stories;
-    this.media = params.media;
-    this.count = params.count;
+    this.buildings = params.buildings ?? [];
+    this.people = params.people ?? [];
+    this.census_records = params.census_records ?? [];
+    this.documents = params.documents ?? [];
+    this.stories = params.stories ?? [];
+    this.media = params.media ?? [];
+    this.count = params.count ?? [];
   }
 
   public static fromJson(callback: (response: DetailedResponse) => void, obj: any): void {
+    // Ensure the callback is a function
+    if (typeof callback !== "function") {
+      throw new Error("Callback must be a function");
+    }
+
     // Check if the object is valid and has the expected structure
     if (!obj ||
         !obj.results ||
@@ -47,7 +55,7 @@ class ResultsJson {
 
     // Check if the object has the expected properties
     if (!obj.results.every((result: any) =>
-          result.keys && result.keys().length > 0)) {
+          result && Object.keys(result).length > 0)) {
       var response = new DetailedResponse(
         null,
         null,
@@ -58,8 +66,9 @@ class ResultsJson {
       callback(response);
     }
 
+    // Check if the count object has the expected properties
     if (!obj.count.every((count: any) =>
-          count.keys && count.keys().length > 0)) {
+          count && Object.keys(count).length > 0)) {
       var response = new DetailedResponse(
         null,
         null,
@@ -73,30 +82,38 @@ class ResultsJson {
       // and a count array
       var buildings:Array<any> = [];
       var people:Array<any> = [];
+      var census_records:Array<any> = [];
       var documents:Array<any> = [];
-      var stories:Array<any> = [];
       var media:Array<any> = [];
+      var stories:Array<any> = [];
       var count:Array<Count> = [];
 
-
     // Check if it is the new or old format
-    if (keyIsYear(obj.results[0].keys()[0], centuryPrefixes)) {
+    if (keyIsYear(Object.keys(obj.results[0])[0], centuryPrefixes)) {
       // Iterate through the results and populate the arrays
       // and the count array
       obj.results.map((result) => {
-        let year = result.keys()[0]
+        let year = Object.keys(result)[0]
+        console.log (`year ${year}`);
         let results = result[year]
-        buildings.push(... addYearProp(results.buildings, year));
-        people.push(...addYearProp(results.people, year));
-        documents.push(...addYearProp(results.documents, year));
-        stories.push(...addYearProp(results.stories, year));
-        media.push(...addYearProp(results.media, year));
+        const buildingsArray = results.find(item => item.hasOwnProperty('buildings'))?.buildings;
+        const peopleArray = results.find(item => item.hasOwnProperty('people'))?.people;
+        const censusRecordsArray = results.find(item => item.hasOwnProperty('census_records'))?.census_records;
+        const documentsArray = results.find(item => item.hasOwnProperty('documents'))?.documents;
+        const mediaArray = results.find(item => item.hasOwnProperty('media'))?.media;
+        const storiesArray = results.find(item => item.hasOwnProperty('stories'))?.stories;
+        buildingsArray.length === 0 ? buildings.push(...buildingsArray) : buildings.push(... addYearProp(buildingsArray, year));
+        peopleArray.length === 0 ? people.push(...peopleArray) : people.push(... addYearProp(peopleArray, year));
+        censusRecordsArray.length === 0 ? census_records.push(...censusRecordsArray) : census_records.push(... addYearProp(censusRecordsArray, year));
+        documentsArray.length === 0 ? documents.push(...documentsArray) : documents.push(... addYearProp(documentsArray, year));
+        mediaArray.length === 0 ? media.push(...mediaArray) : media.push(... addYearProp(mediaArray, year));
+        storiesArray.length === 0 ? stories.push(...storiesArray) : stories.push(... addYearProp(storiesArray, year));
       });
 
       // Filter out the "Total", iterate through and populate the count array
       // and add the year property to each count
-      obj.count.filter(year => year.keys()[0] !== "Total").map((yearCount) => {
-        let year = yearCount.keys()[0]
+      obj.count.filter(year => Object.keys(year)[0] !== "Total").map((yearCount) => {
+        let year = Object.keys(yearCount)[0]
         let counts = yearCount[year]
         count.push(Count.JSONToCount(counts, year));
       });
@@ -116,53 +133,76 @@ class ResultsJson {
       obj.results.map((result) => {
         buildings.push(...result.buildings);
         people.push(...result.people);
+        census_records.push(...result.census_records);
         documents.push(...result.documents);
-        stories.push(...result.stories);
         media.push(...result.media);
+        stories.push(...result.stories);
       });
 
       // Filter out the "Total", iterate through and populate the count array
       // and add the year property to each count
-      obj.count.filter(year => year.keys()[0] !== "Total").map((yearCount) => {
+      obj.count.filter(year => Object.keys(year)[0] !== "Total").map((yearCount) => {
         count.push(new Count({
           buildings: yearCount.buildings,
           people: yearCount.people,
+          census_records: yearCount.census_records,
           documents: yearCount.documents,
-          stories: yearCount.stories,
           media: yearCount.media,
+          stories: yearCount.stories,
           year: yearCount.yearCount
         }));
       });
     }
 
-    // Create a new instance of ResultsJson with the populated arrays
-    callback(new DetailedResponse(new ResultsJson({
+    var tempJson = new ResultsJson({
       buildings,
       people,
+      census_records,
       documents,
-      stories,
       media,
+      stories,
       count
-    }),
-    "Success",
-    Status.Success,
-    null,
-    false));
+    });
+
+    console.log(JSON.stringify(tempJson));
+
+    var response = new DetailedResponse(
+      tempJson,
+      "Success",
+      Status.Success,
+      null,
+      false);
+
+    // Create a new instance of ResultsJson with the populated arrays
+    callback(response);
   }
 
   public filterByYear(year: string): ResultsJson {
-    let filteredBuildings = this.buildings.filter((building) => building.year === year);
-    let filteredPeople = this.people.filter((person) => person.year === year);
-    let filteredDocuments = this.documents.filter((document) => document.year === year);
-    let filteredStories = this.stories.filter((story) => story.year === year);
-    let filteredMedia = this.media.filter((media) => media.year === year);
-    let filteredCount = this.count.filter((count) => count.year === year);
+    // Check if the year is valid
+    if (!year || typeof year !== "string") {
+      throw new Error("Invalid year");
+    }
+    // Filter each category by the given year
+    // and return a new ResultsJson object
+    // If the array is empty, return an empty array
+    // and if the year is not found, return an empty array
+    let filteredBuildings = this.buildings.length === 0 ? [] : this.buildings.filter((building) => building.year === year);
+    let filteredPeople = this.people.length === 0 ? [] : this.people.filter((person) => person.year === year);
+    let filteredCensusRecords = this.census_records.length === 0 ? [] : this.census_records.filter((census_record) => census_record.year === year);
+    let filteredDocuments = this.documents.length === 0 ? [] : this.documents.filter((document) => document.year === year);
+    let filteredMedia = this.media.length === 0 ? [] : this.media.filter((media) => media.year === year);
+    let filteredStories = this.stories.length === 0 ? [] : this.stories.filter((story) => story.year === year);
+    let filteredCount = this.count.length === 0 ? [] : this.count.filter((count) => count.year === year);
+
+
+
     return new ResultsJson({
       buildings: filteredBuildings,
       people: filteredPeople,
+      census_records: filteredCensusRecords,
       documents: filteredDocuments,
-      stories: filteredStories,
       media: filteredMedia,
+      stories: filteredStories,
       count: filteredCount
     });
   }
@@ -176,9 +216,10 @@ class ResultsJson {
     this.count.map((count) => {
       totalCount.buildings += count.buildings;
       totalCount.people += count.people;
+      totalCount.census_records += count.census_records;
       totalCount.documents += count.documents;
-      totalCount.stories += count.stories;
       totalCount.media += count.media;
+      totalCount.stories += count.stories;
     });
     totalCount.totalFlag = true;
     return totalCount;
@@ -189,9 +230,10 @@ class ResultsJson {
       obj &&
       Array.isArray(obj.buildings) &&
       Array.isArray(obj.people) &&
+      Array.isArray(obj.census_records) &&
       Array.isArray(obj.documents) &&
-      Array.isArray(obj.stories) &&
       Array.isArray(obj.media) &&
+      Array.isArray(obj.stories) &&
       Array.isArray(obj.count) &&
       obj.count.every((count: any) => Count.isCount(count))
     );
@@ -201,30 +243,33 @@ class ResultsJson {
 class Count {
   public buildings: number;
   public people: number;
+  public census_records: number;
   public documents: number;
-  public stories: number;
   public media: number;
+  public stories: number;
   public year?: string; // Optional property
   public totalFlag: boolean = false;
 
   get total (): number {
-    return this.buildings + this.people + this.documents + this.stories + this.media;
+    return this.buildings + this.people + this.census_records + this.documents + this.media + this.stories;
   };
 
   constructor(params?: {
     buildings: number;
     people: number;
+    census_records: number;
     documents: number;
-    stories: number;
     media: number;
+    stories: number;
     year?: string; // Optional property
     totalFlag?: boolean;
   }) {
     this.buildings = params?.buildings || 0;
     this.people = params?.people || 0;
+    this.census_records = params?.census_records || 0;
     this.documents = params?.documents || 0;
-    this.stories = params?.stories || 0;
     this.media = params?.media || 0;
+    this.stories = params?.stories || 0;
     this.year = params?.year || undefined;
     this.totalFlag = params?.totalFlag || false;
   }
@@ -233,9 +278,10 @@ class Count {
     let count = new Count({
       buildings: jsonCount.buildings,
       people: jsonCount.people,
+      census_records: jsonCount.census_records,
       documents: jsonCount.documents,
-      stories: jsonCount.stories,
       media: jsonCount.media,
+      stories: jsonCount.stories,
       year: year
     });
 
@@ -247,9 +293,10 @@ class Count {
       obj &&
       typeof obj.buildings === "number" &&
       typeof obj.people === "number" &&
+      typeof obj.census_records === "number" &&
       typeof obj.documents === "number" &&
-      typeof obj.stories === "number" &&
       typeof obj.media === "number" &&
+      typeof obj.stories === "number" &&
       (obj.year === undefined || typeof obj.year === "string")
     );
   }

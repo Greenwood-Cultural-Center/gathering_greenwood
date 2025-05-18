@@ -26,17 +26,19 @@ declare namespace ResponseHandler {
   export class ResultsJson {
     public buildings: Array<any>;
     public people: Array<any>;
+    public census_records: Array<any>;
     public documents: Array<any>;
-    public stories: Array<any>;
     public media: Array<any>;
+    public stories: Array<any>;
     public count: Array<Count>;
 
     private constructor(params: {
       buildings: Array<any>;
       people: Array<any>;
+      census_records: Array<any>;
       documents: Array<any>;
-      stories: Array<any>;
       media: Array<any>;
+      stories: Array<any>;
       count: Array<Count>;
     });
     public static fromJson(callback: (response: DetailedResponse) => void, obj: any): void;
@@ -46,9 +48,10 @@ declare namespace ResponseHandler {
   export class Count {
     public buildings: number;
     public people: number;
+    public census_records: number;
     public documents: number;
-    public stories: number;
     public media: number;
+    public stories: number;
     public year?: string; // Optional property
     public totalFlag: boolean;
 
@@ -56,9 +59,10 @@ declare namespace ResponseHandler {
     constructor(params?: {
       buildings: number;
       people: number;
+      census_records: number;
       documents: number;
-      stories: number;
       media: number;
+      stories: number;
       year?: string; // Optional property
       totalFlag?: boolean;
     });
