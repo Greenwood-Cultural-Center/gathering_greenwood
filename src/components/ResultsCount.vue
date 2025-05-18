@@ -18,7 +18,7 @@
 
   const displayItems = computed(() => {
     return Object.entries(props.count)
-      .filter(([_, val]) => val > 0)
+      .filter(([key, val]) => val > 0 && key !== 'year' && key !== 'totalFlag')
       .map(([key, val]) => `${val} ${formatKey(key, val)}`);
   });
 </script>

@@ -29,7 +29,8 @@
   }
 
   const icon = computed(() => {
-    switch (props.category) {
+    console.log(props.category);
+    switch (props.category.toLowerCase()) {
       case 'buildings': return faBuilding;
       case 'people': return faUser;
       case 'documents': return faFileAlt;
