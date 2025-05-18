@@ -1,12 +1,20 @@
 <script setup>
   import { ref, computed, watch, defineExpose } from 'vue';
-  import SearchBar from './SearchBar.vue';
   import ResultsCount from './ResultsCount.vue';
   import SearchResult from './SearchResult.vue';
   import LastSearch from './LastSearch.vue'
+  //import { findObjectByKey } from '../utils/utils.js';
+  import { ResultsJson, ResultsGeoJson, Status, DetailedResponse, Count } from '../utils/ResponseHandler.ts';
 
   const props = defineProps({
-    year: String
+    year: {
+      type: String,
+      required: true
+    },
+    years: {
+      type: Array,
+      required: true
+    }
   });
 
   const loading = ref(false);
@@ -37,7 +45,7 @@
     return key === 'narratives' ? 'Stories' : key.charAt(0).toUpperCase() + key.slice(1).replace('_', ' ');
   }
 
-  const emit = defineEmits(['update:geojson', 'update:results', 'update:resetMap']);
+  const emit = defineEmits(['update:geojson', 'update:results']);
   const backendHost = import.meta.env.VITE_BACKEND_HOST;
   console.log('Backend Host:', backendHost);
   console.log('Backend Host:', import.meta.env.VITE_BACKEND_HOST);
@@ -46,7 +54,10 @@
   const searchTerm = ref('');
   const results = ref([]);
   const count = ref({});
-  const geojson = ref(null);
+  const geojson = ref({});
+
+  const resultsData = ref({});
+  const geoData = ref([]);
 
   function resetState() {
     results.value = [];
@@ -56,37 +67,125 @@
 
   defineExpose({
     resetState,
+    search,
   });
 
-  async function search(searchTerm) {
+  async function search(searchValue) {
     loading.value = true;
 
-    emit('update:resetMap', true);
-    // Reset state BEFORE fetching
-    resetState();
+    if (!searchValue) {
+      console.error('No search value provided');
+      return;
+    }
+
+    searchTerm.value = searchValue.search;
+    lastSearch.value = searchValue.lastSearch;
 
     try {
       const backendHost = import.meta.env.VITE_BACKEND_HOST;
       const [resultsRes, geoJsonRes] = await Promise.all([
-        fetch(`${backendHost}/api/json?search=${searchTerm}&year=${props.year}`),
-        fetch(`${backendHost}/api/search?search=${searchTerm}&year=${props.year}`)
+        fetch(`${backendHost}/api/json?search=${searchTerm}`),
+        fetch(`${backendHost}/api/search?search=${searchTerm}`)
       ]);
 
-      const resultsData = await resultsRes.json();
-      const geoData = await geoJsonRes.json();
+      resultsData.value = await resultsRes.json();
+      geoData.value = await geoJsonRes.json();
 
-      results.value = resultsData.results;
-      count.value = resultsData.count;
+      JsonResponse = ResultsJson.fromJson(resultsData.value);
+      geoJsonResponse = ResultsGeoJson.fromJson(geoData.value);
+
+      if (JsonResponse.status !== Status.Success ||
+          geoJsonResponse.status !== Status.Success ||
+          JsonResponse.isError ||
+          geoJsonResponse.isError) {
+        console.error('Error fetching results:', JsonResponse.errorMessage);
+        return;
+      }
+
+      if (props.year !== '') {
+        filteredJson = JsonResponse.results.filterByYear(props.year);
+        filteredGeoJson = geoJsonResponse.results.filterByYear(props.year);
+        results.value = filteredJson;
+        count.value = filteredJson.count
+        geojson.value = filteredGeoJson;
+      } else {
+        results.value = JsonResponse.results;
+        count.value = JsonResponse.TotalCount();
+        geojson.value = geojsonResponse.results;
+      }
+
+      // if (props.year !== '') {
+      //   filterResultsByYear(props.year);
+      // }
+      // else {
+      //   results.value = mergeSearchResults(resultsData.value.results);
+      //   count.value = getTotals(resultsData.value.count);
+      //   geojson.value = mergeSearchResults(geoData.value)
+      // }
       lastSearch.value = searchTerm;
 
-      emit('update:geojson', geoData);
-      emit('update:results', resultsData);
+      emit('update:geojson', geojson.value);
+      emit('update:results', results.value);
     } catch (err) {
       console.error('Search error:', err);
     } finally {
       loading.value = false;
     }
   }
+
+
+
+  // function filterResultsByYear(year) {
+  //   results.value = filterResultArrayByYear(resultsData.value.results, props.year);
+  //   count.value = filterResultArrayByYear(resultsData.value.count, props.year);
+  //   geojson.value = filterResultArrayByYear(geoData.value, props.year);
+  // }
+
+  // function mergeSearchResults(results) {
+  //   const merged = [];
+  //   const buildings = [];
+  //   const people = [];
+  //   const censusRecords = [];
+  //   const documents = [];
+  //   const media = [];
+  //   const stories = [];
+
+  //   results.forEach((yearResult) => {
+  //     getCategory(yearResult, 'buildings').forEach((building) => {
+  //       buildings.push(building);
+  //     });
+  //     getCategory(yearResult, 'people').forEach((person) => {
+  //       people.push(person);
+  //     });
+  //     getCategory(yearResult, 'census_records').forEach((censusRecord) => {
+  //       censusRecords.push(censusRecord);
+  //     });
+  //     getCategory(yearResult, 'documents').forEach((document) => {
+  //       documents.push(document);
+  //     });
+  //     getCategory(yearResult, 'media').forEach((mediaItem) => {
+  //       media.push(mediaItem);
+  //     });
+  //     getCategory(yearResult, 'stories').forEach((story) => {
+  //       stories.push(story);
+  //     });
+  //   });
+
+  //   results.value = merged;
+  // }
+
+  // function getCategory(result, key) {
+  //   return findObjectByKey(result, key);
+  // }
+
+  // function filterResultArrayByYear(results, year) {
+  //   return findObjectByKey(results, year)
+  // }
+
+  // function getTotals(count) {
+  //   return findObjectByKey(count, "Total")
+  // }
+
 </script>
 
 <template>

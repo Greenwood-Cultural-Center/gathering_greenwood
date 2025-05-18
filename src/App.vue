@@ -146,6 +146,7 @@
     @update:results="handleResults"-->
   <ResultsPane
     ref="resultsPaneRef"
+    :years="years"
     :year="appYear"
     @update:geojson="handleGeojson"
     v-model:geoJson="geoJson"
