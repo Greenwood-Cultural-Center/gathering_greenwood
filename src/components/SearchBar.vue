@@ -4,6 +4,8 @@ import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 const searchValue = ref({});
+const input = ref('');
+const lastSearch = ref('');
 
 const props = defineProps({
   onSearch: {
@@ -14,11 +16,11 @@ const props = defineProps({
 
 function doSearch() {
   if (!input.value.trim()) return;
-  lastSearch.value = input.value;
   searchValue.value = {
     search: input.value,
     lastSearch: lastSearch.value
   };
+  lastSearch.value = input.value;
   props.onSearch(searchValue.value);
 }
 </script>

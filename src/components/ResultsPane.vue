@@ -20,36 +20,13 @@
   const loading = ref(false);
   const lastSearch = ref('');
 
-  const categoryOrder = [
-    'buildings',
-    'people',
-    'census_records',
-    'documents',
-    'media',
-    'stories'
-  ];
-
-  const orderedResults = computed(() => {
-    return categoryOrder
-      .map((key) => {
-        const group = results.value.find((group) => group[key]);
-        if (group && Array.isArray(group[key]) && group[key].length > 0) {
-          return group;
-        }
-        return null;
-      })
-      .filter(Boolean);
-  });
-
   function formatCategory(key) {
+    //var key = Object.keys(results.value)[index];
     return key === 'narratives' ? 'Stories' : key.charAt(0).toUpperCase() + key.slice(1).replace('_', ' ');
   }
 
   const emit = defineEmits(['update:geojson', 'update:results']);
   const backendHost = import.meta.env.VITE_BACKEND_HOST;
-  console.log('Backend Host:', backendHost);
-  console.log('Backend Host:', import.meta.env.VITE_BACKEND_HOST);
-  console.log('Year:', props.year);
 
   const searchTerm = ref('');
   const results = ref([]);
@@ -58,6 +35,8 @@
 
   const resultsData = ref({});
   const geoData = ref([]);
+
+  const stringResults = ref('');
 
   function resetState() {
     results.value = [];
@@ -82,17 +61,35 @@
     lastSearch.value = searchValue.lastSearch;
 
     try {
-      const backendHost = import.meta.env.VITE_BACKEND_HOST;
       const [resultsRes, geoJsonRes] = await Promise.all([
-        fetch(`${backendHost}/api/json?search=${searchTerm}`),
-        fetch(`${backendHost}/api/search?search=${searchTerm}`)
+        fetch(`${backendHost}/api/json?search=${searchTerm.value}`),
+        fetch(`${backendHost}/api/search?search=${searchTerm.value}`)
       ]);
 
       resultsData.value = await resultsRes.json();
       geoData.value = await geoJsonRes.json();
 
-      JsonResponse = ResultsJson.fromJson(resultsData.value);
-      geoJsonResponse = ResultsGeoJson.fromJson(geoData.value);
+      console.log(`Json ${JSON.stringify(resultsData.value)}`);
+
+      var JsonResponse = new DetailedResponse();
+      var geoJsonResponse = new DetailedResponse();
+
+      ResultsJson.fromJson((response) => {
+        if (response.status === Status.Success) {
+          console.log("ResultsJson created successfully:", response.results);
+          JsonResponse = response;
+        } else {
+          console.error("Error:", response.error || response.message);
+        }
+      },resultsData.value)
+      ResultsGeoJson.fromJson((response) => {
+        if (response.status === Status.Success) {
+          console.log("ResultsGeoJson created successfully:", response.results);
+          geoJsonResponse = response;
+        } else {
+          console.error("Error:", response.error || response.message);
+        }
+      },geoData.value);
 
       if (JsonResponse.status !== Status.Success ||
           geoJsonResponse.status !== Status.Success ||
@@ -110,18 +107,9 @@
         geojson.value = filteredGeoJson;
       } else {
         results.value = JsonResponse.results;
-        count.value = JsonResponse.TotalCount();
-        geojson.value = geojsonResponse.results;
+        count.value = JsonResponse.results.TotalCount();
+        geojson.value = geoJsonResponse.results;
       }
-
-      // if (props.year !== '') {
-      //   filterResultsByYear(props.year);
-      // }
-      // else {
-      //   results.value = mergeSearchResults(resultsData.value.results);
-      //   count.value = getTotals(resultsData.value.count);
-      //   geojson.value = mergeSearchResults(geoData.value)
-      // }
       lastSearch.value = searchTerm;
 
       emit('update:geojson', geojson.value);
@@ -131,61 +119,13 @@
     } finally {
       loading.value = false;
     }
+
+    stringResults.value = JSON.stringify(results.value, null, 2);
+
+    console.log('Stringified results:', stringResults.value);
+
+    console.log('Search results:', results.value);
   }
-
-
-
-  // function filterResultsByYear(year) {
-  //   results.value = filterResultArrayByYear(resultsData.value.results, props.year);
-  //   count.value = filterResultArrayByYear(resultsData.value.count, props.year);
-  //   geojson.value = filterResultArrayByYear(geoData.value, props.year);
-  // }
-
-  // function mergeSearchResults(results) {
-  //   const merged = [];
-  //   const buildings = [];
-  //   const people = [];
-  //   const censusRecords = [];
-  //   const documents = [];
-  //   const media = [];
-  //   const stories = [];
-
-  //   results.forEach((yearResult) => {
-  //     getCategory(yearResult, 'buildings').forEach((building) => {
-  //       buildings.push(building);
-  //     });
-  //     getCategory(yearResult, 'people').forEach((person) => {
-  //       people.push(person);
-  //     });
-  //     getCategory(yearResult, 'census_records').forEach((censusRecord) => {
-  //       censusRecords.push(censusRecord);
-  //     });
-  //     getCategory(yearResult, 'documents').forEach((document) => {
-  //       documents.push(document);
-  //     });
-  //     getCategory(yearResult, 'media').forEach((mediaItem) => {
-  //       media.push(mediaItem);
-  //     });
-  //     getCategory(yearResult, 'stories').forEach((story) => {
-  //       stories.push(story);
-  //     });
-  //   });
-
-  //   results.value = merged;
-  // }
-
-  // function getCategory(result, key) {
-  //   return findObjectByKey(result, key);
-  // }
-
-  // function filterResultArrayByYear(results, year) {
-  //   return findObjectByKey(results, year)
-  // }
-
-  // function getTotals(count) {
-  //   return findObjectByKey(count, "Total")
-  // }
-
 </script>
 
 <template>
@@ -199,21 +139,22 @@
     <ResultsCount :count="count" />
 
     <div class="results-list">
-      <template v-for="categoryGroup in orderedResults" :key="Object.keys(categoryGroup)[0]">
+
+      <!-- Iterate through the properties of the object -->
+      <template v-for="(category) in Object.keys(results).filter((key) => key !== 'count' && results[key].length > 0)" :key="category">
+        <!-- Output the property name -->
         <div class="result-category">
           <h4 class="category-title">
-            {{ formatCategory(Object.keys(categoryGroup)[0]) }}
+            {{ formatCategory(category) }}
           </h4>
-          <SearchResult
-            v-for="item in categoryGroup[Object.keys(categoryGroup)[0]]"
-            :key="item?.id || item?.name || item?.description || item?.story?.name"
-            :item="item"
-            :category="Object.keys(categoryGroup)[0]"
-          />
         </div>
+        <SearchResult
+          v-for="item in results[category]"
+          :key="item?.id || item?.name || item?.description || item?.story?.name"
+          :item="item"
+          :category="category"/>
       </template>
     </div>
-    <!-- <SearchBar v-model="searchTerm" @search="search" /> -->
   </div>
 </template>
 
@@ -224,15 +165,15 @@
     background: var(--gcc-white);
     padding: 1rem;
     color: #333;
-    overflow-y: auto;
+    overflow-y: none;
     border-left: var(--gcc-dk-green) .2rem solid;
   }
 
   .results-list {
     margin-top: 1rem;
     padding: 0.5rem;
+    height: 78%;
     overflow-y: scroll;
-    scrollbar-color: var(--gcc-dk-green) var(--gcc-lt-green);
     border-radius: 0.5rem;
   }
 
@@ -263,34 +204,62 @@
   }
 
     /* width */
-  ::-webkit-scrollbar {
-    width: 20rem;
+  div.results-list::-webkit-scrollbar {
+    width: 6rem;
   }
 
   /* Track */
-  ::-webkit-scrollbar-track {
+  div.results-list::-webkit-scrollbar-track {
     box-shadow: inset 0 0 5px grey;
     border-radius: 10px;
   }
 
-  ::-webkit-scrollbar-button {
-    background: #e0e0e0;
-    height: 25px;
-    width: 20rem;
+  div.results-list::-webkit-scrollbar-button {
+    height: 7rem;
+    width: 5rem;
+    /* Set the font and weight for this icon style */
+    font: var(--fa-font-solid);
+    /* Make sure icons render pixel-perfect */
+    -webkit-font-smoothing: antialiased;
+    border-radius:10px;
+    background-color: #bcbcbc;
   }
 
-  ::-webkit-scrollbar-button:hover {
+  div.results-list::-webkit-scrollbar-button:vertical {
+  }
+
+  div.results-list::-webkit-scrollbar-button:vertical:decrement {
+    background-position: center;
+    background-repeat: no-repeat;
+    background-clip: content-box;
+    border-bottom: 1rem solid transparent;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path fill="%23EEEEEE" d="M182.6 137.4c-12.5-12.5-32.8-12.5-45.3 0l-128 128c-9.2 9.2-11.9 22.9-6.9 34.9s16.6 19.8 29.6 19.8l256 0c12.9 0 24.6-7.8 29.6-19.8s2.2-25.7-6.9-34.9l-128-128z"/></svg>');
+  }
+
+  div.results-list::-webkit-scrollbar-button:vertical:increment {
+    background-position: center;
+    background-repeat: no-repeat;
+    background-clip: content-box;
+    border-top: 1rem solid transparent;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path fill="%23EEEEEE" d="M137.4 374.6c12.5 12.5 32.8 12.5 45.3 0l128-128c9.2-9.2 11.9-22.9 6.9-34.9s-16.6-19.8-29.6-19.8L32 192c-12.9 0-24.6 7.8-29.6 19.8s-2.2 25.7 6.9 34.9l128 128z"/></svg>');
+  }
+
+  div.results-list::-webkit-scrollbar-button:hover {
     background: #233e27;
   }
 
   /* Handle */
-  ::-webkit-scrollbar-thumb {
+  div.results-list::-webkit-scrollbar-thumb {
     background: #666;
     border-radius: 10px;
   }
 
   /* Handle on hover */
-  ::-webkit-scrollbar-thumb:hover {
+  div.results-list::-webkit-scrollbar-thumb:hover {
     background: #333;
   }
 
