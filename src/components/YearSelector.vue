@@ -1,3 +1,72 @@
+<script setup>
+import { defineProps, ref } from 'vue';
+
+// Props
+const props = defineProps({
+  onYearChange: {
+    type: Function,
+    required: true
+  },
+  yearArray: {
+    type: Array,
+    required: true
+  }
+});
+
+const years = props.yearArray;
+
+const firstYear = years[0].year;
+const lastYear = years[years.length - 1].year;
+
+years.forEach((year, index) => {
+  year.d = year.year.slice(2, 3);
+  year.y = year.year.slice(3, 4);
+  year.c = year.year.slice(0, 2);
+  year.inputid = `input-${index + 1}`;
+  year.labelid = `label-${index + 1}`;
+  year.dclass = `d-${index + 1}`;
+  year.yclass = `y-${index + 1}`;
+  year.cclass = `c-${index + 1}`;
+  year.value = year.year;
+});
+
+years.push(
+  { year: `${firstYear} - ${lastYear}`,
+    c: '',
+    d: '',
+    y: '',
+    inputid: `input-${years.length + 1}`,
+    labelid: `label-${years.length + 1}`,
+    dclass: `d-${years.length + 1}`,
+    yclass: `y-${years.length + 1}`,
+    cclass: `c-${years.length + 1}`,
+    value: ''
+  });
+
+// Show fancy year selector
+
+const showfancy = ref(false);
+
+const clickedElement = ref(null);
+
+// Function to set the year
+function setYear(year, event) {
+  // Remove the class from the previously clicked element
+  if (clickedElement.value) {
+    clickedElement.value.removeAttribute('checked');
+  }
+
+  // Store the clicked element
+  clickedElement.value = event.target;
+
+  // Add a class to the clicked element
+  clickedElement.value.setAttribute('checked', '');
+
+  // Call the function passed from the parent to set the year
+  props.onYearChange(year);
+}
+</script>
+
 <template>
     <div class="year-selector">
       <input v-for="year in years" type="radio" name="year" :id="year.inputid" :value="year.value" @change="setYear($event.target.value, $event)"/>
@@ -23,75 +92,6 @@
       <button @click="setYear('1920', $event)">1920</button>-->
     </div>
   </template>
-
-  <script setup>
-  import { defineProps, ref } from 'vue';
-
-  // Props
-  const props = defineProps({
-    onYearChange: {
-      type: Function,
-      required: true
-    },
-    yearArray: {
-      type: Array,
-      required: true
-    }
-  });
-
-  const years = props.yearArray;
-
-  const firstYear = years[0].year;
-  const lastYear = years[years.length - 1].year;
-
-  years.forEach((year, index) => {
-    year.d = year.year.slice(2, 3);
-    year.y = year.year.slice(3, 4);
-    year.c = year.year.slice(0, 2);
-    year.inputid = `input-${index + 1}`;
-    year.labelid = `label-${index + 1}`;
-    year.dclass = `d-${index + 1}`;
-    year.yclass = `y-${index + 1}`;
-    year.cclass = `c-${index + 1}`;
-    year.value = year.year;
-  });
-
-  years.push(
-    { year: `${firstYear} - ${lastYear}`,
-      c: '',
-      d: '',
-      y: '',
-      inputid: `input-${years.length + 1}`,
-      labelid: `label-${years.length + 1}`,
-      dclass: `d-${years.length + 1}`,
-      yclass: `y-${years.length + 1}`,
-      cclass: `c-${years.length + 1}`,
-      value: ''
-    });
-
-  // Show fancy year selector
-
-  const showfancy = ref(false);
-
-  const clickedElement = ref(null);
-
-  // Function to set the year
-  function setYear(year, event) {
-    // Remove the class from the previously clicked element
-    if (clickedElement.value) {
-      clickedElement.value.removeAttribute('checked');
-    }
-
-    // Store the clicked element
-    clickedElement.value = event.target;
-
-    // Add a class to the clicked element
-    clickedElement.value.setAttribute('checked', '');
-
-    // Call the function passed from the parent to set the year
-    props.onYearChange(year);
-  }
-  </script>
 
   <style scoped>
   .year-selector {
