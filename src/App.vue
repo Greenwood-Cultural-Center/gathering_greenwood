@@ -24,6 +24,12 @@
     { year: '1920', date: '1920-01-02' }
   ];
 
+  const fabButtons = [
+    { title: 'Home', icon: ['fas', 'house'], ariaLabel: 'reset', ariaDescription: 'reset map and clear search results' },
+    { title: 'Help', icon: ['fas', 'question'], ariaLabel: 'help', ariaDescription: 'show help video' },
+    { title: 'Contrast', icon: ['fas', 'contrast'], ariaLabel: 'contrast mode', ariaDescription: 'enable high contrast mode' }
+  ];
+
   // Map and ResultsPane ref
   const mglMapRef = ref(null);
   const resultsPaneRef = ref(null);
@@ -78,43 +84,18 @@
 <template>
   <FABMain>
     <FABButton
-      title="Home"
-      :delay=0.3
-      :icon="['fas', 'house']"
-      ariaLabel="reset"
-      ariaDescription="reset map and clear search results"
+      v-for="(button, index) in fabButtons"
+      :title=button.title
+      :delay="0.3 - (index * 0.05)"
+      :icon=button.icon
+      :ariaLabel=button.ariaLabel
+      :ariaDescription=button.ariaDescription
       :shadowX=3
       :shadowY=3
       :shadowBlurTop=0
       :shadowBlurBottom=1
       :shadowWidth=0.5
-      :shadowColor="'#eee'"
-    />
-    <FABButton
-      title="Help"
-      :delay=0.25
-      :icon="['fas', 'question']"
-      ariaLabel="help"
-      ariaDescription="show help video"
-      :shadowX=3
-      :shadowY=3
-      :shadowBlurTop=0
-      :shadowBlurBottom=1
-      :shadowWidth=0.5
-      :shadowColor="'#eee'"
-    />
-    <FABButton
-      title="Contrast"
-      :delay=0.2
-      ariaLabel="contrast mode"
-      ariaDescription="enable high contrast mode"
-      :shadowX=3
-      :shadowY=3
-      :shadowBlurTop=0
-      :shadowBlurBottom=1
-      :shadowWidth=0.5
-      :shadowColor="'#eee'"
-    />
+      :shadowColor="'#eee'"/>
   </FABMain>
   <!-- YearSelector Component to change year -->
   <YearSearchBar
