@@ -35,7 +35,7 @@ class ResultsGeoJson {
 
     // Check if the object has the expected properties
     if (!obj.every((result: any) =>
-          (result.keys && ( result.keys().length > 0 && result.keys().length <= 2 )) ||
+          (result.keys && ( Object.keys(result).length > 0 && Object.keys(result).length <= 2 )) ||
           result.features && result.features.length > 0)) {
       var response = new DetailedResponse(
         null,
@@ -47,32 +47,23 @@ class ResultsGeoJson {
       callback(response);
     }
 
-    if (!obj.count.every((count: any) =>
-          count.keys && count.keys().length > 0)) {
-      var response = new DetailedResponse(
-        null,
-        null,
-        Status.Error,
-        new Error("Invalid count format"),
-        true
-      );
-      callback(response);
-    }
-
     // Create the vars to hold the results
     let type:string = "";
     let features: Array<Feature> = [];
 
 
     // Check if it is the new or old format
-    if (keyIsYear(obj[0].keys()[0], centuryPrefixes)) {
+    if (keyIsYear(Object.keys(obj[0])[0], centuryPrefixes)) {
       // Iterate through the results and populate the arrays
       // and the count array
       obj.map((result) => {
-        let year = result.keys()[0]
+        let year = Object.keys(result)[0]
         let results = result[year]
         type = results.type;
         results.features.map((feature: any) => {
+          if (feature === undefined || !feature) {
+            return;
+          }
           let featureType = feature.type;
           let geometry = feature.geometry;
           feature.properties.year = year;
@@ -113,10 +104,8 @@ class ResultsGeoJson {
   }
 
   public filterByYear(year: string): ResultsGeoJson {
-    const filteredFeatures = this.features.filter((feature) => {
-      return feature.properties.year === year;
-    }
-    );
+    const filteredFeatures = this.features.length === 0 ? [] : this.features.filter((feature) => feature.properties.year === year);
+
     return new ResultsGeoJson({
       type: this.type,
       features: filteredFeatures

@@ -19,6 +19,7 @@ class DetailedResponse {
     status: Status,
     errorMessage: Error | null,
     isError: Boolean) {
+    this.results = results;
     this.message = message;
     this.status = status;
     this.errorMessage = errorMessage;
