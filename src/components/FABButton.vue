@@ -8,7 +8,7 @@ const props = defineProps({
     required: true,
   },
   icon: {
-    type: Array,
+    type: [Array, String],
     required: true,
   },
   delay: {
@@ -50,7 +50,7 @@ const props = defineProps({
   shadowColor: {
     type: String,
     default: '#eee',
-  },
+  }
 });
 
 const delayRef = toRef(props, 'delay');
@@ -73,11 +73,15 @@ const cssVars = computed(() => ({
   "--shadow-color": shadowColorRef.value,
 }));
 
+const iconPresent = computed(() => {
+  return (props.icon !== '' && props.icon !== undefined) && (props.icon !== null) || props.iconClass !== '';
+});
+
 </script>
 
 <template>
-  <a href="#" :style="cssVars" :title="title" class="fabInnerButton" :aria-label="ariaLabel" role="button" :aria-description="ariaDescription">
-    <FontAwesomeIcon :icon="icon" :class="`icon ${iconClass}`" />
+  <a href="#" :style="cssVars" :title="title" class="fabInnerButton" :aria-label="ariaLabel" role="button" :aria-description="ariaDescription" data-index="dataIndex">
+    <FontAwesomeIcon v-if="iconPresent" :icon="icon" :class="`icon ${iconClass}`" />
   </a>
   <div :style="cssVars" class="fabLabel">{{ title }}</div>
 </template>
@@ -90,6 +94,16 @@ const cssVars = computed(() => ({
 
 .fabLabel {
   --transitionDelay: v-bind(cssVars['--transitionDelay']);
+}
+
+.fabToggle:checked ~ .fabButtons a {
+  opacity: 1;
+  visibility: visible;
+}
+
+.fabToggle:checked ~ .fabButtons .fabLabel {
+  opacity: 1;
+  visibility: visible;
 }
 </style>
 

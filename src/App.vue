@@ -21,10 +21,10 @@
     { year: '1920', date: '1920-01-02' }
   ];
 
-  const fabButtons = [
+  const fabButtonCustomProps = [
     { title: 'Home', icon: ['fas', 'house'], ariaLabel: 'reset', ariaDescription: 'reset map and clear search results' },
     { title: 'Help', icon: ['fas', 'question'], ariaLabel: 'help', ariaDescription: 'show help video' },
-    { title: 'Contrast', icon: ['fas', 'contrast'], ariaLabel: 'contrast mode', ariaDescription: 'enable high contrast mode' }
+    { title: 'Contrast', icon:'', ariaLabel: 'contrast mode', ariaDescription: 'enable high contrast mode' }
   ];
 
   // Map and ResultsPane ref
@@ -74,23 +74,32 @@
     }
   }
 
+  const createFabButtonProps = computed(() => {
+    var fabButtons = [];
+
+    fabButtonCustomProps.map((button, index) => (
+      fabButtons.push({
+        title: button.title,
+        icon: button.icon,
+        delay: 0.3 - (index * 0.05),
+        ariaLabel: button.ariaLabel,
+        ariaDescription: button.ariaDescription,
+        shadowX: 3,
+        shadowY: 3,
+        shadowBlurTop: 0,
+        shadowBlurBottom: 1,
+        shadowWidth: 0.5,
+        shadowColor: '#eee'})
+    ));
+    return fabButtons;
+  });
 </script>
 
 <template>
   <FABMain>
-    <FABButton
-      v-for="(button, index) in fabButtons"
-      :title=button.title
-      :delay="0.3 - (index * 0.05)"
-      :icon=button.icon
-      :ariaLabel=button.ariaLabel
-      :ariaDescription=button.ariaDescription
-      :shadowX=3
-      :shadowY=3
-      :shadowBlurTop=0
-      :shadowBlurBottom=1
-      :shadowWidth=0.5
-      :shadowColor="'#eee'"/>
+    <FABButton v-for="(item, index) in createFabButtonProps" v-bind="item" :key="index">
+    </FABButton>
+
   </FABMain>
   <!-- YearSelector Component to change year -->
   <YearSearchBar
