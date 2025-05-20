@@ -97,3 +97,5 @@ declare namespace ResponseHandler {
     constructor(type: string, coordinates: Array<string>);
   }
 }
+
+export default ResponseHandler;

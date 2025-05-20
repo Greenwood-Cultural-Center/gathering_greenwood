@@ -1,8 +1,5 @@
-import { keyIsYear } from "../utils/utils";
+import utils from "../utils/utils";
 import { Status, DetailedResponse } from "../utils/DetailedResponse";
-
-const centuryPrefixes:Array<String> = ["18", "19", "20", "21", "22", "23"];
-
 class ResultsGeoJson {
   public type: string;
   public features: Array<Feature>;
@@ -53,7 +50,7 @@ class ResultsGeoJson {
 
 
     // Check if it is the new or old format
-    if (keyIsYear(Object.keys(obj[0])[0], centuryPrefixes)) {
+    if (utils.isYear(Object.keys(obj[0])[0])) {
       // Iterate through the results and populate the arrays
       // and the count array
       obj.map((result) => {
