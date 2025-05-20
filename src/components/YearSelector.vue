@@ -1,5 +1,7 @@
 <script setup>
-import { defineProps, ref } from 'vue';
+import { defineProps, ref, onMounted, onBeforeMount } from 'vue';
+import utils from '../utils/utils.js';
+import objectHash from 'object-hash';
 
 // Props
 const props = defineProps({
@@ -18,20 +20,25 @@ const years = props.yearArray;
 const firstYear = years[0].year;
 const lastYear = years[years.length - 1].year;
 
-years.forEach((year, index) => {
-  year.d = year.year.slice(2, 3);
-  year.y = year.year.slice(3, 4);
-  year.c = year.year.slice(0, 2);
-  year.inputid = `input-${index + 1}`;
-  year.labelid = `label-${index + 1}`;
-  year.dclass = `d-${index + 1}`;
-  year.yclass = `y-${index + 1}`;
-  year.cclass = `c-${index + 1}`;
-  year.value = year.year;
-});
+function buildYears() {
+  years.forEach(async (year, index) => {
+    year.d = year.year.slice(2, 3);
+    year.y = year.year.slice(3, 4);
+    year.c = year.year.slice(0, 2);
+    year.inputid = `input-${index + 1}`;
+    year.labelid = `label-${index + 1}`;
+    year.dclass = `d-${index + 1}`;
+    year.yclass = `y-${index + 1}`;
+    year.cclass = `c-${index + 1}`;
+    year.value = year.year;
+  });
 
-years.push(
-  { year: `${firstYear} - ${lastYear}`,
+  years.map((year, index) => {
+    year.key = objectHash(year);
+  });
+
+  years.push({
+    year: `${firstYear} - ${lastYear}`,
     c: '',
     d: '',
     y: '',
@@ -40,27 +47,55 @@ years.push(
     dclass: `d-${years.length + 1}`,
     yclass: `y-${years.length + 1}`,
     cclass: `c-${years.length + 1}`,
-    value: ''
+    value: '',
+    key: objectHash({
+      year: `${firstYear} - ${lastYear}`,
+      c: '',
+      d: '',
+      y: '',
+      inputid: `input-${years.length + 1}`,
+      labelid: `label-${years.length + 1}`,
+      dclass: `d-${years.length + 1}`,
+      yclass: `y-${years.length + 1}`,
+      cclass: `c-${years.length + 1}`,
+      value: ''
+    })
   });
+}
 
 // Show fancy year selector
-
 const showfancy = ref(false);
 
 const clickedElement = ref(null);
 
+onBeforeMount(() => {
+  buildYears();console.log(years);
+}),
+
+onMounted(() => {
+  // Set the default year to the last year in the array
+  const defaultYear = years[years.length - 1].value;
+  var selector = `input[value="${defaultYear}"]`;
+  var el = document.querySelector(selector);
+  setYear(defaultYear, { target: el });
+});
+
 // Function to set the year
 function setYear(year, event) {
-  // Remove the class from the previously clicked element
-  if (clickedElement.value) {
-    clickedElement.value.removeAttribute('checked');
-  }
 
   // Store the clicked element
   clickedElement.value = event.target;
 
+  // Remove the class from the previously clicked element
+  if (clickedElement.value) {
+    clickedElement.value.removeAttribute('checked');
+    document.querySelector(`label[for="${clickedElement.value.id}"]`).classList.remove('selected');
+  }
+
   // Add a class to the clicked element
   clickedElement.value.setAttribute('checked', '');
+
+  document.querySelector(`label[for="${clickedElement.value.id}"]`).classList.add('selected');
 
   // Call the function passed from the parent to set the year
   props.onYearChange(year);
@@ -69,7 +104,7 @@ function setYear(year, event) {
 
 <template>
     <div class="year-selector">
-      <input v-for="year in years" type="radio" name="year" :id="year.inputid" :value="year.value" @change="setYear($event.target.value, $event)"/>
+      <input v-for="year in years" type="radio" name="year" :id="year.inputid" :value="year.value" :key="year.key" @change="setYear($event.target.value, $event)"></input>
       <div class="content">
         <div v-if="showfancy" class="maps-date">
           <div class="map-date d d-1">1</div>
@@ -81,15 +116,10 @@ function setYear(year, event) {
           <div class="map-date c c-3"></div>
         </div>
         <div class="timeline">
-          <label class="timeline-dot" v-for="year in years" :for="year.inputid"><span :id="year.labelid">{{ year.year }}</span></label>
-          <!--<label class="timeline-dot" for="input-1"><span id="label-1">1910</span></label>
-          <label class="timeline-dot" for="input-2"><span id="label-2">1920</span></label>
-          <label class="timeline-dot" for="input-3"><span id="label-3">1910-1920</span></label>-->
+          <label class="timeline-dot" v-for="year in years" :for="year.inputid"><span v-if="!showfancy" :id="year.labelid" :key="year.key" >{{ year.year }}</span></label>
           <div class="timeline-line"></div>
         </div>
       </div>
-      <!--<button @click="setYear('1910', $event)">1910</button>`
-      <button @click="setYear('1920', $event)">1920</button>-->
     </div>
   </template>
 
@@ -162,6 +192,14 @@ function setYear(year, event) {
     font-family: Righteous;
     font-size: 3.3rem;
     transition: 350ms ease all;
+  }
+
+  label:not(.selected) span {
+    color:#666;
+  }
+
+  label.selected span {
+    color: var(--gcc-white);
   }
 
   label:not(:last-of-type) span {
