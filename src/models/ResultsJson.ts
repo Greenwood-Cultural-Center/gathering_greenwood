@@ -94,20 +94,19 @@ class ResultsJson {
       // and the count array
       obj.results.map((result) => {
         let year = Object.keys(result)[0]
-        console.log (`year ${year}`);
         let results = result[year]
         const buildingsArray = results.find(item => item.hasOwnProperty('buildings'))?.buildings;
         const peopleArray = results.find(item => item.hasOwnProperty('people'))?.people;
-        const censusRecordsArray = results.find(item => item.hasOwnProperty('census_records'))?.census_records;
-        const documentsArray = results.find(item => item.hasOwnProperty('documents'))?.documents;
+        const censusRecordsArray = results.find(item => item.hasOwnProperty('documents'))?.documents.filter(item => item.category === "Census Records");
+        const documentsArray = results.find(item => item.hasOwnProperty('documents'))?.documents.filter(item => item.category !== "Census Records");
         const mediaArray = results.find(item => item.hasOwnProperty('media'))?.media;
         const storiesArray = results.find(item => item.hasOwnProperty('stories'))?.stories;
-        buildingsArray.length === 0 ? buildings.push(...buildingsArray) : buildings.push(... addYearProp(buildingsArray, year));
-        peopleArray.length === 0 ? people.push(...peopleArray) : people.push(... addYearProp(peopleArray, year));
-        censusRecordsArray.length === 0 ? census_records.push(...censusRecordsArray) : census_records.push(... addYearProp(censusRecordsArray, year));
-        documentsArray.length === 0 ? documents.push(...documentsArray) : documents.push(... addYearProp(documentsArray, year));
-        mediaArray.length === 0 ? media.push(...mediaArray) : media.push(... addYearProp(mediaArray, year));
-        storiesArray.length === 0 ? stories.push(...storiesArray) : stories.push(... addYearProp(storiesArray, year));
+        buildingsArray ? buildingsArray === undefined || buildingsArray.length === 0 ? buildings.push(...buildingsArray) : buildings.push(... addYearProp(buildingsArray, year)) : false;
+        peopleArray ? peopleArray === undefined || peopleArray.length === 0 ? people.push(...peopleArray) : people.push(... addYearProp(peopleArray, year)) : false;
+        censusRecordsArray ? censusRecordsArray === undefined || censusRecordsArray.length === 0 ? census_records.push(...censusRecordsArray) : census_records.push(... addYearProp(censusRecordsArray, year)) : false;
+        documentsArray ? documentsArray === undefined || documentsArray.length === 0 ? documents.push(...documentsArray) : documents.push(... addYearProp(documentsArray, year)) : false;
+        mediaArray ? mediaArray === undefined || mediaArray.length === 0 ? media.push(...mediaArray) : media.push(... addYearProp(mediaArray, year)) : false;
+        storiesArray ? storiesArray === undefined || storiesArray.length === 0 ? stories.push(...storiesArray) : stories.push(... addYearProp(storiesArray, year)) : false;
       });
 
       // Filter out the "Total", iterate through and populate the count array
@@ -133,8 +132,8 @@ class ResultsJson {
       obj.results.map((result) => {
         buildings.push(...result.buildings);
         people.push(...result.people);
-        census_records.push(...result.census_records);
-        documents.push(...result.documents);
+        census_records.push(...result.documents.filter(item => item.category === "Census Records"));
+        documents.push(...result.documents.filter(item => item.category !== "Census Records"));
         media.push(...result.media);
         stories.push(...result.stories);
       });
@@ -163,8 +162,6 @@ class ResultsJson {
       stories,
       count
     });
-
-    console.log(JSON.stringify(tempJson));
 
     var response = new DetailedResponse(
       tempJson,
