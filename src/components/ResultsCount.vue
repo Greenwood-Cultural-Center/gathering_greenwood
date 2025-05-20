@@ -6,12 +6,17 @@
       type: Object,
       required: true,
     },
+    loading : {
+      type: Boolean,
+      default: false,
+    },
   });
 
   function formatKey(key, val) {
     if (key === 'media') return 'media';
     if (key === 'people') return val === 1 ? 'person' : 'people';
     if (key === 'stories') return val === 1 ? 'story' : 'stories';
+    if (key === 'census_records') return val === 1 ? 'census record' : 'census records';
     if (val === 1 && key.endsWith('s')) return key.slice(0, -1);
     return key;
   }
@@ -24,7 +29,7 @@
 </script>
 
 <template>
-  <div class="results-count">
+  <div v-if="!loading" class="results-count">
     <span v-if="displayItems.length">{{ displayItems.join(', ') }}</span>
     <span v-else>No results</span>
   </div>
