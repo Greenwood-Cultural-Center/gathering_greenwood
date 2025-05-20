@@ -23,10 +23,6 @@
 
   const dialogRef = ref(null);
 
-  onBeforeMount(() => {
-    console.log(`ResultModal mounted, dialogRef: ${dialogRef.value}`);
-  });
-
   // Dynamically resolve the correct form component
   const getComponent = computed(() => {
     const mediaTypes = {

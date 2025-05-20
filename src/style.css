@@ -1,5 +1,11 @@
+@font-face {
+  font-family: Poppins;
+  src: url('/poppins-medium-webfont.woff2') format('woff2'),
+       url('/poppins-medium-webfont.woff') format('woff');
+}
+
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: Poppins, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
@@ -92,15 +98,4 @@ button:focus-visible {
   button {
     background-color: var(--gcc-white);
   }
-}
-
-
-.fabToggle:checked ~ .fabButtons a {
-  opacity: 1;
-  visibility: visible;
-}
-
-.fabToggle:checked ~ .fabButtons .fabLabel {
-  opacity: 1;
-  visibility: visible;
 }

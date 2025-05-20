@@ -14,10 +14,16 @@ defineProps({
 </template>
 
 <style scoped>
+  div {
+    display:flex;
+  }
+
 	.search-label {
+      font-family: 'Poppins';
       margin-right: auto;
-      font-size: 1.9rem;
-      color: #555;
+      font-size: 2rem;
+      font-weight: 900;
+      color: #000000;
       background-color: var(--gcc-v-lt-green);
       background: radial-gradient(ellipse, rgba(114,169,127,0.6) 30%, rgba(114,169,127,0.02) 99%);
       flex-grow: 1;

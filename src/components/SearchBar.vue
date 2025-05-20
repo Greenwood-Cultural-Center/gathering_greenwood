@@ -59,8 +59,8 @@ function doSearch() {
 
     .input {
       background: black;
-      padding-top: 0.1rem;
-      padding-bottom: 0.4rem;
+      padding-top: 0.3rem;
+      padding-bottom: 0.1rem;
       padding-left: 0.3rem;
       padding-right: 0.3rem;
       display: inline-block;

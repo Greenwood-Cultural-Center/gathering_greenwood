@@ -2,8 +2,7 @@
   import { ref, computed, watch, defineExpose } from 'vue';
   import ResultsCount from './ResultsCount.vue';
   import SearchResult from './SearchResult.vue';
-  import LastSearch from './LastSearch.vue'
-  //import { findObjectByKey } from '../utils/utils.js';
+  import LastSearch from './LastSearch.vue';
   import { ResultsJson, ResultsGeoJson, Status, DetailedResponse, Count } from '../utils/ResponseHandler.ts';
 
   const props = defineProps({
@@ -19,6 +18,26 @@
 
   const loading = ref(false);
   const lastSearch = ref('');
+  const categoryOrder = [
+    'buildings',
+    'people',
+    'census_records',
+    'documents',
+    'media',
+    'stories'
+  ];
+
+  const orderedResults = computed(() => {
+    return categoryOrder
+      .map((key) => {
+        const group = results.value[key];
+        if (group && Array.isArray(group[key]) && group[key].length > 0 && key !== 'count') {
+          return key;
+        }
+        return null;
+      })
+      .filter(Boolean);
+  });
 
   function formatCategory(key) {
     //var key = Object.keys(results.value)[index];
@@ -69,14 +88,11 @@
       resultsData.value = await resultsRes.json();
       geoData.value = await geoJsonRes.json();
 
-      console.log(`Json ${JSON.stringify(resultsData.value)}`);
-
       var JsonResponse = new DetailedResponse();
       var geoJsonResponse = new DetailedResponse();
 
       ResultsJson.fromJson((response) => {
         if (response.status === Status.Success) {
-          console.log("ResultsJson created successfully:", response.results);
           JsonResponse = response;
         } else {
           console.error("Error:", response.error || response.message);
@@ -84,7 +100,6 @@
       },resultsData.value)
       ResultsGeoJson.fromJson((response) => {
         if (response.status === Status.Success) {
-          console.log("ResultsGeoJson created successfully:", response.results);
           geoJsonResponse = response;
         } else {
           console.error("Error:", response.error || response.message);
@@ -110,7 +125,7 @@
         count.value = JsonResponse.results.TotalCount();
         geojson.value = geoJsonResponse.results;
       }
-      lastSearch.value = searchTerm;
+      lastSearch.value = searchTerm.value;
 
       emit('update:geojson', geojson.value);
       emit('update:results', results.value);
@@ -121,10 +136,6 @@
     }
 
     stringResults.value = JSON.stringify(results.value, null, 2);
-
-    console.log('Stringified results:', stringResults.value);
-
-    console.log('Search results:', results.value);
   }
 </script>
 
@@ -136,12 +147,12 @@
     <div v-if="loading" class="spinner-container">
       <div class="spinner"></div>
     </div>
-    <ResultsCount :count="count" />
+    <ResultsCount :count="count" :loading="loading" />
 
     <div class="results-list">
 
       <!-- Iterate through the properties of the object -->
-      <template v-for="(category) in Object.keys(results).filter((key) => key !== 'count' && results[key].length > 0)" :key="category">
+      <template v-if="!loading" v-for="(category) in orderedResults" :key="category">
         <!-- Output the property name -->
         <div class="result-category">
           <h4 class="category-title">
@@ -154,6 +165,21 @@
           :item="item"
           :category="category"/>
       </template>
+
+
+
+      <!-- <template v-for="(category) in Object.keys(results).filter((key) => key !== 'count' && results[key].length > 0)" :key="category">
+        <div class="result-category">
+          <h4 class="category-title">
+            {{ formatCategory(category) }}
+          </h4>
+        </div>
+        <SearchResult
+          v-for="item in results[category]"
+          :key="item?.id || item?.name || item?.description || item?.story?.name"
+          :item="item"
+          :category="category"/>
+      </template> -->
     </div>
   </div>
 </template>
@@ -172,7 +198,7 @@
   .results-list {
     margin-top: 1rem;
     padding: 0.5rem;
-    height: 78%;
+    height: 76%;
     overflow-y: scroll;
     border-radius: 0.5rem;
   }

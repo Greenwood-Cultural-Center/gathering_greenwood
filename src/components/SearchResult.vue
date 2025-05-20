@@ -20,16 +20,11 @@
 
   const dialog = ref(null)
 
-  onMounted(() => {
-    console.log(`SearchResult ${props.category}${props.category === 'media' ? `-${props.item?.type}` : ``} mounted:`, props.item);
-  });
-
   function showDialog() {
     dialog.value?.openDialog()
   }
 
   const icon = computed(() => {
-    console.log(props.category);
     switch (props.category.toLowerCase()) {
       case 'buildings': return faBuilding;
       case 'people': return faUser;

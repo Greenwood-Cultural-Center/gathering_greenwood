@@ -1,5 +1,5 @@
 <script setup>
-  import { ref } from 'vue'
+  import { ref, computed, onBeforeMount } from 'vue'
   import { MapboxMap } from '@studiometa/vue-mapbox-gl';
   import MBMap from './components/MBMap.vue'
   import MglMap from './components/MglMap.vue';
@@ -13,9 +13,6 @@
   // State
   const appYear = ref('');
   const geoJson = ref(null);
-  const searchResults = ref([]);
-  const resultsCount = ref({});
-  const lastSearch = ref('');
   const mapType = ref('MGL'); // or 'MB' for Mapbox GL JS
 
   // define available years
@@ -36,7 +33,6 @@
 
   function updateYear(newYear) {
     appYear.value = newYear;
-    console.log(`Selected App year: ${newYear}`);
   }
   // Reset handler for app state and map
   function resetApp() {
@@ -51,7 +47,6 @@
   }
 
   function handleGeojson(newGeojson) {
-    // console.log('Received new geojson:', newGeojson);
     // if (mglMapRef.value) {
     //   geoJson.value = newGeojson;
     //   mglMapRef.value.loadDynamicLayer(newGeojson);
