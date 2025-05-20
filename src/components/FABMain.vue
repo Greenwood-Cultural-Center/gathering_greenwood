@@ -4,7 +4,7 @@
 <template>
   <div class="fab">
     <input type="checkbox" name="fabToggle" class="fabToggle" aria-label="floating action button" />
-    <a class="fabButton" href="#!"><img src="/gcc.png" alt="Greenwood Cultural Center Icon"/></a>
+    <a class="fabButton" href="#"><img src="/gcc.png" alt="Greenwood Cultural Center Icon"/></a>
     <div class="fabButtons">
       <slot></slot>
     </div>
