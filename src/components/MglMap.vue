@@ -25,32 +25,28 @@
   function changeYear (map, newYear) {
       const match = DateOption.options.find(o => o.year === newYear);
       if (match) {
-          console.log(`Selected Map year: ${match.year}`);
           DateOption.selected.value = match;
           filterByDate(map, match.date);
+          map.setFilter('search-results', ['==', 'date', match.year]);
       }
   };
 
   function loadDynamicLayer(newGeoJson) {
     geoJson.value = newGeoJson;
-    console.log('Loading dynamic layer with new GeoJSON:', geoJson);
     if (geoJson) {
       resultsExist.value = true;
-      console.log('GeoJSON data exists:', geoJson);
     }
   }
 
   function resetMap () {
     const map = mapRef.value;
-    console.log('Resetting map');
     resultsExist.value = false;
     map.flyTo({
       center: [-95.9872222, 36.1619444], // Reset to the default center (or your preferred location)
       zoom: 14,         // Reset zoom level to default
       essential: true, // Ensure the animation is not skipped
     });
-    map.removeLayer('search-results');
-    console.log(`resultsexist.value: ${resultsExist.value}`);
+    map.setFilter('search-results', null); // Reset the filter
   };
 
   defineExpose({
@@ -133,14 +129,7 @@
   function onMapLoaded(event) {
     const map = mapRef.value = event.map; // Store the map instance
     if (map) {
-      console.log('Map loaded');
-      console.log('Map instance created:', map);
       changeYear(map, props.year);
-      map.once('styledata', () => {
-        map.attributionControl = {
-            customAttribution: '<a href="https://www.openhistoricalmap.org/">OpenHistoricalMap</a>',
-        };
-      });
     };
   };
 
@@ -180,62 +169,95 @@
     </template>
 
     <!-- Conditionally render GeoJSON layer if data exists -->
-    <MglGeojsonLayer
-      v-if="resultsExist"
-      :source-id="'search-results'"
-      :layer-id="'search-layer'"
-      :source="{
-        type: 'geojson',
-        data: geoJson
-      }"
-      :type="'circle'"
-      :paint="{
-        'circle-radius': 6,
-        'circle-color': '#ff8800',
-        'circle-opacity': 0.7
-      }"
-      :layer="{
-        type: 'circle',
-        paint: {
-          'circle-radius': 6,
-          'circle-color': '#ff8800',
-          'circle-opacity': 0.7
-        }
-      }"
-    />
+    <template v-if="resultsExist">
+      <MglGeojsonLayer
+        :source-id="'search-results'"
+        :layer-id="'search-layer'"
+        :source="geoJson"
+        :reactive="true"
+        :layer="{
+          type: 'circle',
+          paint: {
+            'circle-radius': 6,
+            'circle-color': '#ff8800',
+            'circle-opacity': 0.7
+          }
+        }"
+      />
+    </template>
     <slot></slot>
   </MglMap>
 </template>
 
 <style>
+
+  :root {
+    --gcc-border-radius: 0.9rem;
+  }
+
+  div.mapboxgl-ctrl-attrib.mapboxgl-compact {
+    min-height: 3.333125rem;
+    padding: 0.3333125rem 4rem 0.3333125rem 0;
+  }
+
+  div.mapboxgl-ctrl-attrib.mapboxgl-compact-show {
+    padding-left: 0.6875rem;
+    padding-right: 4.6875rem;
+    visibility: visible;
+    display: flex;
+    align-items: center;
+  }
+
   .mapboxgl-ctrl-attrib.mapboxgl-compact {
-    right: 0.17rem;
-  }
-
-  .mapboxgl-ctrl-attrib-inner {
-    background-color: var(--gcc-dk-green);
-  }
-
-  .mapboxgl-ctrl, .mapboxgl-ctrl-attrib.mapboxgl-compact {
     background-color: var(--gcc-dk-green);
     color: var(--gcc-white);
   }
 
-  button[class^=mapboxgl-ctrl-] {
-    background-image: none;
+  div.mapboxgl-ctrl-group button[class^=mapboxgl-ctrl-] {
+    background-color: var(--gcc-dk-green);
+    width: 4rem;
+    height: 6rem;
   }
 
-  .mapboxgl-ctrl-group button[class^=mapboxgl-ctrl-] {
+  div.mapboxgl-ctrl-group button[class^=mapboxgl-ctrl-] span.mapboxgl-ctrl-icon {
     background-color: var(--gcc-dk-green);
   }
 
-  .mapboxgl-ctrl button[class^=mapboxgl-ctrl-] span.mapboxgl-ctrl-icon {
-    background-color: var(--gcc-orange);
-    background-image: none;
+  div.mapboxgl-ctrl-group {
+    background: none;
+    border-radius: var(--gcc-border-radius);
   }
 
-  .mapboxgl-ctrl button:not(:disabled):hover .mapboxgl-ctrl-icon, .mapboxgl-ctrl-attrib button.mapboxgl-ctrl-attrib-button:not(:disabled):hover, .mapboxgl-ctrl-attrib.mapboxgl-compact-show .mapboxgl-ctrl-attrib-button {
-    background-color: var(--gcc-map);
+  div.mapboxgl-ctrl-group button:first-child {
+    border-radius: var(--gcc-border-radius) var(--gcc-border-radius) 0 0;
+  }
+
+  div.mapboxgl-ctrl-group button:last-child {
+    border-radius: 0 0 var(--gcc-border-radius) var(--gcc-border-radius);
+  }
+
+  div.mapboxgl-ctrl-group button:only-child {
+    border-radius: var(--gcc-border-radius) var(--gcc-border-radius) var(--gcc-border-radius) var(--gcc-border-radius);
+  }
+
+  .mapboxgl-ctrl-group button[class^=mapboxgl-ctrl-]:not(.mapboxgl-ctrl-group>button:first-child):not(.mapboxgl-ctrl-group >button:last-child) {
+    border-radius: initial;
+  }
+
+  div.mapboxgl-ctrl button:not(:disabled):hover {
+    background-color: initial;
+  }
+
+  .mapboxgl-ctrl.mapboxgl-ctrl-attrib.mapboxgl-compact.mapboxgl-compact-show:hover,
+  .mapboxgl-ctrl.mapboxgl-ctrl-attrib.mapboxgl-compact.mapboxgl-compact-show:hover button.mapboxgl-ctrl-attrib-button {
+    background-color: var(--gcc-beige);
+    color: #333;
+  }
+
+  .mapboxgl-ctrl button:not(:disabled):hover .mapboxgl-ctrl-icon,
+  .mapboxgl-ctrl-attrib button.mapboxgl-ctrl-attrib-button:not(:disabled):hover {
+    background-color: var(--gcc-beige);
+    color: #333;
   }
 
   .mapboxgl-ctrl-bottom-left .mapboxgl-ctrl {
@@ -250,36 +272,39 @@
     visibility: hidden;
   }
 
-  .mapboxgl-ctrl-fullscreen .mapboxgl-ctrl-icon {
-    --svg:url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' fill='%23333' viewBox='0 0 29 29'><path d='M24 16v5.5c0 1.75-.75 2.5-2.5 2.5H16v-1l3-1.5-4-5.5 1-1 5.5 4 1.5-3h1zM6 16l1.5 3 5.5-4 1 1-4 5.5 3 1.5v1H7.5C5.75 24 5 23.25 5 21.5V16h1zm7-11v1l-3 1.5 4 5.5-1 1-5.5-4L6 13H5V7.5C5 5.75 5.75 5 7.5 5H13zm11 2.5c0-1.75-.75-2.5-2.5-2.5H16v1l3 1.5-4 5.5 1 1 5.5-4 1.5 3h1V7.5z'/></svg>");
-    -webkit-mask: var(--svg);
-    mask: var(--svg);
+  div.mapboxgl-ctrl button.mapboxgl-ctrl-fullscreen span.mapboxgl-ctrl-icon {
+    --svg:url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 29 29'><path fill='%23b47f31' d='M24 16v5.5c0 1.75-.75 2.5-2.5 2.5H16v-1l3-1.5-4-5.5 1-1 5.5 4 1.5-3h1zM6 16l1.5 3 5.5-4 1 1-4 5.5 3 1.5v1H7.5C5.75 24 5 23.25 5 21.5V16h1zm7-11v1l-3 1.5 4 5.5-1 1-5.5-4L6 13H5V7.5C5 5.75 5.75 5 7.5 5H13zm11 2.5c0-1.75-.75-2.5-2.5-2.5H16v1l3 1.5-4 5.5 1 1 5.5-4 1.5 3h1V7.5z'/></svg>");
+    background-image: var(--svg);
   }
 
-  .mapboxgl-ctrl-zoom-in .mapboxgl-ctrl-icon {
-    --svg:url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' fill='%23333' viewBox='0 0 29 29'><path d='M14.5 8.5c-.75 0-1.5.75-1.5 1.5v3h-3c-.75 0-1.5.75-1.5 1.5S9.25 16 10 16h3v3c0 .75.75 1.5 1.5 1.5S16 19.75 16 19v-3h3c.75 0 1.5-.75 1.5-1.5S19.75 13 19 13h-3v-3c0-.75-.75-1.5-1.5-1.5z'/></svg>");
-    -webkit-mask: var(--svg);
-    mask: var(--svg);
+  div.mapboxgl-ctrl button.mapboxgl-ctrl-zoom-in span.mapboxgl-ctrl-icon {
+    --svg:url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 29 29'><path fill='%23b47f31' d='M14.5 8.5c-.75 0-1.5.75-1.5 1.5v3h-3c-.75 0-1.5.75-1.5 1.5S9.25 16 10 16h3v3c0 .75.75 1.5 1.5 1.5S16 19.75 16 19v-3h3c.75 0 1.5-.75 1.5-1.5S19.75 13 19 13h-3v-3c0-.75-.75-1.5-1.5-1.5z'/></svg>");
+    background-image: var(--svg);
   }
 
-  .mapboxgl-ctrl-zoom-out .mapboxgl-ctrl-icon {
-    --svg:url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' fill='%23333' viewBox='0 0 29 29'><path d='M10 13c-.75 0-1.5.75-1.5 1.5S9.25 16 10 16h9c.75 0 1.5-.75 1.5-1.5S19.75 13 19 13h-9z'/></svg>");
-    -webkit-mask: var(--svg);
-    mask: var(--svg);
+  div.mapboxgl-ctrl button.mapboxgl-ctrl-zoom-out span.mapboxgl-ctrl-icon {
+    --svg:url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 29 29'><path fill='%23b47f31' d='M10 13c-.75 0-1.5.75-1.5 1.5S9.25 16 10 16h9c.75 0 1.5-.75 1.5-1.5S19.75 13 19 13h-9z'/></svg>");
+    background-image: var(--svg);
   }
 
-  .mapboxgl-ctrl-compass .mapboxgl-ctrl-icon {
-    --svg:url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' fill='%23333' viewBox='0 0 29 29'><path d='M10.5 14l4-8 4 8h-8z'/><path id='south' d='M10.5 16l4 8 4-8h-8z' fill='%23ccc'/></svg>");
-    -webkit-mask: var(--svg);
-    mask: var(--svg);
+  div.mapboxgl-ctrl button.mapboxgl-ctrl-compass span.mapboxgl-ctrl-icon {
+    --svg:url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 29 29'><path fill='%23b47f31' d='M10.5 14l4-8 4 8h-8z'/><path id='south' d='M10.5 16l4 8 4-8h-8z'  fill='%23b47f31'/></svg>");
+    background-image: var(--svg);
   }
 
-  .mapboxgl-ctrl-attrib-button {
-    background-color: var(--gcc-orange);
-    padding: 0.6rem 0.7rem;
-    --svg: url("data:image/svg+xml;charset=utf-8,<svg viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg' fill-rule='evenodd'><path d='M4 10a6 6 0 1 0 12 0 6 6 0 1 0-12 0m5-3a1 1 0 1 0 2 0 1 1 0 1 0-2 0m0 3a1 1 0 1 1 2 0v3a1 1 0 1 1-2 0'/></svg>");
-    -webkit-mask: var(--svg);
-    mask: var(--svg);
+  div.mapboxgl-ctrl button.mapboxgl-ctrl-attrib-button span.mapboxgl-ctrl-icon {
+    --svg:url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill-rule='evenodd'><path fill='%23b47f31' d='M4 10a6 6 0 1 0 12 0 6 6 0 1 0-12 0m5-3a1 1 0 1 0 2 0 1 1 0 1 0-2 0m0 3a1 1 0 1 1 2 0v3a1 1 0 1 1-2 0'/></svg>");
+    background-image: var(--svg);
+    background-position: 50%;
+    background-repeat: no-repeat;
+  }
+
+  div.mapboxgl-ctrl button.mapboxgl-ctrl-attrib-button {
+    background-image: none;
+    background-color: var(--gcc-dk-green);
+    padding: 0;
+    height: 4rem;
+    width: 4rem;
   }
 
   .mapboxgl-ctrl-attrib a {
@@ -287,7 +312,7 @@
   }
 
   .mapboxgl-ctrl-bottom-right {
-    bottom: 130px;
-    right: 0px;
+    bottom: 8.125rem;
+    right: 0;
   }
 </style>

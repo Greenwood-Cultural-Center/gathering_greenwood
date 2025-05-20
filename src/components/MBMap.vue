@@ -33,7 +33,6 @@
     function changeYear (map, newYear) {
         const match = DateOption.options.find(o => o.year === newYear);
         if (match) {
-            console.log(`Selected Map year: ${match.year}`);
             DateOption.selected.value = match;
             filterByDate(map, match.date);
         }
@@ -56,10 +55,7 @@
             const map = el.value?.map;
 
             if (map) {
-                console.log(`Element bound: ${el.value}`);
                 map.on('load', () => {
-                    console.log('Map loaded');
-                    console.log('Map instance created:', map);
                     changeYear(map, props.year);
                     map.once('styledata', () => {
                         map.attributionControl = {
