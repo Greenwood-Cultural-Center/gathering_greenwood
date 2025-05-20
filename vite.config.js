@@ -12,5 +12,9 @@ export default defineConfig({
   ],
   optimizeDeps: {
     include: ['map-promisified'],
+  },
+  server: {
+    port: 5173,
+    open: true,
   }
 })

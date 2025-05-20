@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --port 5173 --host",
     "build": "vite build",
     "serve": "vite build && vite",
     "preview": "vite preview"
@@ -25,7 +25,8 @@
     "vue": "^3.5.13",
     "vue-html-dialog": "^1.0.2",
     "vue-mapbox3": "^0.8.1",
-    "vue-native-dialog": "^0.0.3"
+    "vue-native-dialog": "^0.0.3",
+    "object-hash": "3.0.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.3",
