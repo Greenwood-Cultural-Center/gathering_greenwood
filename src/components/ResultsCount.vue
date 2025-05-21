@@ -38,7 +38,7 @@
 <style scoped>
   .results-count {
     margin-bottom: 1rem;
-    font-size: 1.95rem;
+    font-size: 1.6rem;
     font-weight: bold;
     color: var(--gcc-dk-green);
     font-style: italic;

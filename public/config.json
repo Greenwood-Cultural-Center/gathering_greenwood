@@ -1,0 +1,21 @@
+{
+  "featureFlags": {
+  },
+  "backendHost": "http://localhost:3001",
+  "dateConfig": [
+    {
+      "year": "1910",
+      "mapDate": "1910-04-15"
+    },{
+      "year": "1920",
+      "mapDate": "1920-01-02"
+    }
+  ],
+  "defaultDate": {
+    "year": "",
+    "mapDate": "",
+    "value": ""
+  },
+  "dates": {},
+  "manager": {}
+}

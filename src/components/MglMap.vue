@@ -1,34 +1,31 @@
 <script setup>
-  import { ref, onMounted, watch, nextTick, defineExpose } from 'vue'
+  import { ref, onMounted, watch, nextTick, defineExpose, inject } from 'vue'
   import Mapbox from "mapbox-gl";
   import { MglMap, MglNavigationControl, MglFullscreenControl, MglAttributionControl, MglGeojsonLayer } from "vue-mapbox3";
   import { filterByDate } from '@openhistoricalmap/maplibre-gl-dates'
 
-
-  const props = defineProps({
-    year: String
-  });
-
   const geoJson = ref(null);
   const resultsExist = ref(false);
 
-  // Date selection logic
-  const DateOption = {
-    options: [
-      { year: '1910', date: '1910-04-15' },
-      { year: '1920', date: '1920-01-02' },
-      { year: '', date: '2025-01-01' }
-    ],
-    selected: ref({ year: '', date: '2025-01-01' })
-  };
+  // State
+  const appConfig = inject('appConfig');
+
+  appConfig.manager.onSelectionChange.on((newKey) => {
+    if (resultsExist.value) {
+      props.year = newKey;
+      return;
+    }
+    loading.value = true;
+    // Update the selected year in the component
+    props.year = newKey;
+    newDate = appConfig.manager.selected.mapDate;
+    changeYear(mapRef.value, newKey, newDate);
+    loading.value = false;
+  });
 
   function changeYear (map, newYear) {
-      const match = DateOption.options.find(o => o.year === newYear);
-      if (match) {
-          DateOption.selected.value = match;
-          filterByDate(map, match.date);
-          map.setFilter('search-results', ['==', 'date', match.year]);
-      }
+    filterByDate(map, match.date);
+    map.setFilter('search-results', ['==', 'date', newYear]);
   };
 
   function loadDynamicLayer(newGeoJson) {

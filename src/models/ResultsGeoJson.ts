@@ -1,3 +1,4 @@
+// /src/models/ResultsGeoJson.ts
 import utils from "../utils/utils";
 import { Status, DetailedResponse } from "../utils/DetailedResponse";
 class ResultsGeoJson {

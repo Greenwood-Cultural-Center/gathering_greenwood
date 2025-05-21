@@ -1,3 +1,4 @@
+// /src/uitls/IResponseEmbeddable.d.ts
 declare namespace IResponseEmbeddable {
     export interface IResponseEmbeddable {
         id: string;

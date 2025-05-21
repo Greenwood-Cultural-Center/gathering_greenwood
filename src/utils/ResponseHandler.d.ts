@@ -1,3 +1,4 @@
+// /src/uitls/ResponseHandler.d.ts
 import { IResponseEmbeddable } from "./IResponseEmbeddable";
 
 

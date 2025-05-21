@@ -1,5 +1,5 @@
 <script setup>
-import { defineProps, ref, onMounted, onBeforeMount } from 'vue';
+import { defineProps, ref, onMounted, onBeforeMount, inject } from 'vue';
 import utils from '../utils/utils.js';
 import objectHash from 'object-hash';
 
@@ -15,98 +15,68 @@ const props = defineProps({
   }
 });
 
-const years = props.yearArray;
+// State
+appConfig = inject('appConfig');
 
-const firstYear = years[0].year;
-const lastYear = years[years.length - 1].year;
-
-function buildYears() {
-  years.forEach(async (year, index) => {
-    year.d = year.year.slice(2, 3);
-    year.y = year.year.slice(3, 4);
-    year.c = year.year.slice(0, 2);
-    year.inputid = `input-${index + 1}`;
-    year.labelid = `label-${index + 1}`;
-    year.dclass = `d-${index + 1}`;
-    year.yclass = `y-${index + 1}`;
-    year.cclass = `c-${index + 1}`;
-    year.value = year.year;
-  });
-
-  years.map((year, index) => {
-    year.key = objectHash(year);
-  });
-
-  years.push({
-    year: `${firstYear} - ${lastYear}`,
-    c: '',
-    d: '',
-    y: '',
-    inputid: `input-${years.length + 1}`,
-    labelid: `label-${years.length + 1}`,
-    dclass: `d-${years.length + 1}`,
-    yclass: `y-${years.length + 1}`,
-    cclass: `c-${years.length + 1}`,
-    value: '',
-    key: objectHash({
-      year: `${firstYear} - ${lastYear}`,
-      c: '',
-      d: '',
-      y: '',
-      inputid: `input-${years.length + 1}`,
-      labelid: `label-${years.length + 1}`,
-      dclass: `d-${years.length + 1}`,
-      yclass: `y-${years.length + 1}`,
-      cclass: `c-${years.length + 1}`,
-      value: ''
-    })
-  });
-}
+appConfig.manager.onSelectionChange.on((newKey) => {
+  // Update the selected year in the component
+  el = document.querySelector(`input[value="${newKey}"]`);
+  target = getRadioForYear(newKey);
+  setYear(newKey, target);
+});
 
 // Show fancy year selector
 const showfancy = ref(false);
 
 const clickedElement = ref(null);
 
-onBeforeMount(() => {
-  buildYears();console.log(years);
-}),
+function getRadioForYear(year) {
+  var selector = `input[value="${year}"]`;
+  var el = document.querySelector(selector);
+  return { target:el};
+}
 
 onMounted(() => {
-  // Set the default year to the last year in the array
-  const defaultYear = years[years.length - 1].value;
-  var selector = `input[value="${defaultYear}"]`;
-  var el = document.querySelector(selector);
-  setYear(defaultYear, { target: el });
+  // Set the default year to the configured year
+  const defaultYear = AppConfig.manager.summary.year;
+  var terget = getRadioForYear(defaultYear);
+  setYear(defaultYear, target);
 });
 
-// Function to set the year
-function setYear(year, event) {
-
-  // Store the clicked element
-  clickedElement.value = event.target;
-
+function removeSelection() {
   // Remove the class from the previously clicked element
   if (clickedElement.value) {
     clickedElement.value.removeAttribute('checked');
     document.querySelector(`label[for="${clickedElement.value.id}"]`).classList.remove('selected');
   }
+}
 
+function selectYear(year, event) {
+  // Store the clicked element
+  clickedElement.value = event.target;
   // Add a class to the clicked element
   clickedElement.value.setAttribute('checked', '');
 
   document.querySelector(`label[for="${clickedElement.value.id}"]`).classList.add('selected');
+}
 
-  // Call the function passed from the parent to set the year
-  props.onYearChange(year);
+// Function to set the year
+function setYear(year, event) {
+
+  // Remove the class from the previously clicked element
+  removeSelection();
+
+  // Store the clicked element
+  app.manager.selectedKey = year;
+  selectYear(year, event);
 }
 </script>
 
 <template>
     <div class="year-selector">
-      <input v-for="year in years" type="radio" name="year" :id="year.inputid" :value="year.value" :key="year.key" @change="setYear($event.target.value, $event)"></input>
+      <input v-for="[year, yearData] in appConfig.yearEntries" type="radio" name="year" :id="yearData.inputid" :value="yearData.value" :key="yearData.hash" @change="setYear($event.target.value, $event)"></input>
       <div class="content">
-        <div v-if="showfancy" class="maps-date">
+        <!--<div v-if="showfancy" class="maps-date">
           <div class="map-date d d-1">1</div>
           <div class="map-date d d-2">2</div>
           <div class="map-date d d-3"></div>
@@ -114,9 +84,9 @@ function setYear(year, event) {
           <div class="map-date y y-3"></div>
           <div class="map-date c c-1 c-2">19</div>
           <div class="map-date c c-3"></div>
-        </div>
+        </div> -->
         <div class="timeline">
-          <label class="timeline-dot" v-for="year in years" :for="year.inputid"><span v-if="!showfancy" :id="year.labelid" :key="year.key" >{{ year.year }}</span></label>
+          <label class="timeline-dot" v-for="[year, yearData] in appConfig.yearEntries" :for="yearData.inputid"><span v-if="!showfancy" :id="yearData.labelid" :key="yearData.key" >{{ yearData.year }}</span></label>
           <div class="timeline-line"></div>
         </div>
       </div>

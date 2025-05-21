@@ -1,4 +1,5 @@
-import { keyIsYear } from "../utils/utils";
+// /src/models/ResultsJson.ts
+import { isYear } from "../utils/utils";
 import { Status, DetailedResponse } from "../utils/DetailedResponse";
 
 const centuryPrefixes:Array<String> = ["18", "19", "20", "21", "22", "23"];
@@ -89,7 +90,7 @@ class ResultsJson {
       var count:Array<Count> = [];
 
     // Check if it is the new or old format
-    if (keyIsYear(Object.keys(obj.results[0])[0], centuryPrefixes)) {
+    if (isYear(Object.keys(obj.results[0])[0])) {
       // Iterate through the results and populate the arrays
       // and the count array
       obj.results.map((result) => {

@@ -1,25 +1,20 @@
 <script setup>
   import { ref, computed, onBeforeMount } from 'vue'
-  import { MapboxMap } from '@studiometa/vue-mapbox-gl';
-  import MBMap from './components/MBMap.vue'
-  import MglMap from './components/MglMap.vue';
-  import GeoJsonLayer from './components/GeoJsonLayer.vue';
-  import Layer from './components/Layer.vue';
-  import FABMain from './components/FABMain.vue';
-  import FABButton from './components/FABButton.vue';
-  import ResultsPane from './components/ResultsPane.vue';
-  import YearSearchBar from './components/YearSearchBar.vue';
+  // import { MapboxMap } from '@studiometa/vue-mapbox-gl';
+  // import MBMap from './components/MBMap.vue'
+  // import MglMap from './components/MglMap.vue';
+  // import GeoJsonLayer from './components/GeoJsonLayer.vue';
+  // import Layer from './components/Layer.vue';
+  // import FABMain from './components/FABMain.vue';
+  // import FABButton from './components/FABButton.vue';
+  // import ResultsPane from './components/ResultsPane.vue';
+  // import YearSearchBar from './components/YearSearchBar.vue';
 
   // State
-  const appYear = ref('');
   const geoJson = ref(null);
   const mapType = ref('MGL'); // or 'MB' for Mapbox GL JS
 
-  // define available years
-  const years = [
-    { year: '1910', date: '1910-04-15' },
-    { year: '1920', date: '1920-01-02' }
-  ];
+  // const appConfig = inject('appConfig');
 
   const fabButtonCustomProps = [
     { title: 'Home', icon: ['fas', 'house'], ariaLabel: 'reset', ariaDescription: 'reset map and clear search results' },
@@ -32,13 +27,10 @@
   const resultsPaneRef = ref(null);
 
   function updateYear(newYear) {
-    appYear.value = newYear;
+    appConfig.manager.selectedKey = newYear;
   }
   // Reset handler for app state and map
   function resetApp() {
-    // Reset app year to default
-    updateYear('');
-
     // Reset search results
     clearResults();
 
@@ -102,17 +94,14 @@
 
   </FABMain>
   <!-- YearSelector Component to change year -->
-  <YearSearchBar
-    :onSearch="handleSearch"
-    :onYearChange="updateYear"
-    :years="years"></YearSearchBar>
+  <!-- <YearSearchBar :onSearch="handleSearch"></YearSearchBar> -->
 
-  <template v-if="mapType === 'MGL'">
-    <MglMap :year="appYear" ref="mglMapRef">
+  <!-- <template v-if="mapType === 'MGL'">
+    <MglMap ref="mglMapRef">
     </MglMap>
   </template>
   <template v-else-if ="mapType === 'MB'">
-    <MBMap :year="appYear" :geoJson="geoJson">
+    <MBMap :geoJson="geoJson">
       <Layer
         geojsonUrl="src\data\parcels\Demo_Parcels.geojson"
         Name="Parcels">
@@ -126,16 +115,14 @@
         Name="Blocks">
       </Layer>
     </MBMap>
-  </template>
+  </template> -->
   <!--
     @update:results="handleResults"-->
-  <ResultsPane
+  <!-- <ResultsPane
     ref="resultsPaneRef"
-    :years="years"
-    :year="appYear"
     @update:geojson="handleGeojson"
     v-model:geoJson="geoJson"
-    />
+    /> -->
 </template>
 
 <style>

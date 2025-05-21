@@ -1,3 +1,4 @@
+// /src/utils/DetailedResponse.ts
 import IResponseEmbeddable from "./IResponseEmbeddable";
 
 enum Status {

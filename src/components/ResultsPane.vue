@@ -1,19 +1,22 @@
 <script setup>
-  import { ref, computed, watch, defineExpose } from 'vue';
+  import { ref, computed, watch, defineExpose, inject } from 'vue';
   import ResultsCount from './ResultsCount.vue';
   import SearchResult from './SearchResult.vue';
   import LastSearch from './LastSearch.vue';
   import { ResultsJson, ResultsGeoJson, Status, DetailedResponse, Count } from '../utils/ResponseHandler.ts';
 
-  const props = defineProps({
-    year: {
-      type: String,
-      required: true
-    },
-    years: {
-      type: Array,
-      required: true
+  const appConfig = inject('appConfig');
+
+  appConfig.manager.onSelectionChange.on((newKey) => {
+    if (results.value.length === 0) {
+      props.year = newKey;
+      return;
     }
+    loading.value = true;
+    // Update the selected year in the component
+    props.year = newKey;
+    UpdateYear(newKey);
+    loading.value = false;
   });
 
   const loading = ref(false);
@@ -57,6 +60,9 @@
 
   const stringResults = ref('');
 
+  const JsonResponse = ref(new DetailedResponse());
+  const geoJsonResponse = ref(new DetailedResponse());
+
   function resetState() {
     results.value = [];
     count.value = {};
@@ -67,6 +73,20 @@
     resetState,
     search,
   });
+
+  function UpdateYear(year) {
+    if (props.year !== '') {
+      filteredJson = JsonResponse.results.filterByYear(props.year);
+      filteredGeoJson = geoJsonResponse.results.filterByYear(props.year);
+      results.value = filteredJson;
+      count.value = filteredJson.count
+      geojson.value = filteredGeoJson;
+    } else {
+      results.value = JsonResponse.results;
+      count.value = JsonResponse.results.TotalCount();
+      geojson.value = geoJsonResponse.results;
+    }
+  }
 
   async function search(searchValue) {
     loading.value = true;
@@ -88,43 +108,34 @@
       resultsData.value = await resultsRes.json();
       geoData.value = await geoJsonRes.json();
 
-      var JsonResponse = new DetailedResponse();
-      var geoJsonResponse = new DetailedResponse();
+      JsonResponse.value = new DetailedResponse();
+      geoJsonResponse.value = new DetailedResponse();
 
       ResultsJson.fromJson((response) => {
         if (response.status === Status.Success) {
-          JsonResponse = response;
+          JsonResponse.value = response;
         } else {
           console.error("Error:", response.error || response.message);
         }
       },resultsData.value)
       ResultsGeoJson.fromJson((response) => {
         if (response.status === Status.Success) {
-          geoJsonResponse = response;
+          geoJsonResponse.value = response;
         } else {
           console.error("Error:", response.error || response.message);
         }
       },geoData.value);
 
-      if (JsonResponse.status !== Status.Success ||
-          geoJsonResponse.status !== Status.Success ||
-          JsonResponse.isError ||
-          geoJsonResponse.isError) {
-        console.error('Error fetching results:', JsonResponse.errorMessage);
+      if (JsonResponse.value.status !== Status.Success ||
+          geoJsonResponse.value.status !== Status.Success ||
+          JsonResponse.value.isError ||
+          geoJsonResponse.value.isError) {
+        console.error('Error fetching results:', JsonResponse.value.errorMessage);
         return;
       }
 
-      if (props.year !== '') {
-        filteredJson = JsonResponse.results.filterByYear(props.year);
-        filteredGeoJson = geoJsonResponse.results.filterByYear(props.year);
-        results.value = filteredJson;
-        count.value = filteredJson.count
-        geojson.value = filteredGeoJson;
-      } else {
-        results.value = JsonResponse.results;
-        count.value = JsonResponse.results.TotalCount();
-        geojson.value = geoJsonResponse.results;
-      }
+      UpdateYear(props.year);
+
       lastSearch.value = searchTerm.value;
 
       emit('update:geojson', geojson.value);
