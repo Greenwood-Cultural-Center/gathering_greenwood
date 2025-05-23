@@ -3,11 +3,16 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "main": "dist-electron/main.js",
+  "description": "A minimal Electron Forge test app",
+  "author": "Your Name",
   "scripts": {
     "dev": "vite --port 5173 --host",
     "build": "vite build",
     "serve": "vite build && vite",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "electron --trace-warnings ./electron/main.js",
+    "lint": "echo \"No linting configured\""
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.7.2",
@@ -30,7 +35,9 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.3",
+    "electron": "^36.3.1",
     "vite": "^6.3.5",
+    "vite-plugin-electron": "^0.29.0",
     "vite-plugin-vue-devtools": "^7.7.6"
   }
 }
