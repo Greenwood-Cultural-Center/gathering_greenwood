@@ -10,26 +10,40 @@ class ResultsGeoJson {
   static fromJson(callback, obj) {
     if (
       !obj ||
-      !Array.isArray(obj) ||
-      !obj[0].features ||
-      !Array.isArray(obj[0].features) ||
-      obj[0].features.length === 0
+      (Array.isArray(obj) &&
+      obj.every(
+        (result) =>
+        Object.keys(result).length === 1 &&
+        utils.isYear(Object.keys(result)[0]) &&
+        result[Object.keys(result)[0]].features.length === 0
+      )) ||
+      (!Array.isArray(obj) &&
+      obj.type === "FeatureCollection" &&
+      obj.features.length === 0)
     ) {
       const response = new DetailedResponse(
-        null,
-        "No Results Found",
-        Status.Success,
-        null,
-        false
+      null,
+      "No Results Found",
+      Status.Success,
+      null,
+      false
       );
       callback(response);
       return;
     }
 
     if (
-      !obj.every((result) =>
-        (result.keys && Object.keys(result).length > 0 && Object.keys(result).length <= 2) ||
-        (result.features && result.features.length > 0)
+      !(
+      (Array.isArray(obj) &&
+        obj.every((result) =>
+        Object.keys(result).length === 1 &&
+        utils.isYear(Object.keys(result)[0]) &&
+        result[Object.keys(result)[0]].type === "FeatureCollection" &&
+        Array.isArray(result[Object.keys(result)[0]].features)
+        )) ||
+      (!Array.isArray(obj) &&
+        obj.type === "FeatureCollection" &&
+        Array.isArray(obj.features))
       )
     ) {
       const response = new DetailedResponse(
