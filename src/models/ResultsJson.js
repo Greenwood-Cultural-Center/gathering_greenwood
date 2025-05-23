@@ -27,15 +27,16 @@ class ResultsJson {
 
     if (
       !obj ||
-      (Array.isArray(obj.results) && obj.results.every((result) => result && Object.keys(result).length > 0)) ||
-      (typeof obj.results === "object" && Object.keys(obj.results).length > 0)
+      (Array.isArray(obj.results) && !obj.results.every((result) => result && Object.keys(result).length > 0)) ||
+      !(typeof obj.results === "object" && Object.keys(obj.results).length > 0)
     ) {
       const response = new DetailedResponse(null, null, Status.Error, new Error("Invalid results format"), true);
       callback(response);
       return;
     }
 
-    if (!obj || (Array.isArray(obj.count) && typeof obj.count === "object" && Object.keys(obj.count).length > 0)) {
+    if (!obj || (Array.isArray(obj.count) && !obj.results.every((result) => result && Object.keys(result).length > 0)) ||
+       !(typeof obj.count === "object" && Object.keys(obj.count).length > 0)) {
       const response = new DetailedResponse(null, null, Status.Error, new Error("Invalid count format"), true);
       callback(response);
       return;
@@ -71,23 +72,23 @@ class ResultsJson {
         };
       });
 
-      const count = obj.count;
+      const count = obj.count.filter((c) => Object.keys(c)[0] !== "Total")
 
       const YearCountRecords = count.map((entry) => {
         const [year, contentEntry] = Object.entries(entry)[0];
         if (typeof contentEntry !== "object") {
           throw new Error("Invalid content format");
         }
-        return new Count({
-          year,
-          buildings: contentEntry?.buildings || 0,
-          people: contentEntry?.people || 0,
-          census_records: contentEntry?.census_records || 0,
-          documents: contentEntry?.documents || 0,
-          media: contentEntry?.media || 0,
-          stories: contentEntry?.stories || 0,
-          totalFlag: year === "Total"
-        });
+          return new Count({
+            year,
+            buildings: contentEntry?.buildings || 0,
+            people: contentEntry?.people || 0,
+            census_records: contentEntry?.census_records || 0,
+            documents: contentEntry?.documents || 0,
+            media: contentEntry?.media || 0,
+            stories: contentEntry?.stories || 0,
+            totalFlag: year === "Total"
+          });
       });
 
       FinalResultsJson = new ResultsJson({
@@ -120,11 +121,11 @@ class ResultsJson {
           count.push(new Count({ ...yearCount, totalFlag: false }));
         });
 
-      newObj.count
-        .filter((year) => Object.keys(year)[0] === "Total")
-        .forEach((yearCount) => {
-          count.push(new Count({ ...yearCount, totalFlag: true }));
-        });
+      // newObj.count
+      //   .filter((year) => Object.keys(year)[0] === "Total")
+      //   .forEach((yearCount) => {
+      //     count.push(new Count({ ...yearCount, totalFlag: true }));
+      //   });
 
       FinalResultsJson = new ResultsJson({
         buildings: tempJson.buildings,
