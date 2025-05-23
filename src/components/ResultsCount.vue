@@ -1,9 +1,10 @@
 <script setup>
   import { ref, computed, watch } from 'vue';
+  import { Count } from '../utils/ResponseHandler.js';
 
   const props = defineProps({
     count: {
-      type: Object,
+      type: Count,
       required: true,
     },
     loading : {
@@ -16,21 +17,23 @@
     if (key === 'media') return 'media';
     if (key === 'people') return val === 1 ? 'person' : 'people';
     if (key === 'stories') return val === 1 ? 'story' : 'stories';
-    if (key === 'census_records') return val === 1 ? 'census record' : 'census records';
     if (val === 1 && key.endsWith('s')) return key.slice(0, -1);
-    return key;
+    // Convert to lowercase and replace underscores or dashes with spaces
+    return key.toLowerCase().replace(/_|-/g, ' ');
   }
 
   const displayItems = computed(() => {
-    return Object.entries(props.count)
-      .filter(([key, val]) => val > 0 && key !== 'year' && key !== 'totalFlag')
-      .map(([key, val]) => `${val} ${formatKey(key, val)}`);
+    return props.count
+      ? Object.entries(props.count)
+          .filter(([key, val]) => key !== 'year' && key !== 'totalFlag' && val > 0)
+          .map(([key, val]) => `${val} ${formatKey(key, val)}`)
+      : [];
   });
 </script>
 
 <template>
   <div v-if="!loading" class="results-count">
-    <span v-if="displayItems.length">{{ displayItems.join(', ') }}</span>
+    <span v-if="count && displayItems.length">{{ displayItems.join(', ') }}</span>
     <span v-else>No results</span>
   </div>
 </template>

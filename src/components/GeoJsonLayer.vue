@@ -1,20 +1,5 @@
-<template>
-  <MglGeojsonLayer
-    :sourceId="`geojson-source-${props.Name}`"
-    :source="geojsonData"
-    :layerId="`${props.Name}-layer`"
-    :layer="{
-      type: 'fill',
-      paint: {
-        'fill-color': '#888',
-        'fill-opacity': 0.5
-      }
-    }"
-  />
-  </template>
-
 <script setup>
-import { ref, onMounted, defineProps } from 'vue';
+import { ref, onMounted } from 'vue';
 import { MglGeojsonLayer } from 'vue-mapbox3'; // Import MapboxLayer component
 
 // Props
@@ -42,3 +27,18 @@ onMounted(async () => {
   }
 });
 </script>
+
+<template>
+  <MglGeojsonLayer
+    :sourceId="`geojson-source-${props.Name}`"
+    :source="geojsonData"
+    :layerId="`${props.Name}-layer`"
+    :layer="{
+      type: 'fill',
+      paint: {
+        'fill-color': '#888',
+        'fill-opacity': 0.5
+      }
+    }"
+  />
+</template>

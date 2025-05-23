@@ -1,9 +1,9 @@
 <script setup>
-  import { ref, computed, watch, defineExpose } from 'vue';
+  import { ref, computed, watch } from 'vue';
   import ResultsCount from './ResultsCount.vue';
   import SearchResult from './SearchResult.vue';
   import LastSearch from './LastSearch.vue';
-  import { ResultsJson, ResultsGeoJson, Status, DetailedResponse, Count } from '../utils/ResponseHandler.ts';
+  import { ResultsJson, ResultsGeoJson, Status, DetailedResponse, Count } from '../utils/ResponseHandler.js';
 
   const props = defineProps({
     year: {
@@ -28,15 +28,13 @@
   ];
 
   const orderedResults = computed(() => {
-    return categoryOrder
-      .map((key) => {
-        const group = results.value[key];
+    return categoryOrder.map((key) => {
+        const group = results.value ? results.value[key] : null;
         if (group && Array.isArray(group[key]) && group[key].length > 0 && key !== 'count') {
           return key;
         }
         return null;
-      })
-      .filter(Boolean);
+      }).filter((key) => key !== null);
   });
 
   function formatCategory(key) {
@@ -48,18 +46,24 @@
   const backendHost = import.meta.env.VITE_BACKEND_HOST;
 
   const searchTerm = ref('');
-  const results = ref([]);
-  const count = ref({});
-  const geojson = ref({});
+
+  const results = ref(ResultsJson.createEmpty());
+  const count = ref(new Count());
+  const geojson = ref(ResultsGeoJson.createEmpty());
 
   const resultsData = ref({});
   const geoData = ref([]);
 
   const stringResults = ref('');
 
+  const JsonResponse = ref(new DetailedResponse(null, null, Status.Success, null, false));
+  const geoJsonResponse = ref(new DetailedResponse(null, null, Status.Success, null, false));
+  const filteredJson = ref(ResultsJson.createEmpty());
+  const filteredGeoJson = ref(ResultsGeoJson.createEmpty());
+
   function resetState() {
-    results.value = [];
-    count.value = {};
+    results.value = ResultsJson.createEmpty();
+    count.value = new Count();
     lastSearch.value = '';
   }
 
@@ -88,42 +92,41 @@
       resultsData.value = await resultsRes.json();
       geoData.value = await geoJsonRes.json();
 
-      var JsonResponse = new DetailedResponse();
-      var geoJsonResponse = new DetailedResponse();
-
       ResultsJson.fromJson((response) => {
         if (response.status === Status.Success) {
-          JsonResponse = response;
+          JsonResponse.value = response;
         } else {
           console.error("Error:", response.error || response.message);
         }
       },resultsData.value)
       ResultsGeoJson.fromJson((response) => {
         if (response.status === Status.Success) {
-          geoJsonResponse = response;
+          geoJsonResponse.value = response;
         } else {
           console.error("Error:", response.error || response.message);
         }
       },geoData.value);
 
-      if (JsonResponse.status !== Status.Success ||
-          geoJsonResponse.status !== Status.Success ||
-          JsonResponse.isError ||
-          geoJsonResponse.isError) {
-        console.error('Error fetching results:', JsonResponse.errorMessage);
+      if (JsonResponse.value.status !== Status.Success ||
+          geoJsonResponse.value.status !== Status.Success ||
+          JsonResponse.value.isError ||
+          geoJsonResponse.value.isError ||
+          JsonResponse.value.results === null ||
+          geoJsonResponse.value.results === null) {
+        console.error('Error fetching results:', JsonResponse.value.error);
         return;
       }
 
       if (props.year !== '') {
-        filteredJson = JsonResponse.results.filterByYear(props.year);
-        filteredGeoJson = geoJsonResponse.results.filterByYear(props.year);
-        results.value = filteredJson;
-        count.value = filteredJson.count
-        geojson.value = filteredGeoJson;
+        filteredJson.value = (JsonResponse.value.results).filterByYear(props.year);
+        filteredGeoJson.value = (geoJsonResponse.value.results).filterByYear(props.year);
+        results.value = filteredJson.value;
+        count.value = filteredJson.value.count[0];
+        geojson.value = filteredGeoJson.value;
       } else {
-        results.value = JsonResponse.results;
-        count.value = JsonResponse.results.TotalCount();
-        geojson.value = geoJsonResponse.results;
+        results.value = (JsonResponse.value.results);
+        count.value = JsonResponse.value.results.TotalCount();
+        geojson.value = (geoJsonResponse.value.results);
       }
       lastSearch.value = searchTerm.value;
 
@@ -147,12 +150,12 @@
     <div v-if="loading" class="spinner-container">
       <div class="spinner"></div>
     </div>
-    <ResultsCount :count="count" :loading="loading" />
+    <ResultsCount v-if="count" :count="count" :loading="loading" />
 
     <div class="results-list">
 
       <!-- Iterate through the properties of the object -->
-      <template v-if="!loading" v-for="(category) in orderedResults" :key="category">
+      <template v-if="!loading && results" v-for="(category) in orderedResults" :key="category">
         <!-- Output the property name -->
         <div class="result-category">
           <h4 class="category-title">
@@ -160,26 +163,12 @@
           </h4>
         </div>
         <SearchResult
-          v-for="item in results[category]"
+          v-for="item in results[category || '']"
           :key="item?.id || item?.name || item?.description || item?.story?.name"
           :item="item"
           :category="category"/>
       </template>
 
-
-
-      <!-- <template v-for="(category) in Object.keys(results).filter((key) => key !== 'count' && results[key].length > 0)" :key="category">
-        <div class="result-category">
-          <h4 class="category-title">
-            {{ formatCategory(category) }}
-          </h4>
-        </div>
-        <SearchResult
-          v-for="item in results[category]"
-          :key="item?.id || item?.name || item?.description || item?.story?.name"
-          :item="item"
-          :category="category"/>
-      </template> -->
     </div>
   </div>
 </template>

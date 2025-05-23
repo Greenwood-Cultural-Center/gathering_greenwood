@@ -1,5 +1,5 @@
 <script setup>
-import { defineProps, ref, computed, toRef} from 'vue';
+import { ref, computed, toRef} from 'vue';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 const props = defineProps({
@@ -13,6 +13,10 @@ const props = defineProps({
   },
   delay: {
     type: Number,
+    required: true,
+  },
+  clickHandler: {
+    type: Function,
     required: true,
   },
   iconClass: {
@@ -50,7 +54,15 @@ const props = defineProps({
   shadowColor: {
     type: String,
     default: '#eee',
-  }
+  },
+  state: {
+    type: Boolean,
+    default: false,
+  },
+  innerText: {
+    type: String,
+    default: '',
+  },
 });
 
 const delayRef = toRef(props, 'delay');
@@ -80,10 +92,10 @@ const iconPresent = computed(() => {
 </script>
 
 <template>
-  <a href="#" :style="cssVars" :title="title" class="fabInnerButton" :aria-label="ariaLabel" role="button" :aria-description="ariaDescription" data-index="dataIndex">
+  <a href="#" :style="cssVars" :title="title" class="fabInnerButton" :aria-label="ariaLabel" role="button" @click="clickHandler" :aria-description="ariaDescription" data-index="dataIndex">
     <FontAwesomeIcon v-if="iconPresent" :icon="icon" :class="`icon ${iconClass}`" />
   </a>
-  <div :style="cssVars" class="fabLabel">{{ title }}</div>
+  <div :style="cssVars" class="fabLabel" @click="clickHandler">{{ innerText ? innerText : title }}</div>
 </template>
 
 <style>
@@ -110,40 +122,44 @@ const iconPresent = computed(() => {
 <style scoped>
 
   a {
-      display: block;
-      width: 45px;
-      height: 45px;
-      border-radius: 50%;
-      text-decoration: none;
-      margin: 10px auto 0;
-      line-height: 1.15;
-      background-color: var(--gcc-dk-green);
-      color: var(--gcc-white);
-      opacity: 0;
-      visibility: hidden;
-      position: relative;
-      box-shadow: 0 0 5px 1px rgba(51, 51, 51, .3);
-      transition: opacity .2s ease-in-out var(--transitionDelay), transform .15s ease-in-out;
-    }
+    display: block;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    text-decoration: none;
+    margin: 10px auto 0;
+    line-height: 1.15;
+    background-color: var(--gcc-dk-green);
+    color: var(--gcc-white);
+    opacity: 0;
+    visibility: hidden;
+    position: relative;
+    box-shadow: 0 0 5px 1px rgba(51, 51, 51, .3);
+    transition: opacity .2s ease-in-out var(--transitionDelay), transform .15s ease-in-out;
+  }
 
   a .icon {
-      position: absolute;
-      top: 47%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-    }
+    position: absolute;
+    top: 47%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
 
   .fabLabel {
     position: relative;
-    top: -3rem;
-    right: -7rem;
-    width: 7rem;
+    white-space: nowrap;
+    top: -2.8rem;
+    right: -7.4rem;
     color: var(--gcc-dk-green);
     transition: opacity .2s ease-in-out var(--transitionDelay), transform .15s ease-in-out;
     opacity: 0;
     visibility: hidden;
     -webkit-text-stroke: var(--shadow-width) var(--shadow-color);
-    text-shadow: var(--x-offset) var(--y-offset) var(--t-blur) var(--shadow-color), var(--x-offset-neg) var(--y-offset) var(--t-blur) var(--shadow-color), var(--x-offset-neg) var(--y-offset-neg) var(--b-blur) var(--shadow-color), var(--x-offset) var(--y-offset-neg) var(--b-blur) var(--shadow-color);
+    text-align: start;
+    text-shadow: var(--x-offset) var(--y-offset) var(--t-blur) var(--shadow-color),
+                 var(--x-offset-neg) var(--y-offset) var(--t-blur) var(--shadow-color),
+                 var(--x-offset-neg) var(--y-offset-neg) var(--b-blur) var(--shadow-color),
+                 var(--x-offset) var(--y-offset-neg) var(--b-blur) var(--shadow-color);
   }
 
 </style>

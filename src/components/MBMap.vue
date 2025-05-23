@@ -16,8 +16,14 @@
 
     // Props (JS version)
     const props = defineProps({
-    year: String,
-    required: true
+    year: {
+        type: String,
+        required: true
+    },
+    geoJson: {
+        type: String,
+        required: true
+    },
     });
 
     // Date selection logic

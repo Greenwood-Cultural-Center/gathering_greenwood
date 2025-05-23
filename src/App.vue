@@ -1,5 +1,5 @@
 <script setup>
-  import { ref, computed, onBeforeMount } from 'vue'
+  import { ref, computed, onBeforeMount} from 'vue';
   import { MapboxMap } from '@studiometa/vue-mapbox-gl';
   import MBMap from './components/MBMap.vue'
   import MglMap from './components/MglMap.vue';
@@ -12,8 +12,10 @@
 
   // State
   const appYear = ref('');
-  const geoJson = ref(null);
+  const geoJson = ref('');
   const mapType = ref('MGL'); // or 'MB' for Mapbox GL JS
+
+  const contrastMode = ref(false);
 
   // define available years
   const years = [
@@ -22,9 +24,29 @@
   ];
 
   const fabButtonCustomProps = [
-    { title: 'Home', icon: ['fas', 'house'], ariaLabel: 'reset', ariaDescription: 'reset map and clear search results' },
-    { title: 'Help', icon: ['fas', 'question'], ariaLabel: 'help', ariaDescription: 'show help video' },
-    { title: 'Contrast', icon:'', ariaLabel: 'contrast mode', ariaDescription: 'enable high contrast mode' }
+    {
+      title: 'Home',
+      icon: ['fas', 'house'],
+      ariaLabel: 'reset',
+      ariaDescription: 'reset map and clear search results',
+      clickHandler: () => resetApp(),
+    },
+    {
+      title: 'Help',
+      icon: ['fas', 'question'],
+      ariaLabel: 'help',
+      ariaDescription: 'show help video',
+      clickHandler: () => showHelpVideo(),
+    },
+    {
+      title:'Contrast',
+      icon:'',
+      ariaLabel: 'contrast mode',
+      state: contrastMode.value,
+      ariaDescription: 'enable high contrast mode',
+      innerText: `Contrast ${contrastMode.value ? 'ON' : 'OFF'}`,
+      clickHandler: () => toggleContrastMode(),
+    }
   ];
 
   // Map and ResultsPane ref
@@ -34,6 +56,7 @@
   function updateYear(newYear) {
     appYear.value = newYear;
   }
+
   // Reset handler for app state and map
   function resetApp() {
     // Reset app year to default
@@ -46,6 +69,17 @@
     resetMap();
   }
 
+  function showHelpVideo() {
+    // Logic to show help video
+    console.log('Show help video');
+  }
+
+  function toggleContrastMode() {
+    contrastMode.value = !contrastMode.value;
+    // Logic to toggle high contrast mode
+    console.log('Toggle high contrast mode');
+  }
+
   function handleGeojson(newGeojson) {
     // if (mglMapRef.value) {
     //   geoJson.value = newGeojson;
@@ -54,52 +88,63 @@
   }
 
   function clearResults() {
-    if (resultsPaneRef) {
+    if (resultsPaneRef && resultsPaneRef.value) {
       resultsPaneRef.value.resetState();
     }
   }
 
   function resetMap() {
-    if (mglMapRef) {
+    if (mglMapRef && mglMapRef.value) {
       mglMapRef.value.resetMap();
-      geoJson.value = null;
+      geoJson.value = '';
     }
   }
 
   function handleSearch(searchValue) {
     clearResults();
     resetMap();
-    if (resultsPaneRef) {
+    if (resultsPaneRef && resultsPaneRef.value) {
       resultsPaneRef.value.search(searchValue);
     }
   }
 
+  // Create an array of FAB button properties
+  //  based on the custom properties defined above
+  // This is a computed property that will be reactive to changes in the custom properties
+  //  and will return an array of objects with the properties needed for each FAB button
+  // The properties include title, icon, delay, ariaLabel, ariaDescription,
+  //  shadowX, shadowY, shadowBlurTop, shadowBlurBottom, shadowWidth, shadowColor
+  // The delay is calculated based on the index of the button in the array
+  // The shadow properties are set to default values
+  // The icon is set to the value of the icon property in the custom properties
+  // The ariaLabel and ariaDescription are set to the values of the ariaLabel
+  //  and ariaDescription properties in the custom properties
+  // The state is set to the value of the state property in the custom properties
   const createFabButtonProps = computed(() => {
-    var fabButtons = [];
-
-    fabButtonCustomProps.map((button, index) => (
-      fabButtons.push({
-        title: button.title,
-        icon: button.icon,
-        delay: 0.3 - (index * 0.05),
-        ariaLabel: button.ariaLabel,
-        ariaDescription: button.ariaDescription,
-        shadowX: 3,
-        shadowY: 3,
-        shadowBlurTop: 0,
-        shadowBlurBottom: 1,
-        shadowWidth: 0.5,
-        shadowColor: '#eee'})
-    ));
-    return fabButtons;
+    return fabButtonCustomProps.map((button, index) => ({
+      ...button,
+      delay: 0.3 - (index * 0.05),
+      shadowX: 3,
+      shadowY: 3,
+      shadowBlurTop: 0,
+      shadowBlurBottom: 1,
+      shadowWidth: 0.5,
+      shadowColor: '#eee',
+      innerText: button.title === 'Contrast' ? `Contrast ${contrastMode.value ? 'ON' : 'OFF'}` : button.innerText, // Dynamically update innerText
+    }));
   });
 </script>
 
 <template>
   <FABMain>
-    <FABButton v-for="(item, index) in createFabButtonProps" v-bind="item" :key="index">
-    </FABButton>
-
+    <FABButton
+      v-for="(item, index) in createFabButtonProps"
+      v-bind="item"
+      :key="index"
+      :state="item.state"
+      :innerText="typeof item.innerText === 'function' ? item.innerText() : item.innerText"
+      :clickHandler="item.clickHandler"
+    ></FABButton>
   </FABMain>
   <!-- YearSelector Component to change year -->
   <YearSearchBar

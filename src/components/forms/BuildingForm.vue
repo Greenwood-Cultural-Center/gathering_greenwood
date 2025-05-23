@@ -1,8 +1,11 @@
 <script setup>
-const props = defineProps({ item: Object });
+
+const props = defineProps({ item: {type: Object, required: true} });
+
 function formatLocation(location) {
   return location ? location.join(",") : 'Unknown';
 }
+
 </script>
 
 <template>

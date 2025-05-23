@@ -1,11 +1,14 @@
-<script setup>
+<script lang="ts" setup>
 import {
   faLink
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-const props = defineProps({ item: Object });
 
-const fixedURL = `http://localhost:3001${props.item.URL}`;
+const props = defineProps({ item: {type: Object, required: true} });
+
+var backendURL = import.meta.env.VITE_BACKEND_HOST;
+
+const fixedURL = `${backendURL}${props.item.URL}`;
 </script>
 
 <template>
