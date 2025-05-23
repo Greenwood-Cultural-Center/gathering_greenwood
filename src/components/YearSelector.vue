@@ -1,5 +1,5 @@
 <script setup>
-import { defineProps, ref, onMounted, onBeforeMount } from 'vue';
+import { ref, onMounted, onBeforeMount } from 'vue';
 import utils from '../utils/utils.js';
 import objectHash from 'object-hash';
 
@@ -83,14 +83,14 @@ onMounted(() => {
 // Function to set the year
 function setYear(year, event) {
 
-  // Store the clicked element
-  clickedElement.value = event.target;
-
   // Remove the class from the previously clicked element
   if (clickedElement.value) {
     clickedElement.value.removeAttribute('checked');
     document.querySelector(`label[for="${clickedElement.value.id}"]`).classList.remove('selected');
   }
+
+  // Store the clicked element
+  clickedElement.value = event.target;
 
   // Add a class to the clicked element
   clickedElement.value.setAttribute('checked', '');

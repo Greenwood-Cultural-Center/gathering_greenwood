@@ -1,17 +1,5 @@
-<template>
-  <MapboxLayer
-    v-if="geojsonData"
-    :id="layerId"
-    :source-id="`geojson-source-${props.Name}`"
-    :source="{
-      type: 'geojson',
-      data: geojsonData
-    }"
-  />
-  </template>
-
   <script setup>
-    import { ref, onMounted, defineProps } from 'vue';
+    import { ref, onMounted } from 'vue';
     import shp from 'shpjs'; // Import shpjs to parse Shapefiles
     import { MapboxLayer } from '@studiometa/vue-mapbox-gl'; // Import MapboxLayer component
 
@@ -43,6 +31,18 @@
       }
     });
   </script>
+
+  <template>
+    <MapboxLayer
+      v-if="geojsonData"
+      :id="layerId"
+      :source-id="`geojson-source-${props.Name}`"
+      :source="{
+        type: 'geojson',
+        data: geojsonData
+      }"
+    />
+  </template>
 
   <style scoped>
     /* You can add custom styles for the shapefile layer component if needed */

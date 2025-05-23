@@ -1,5 +1,5 @@
 <script setup>
-  import { ref, onMounted, watch, nextTick, defineExpose } from 'vue'
+  import { ref, onMounted, watch, nextTick } from 'vue'
   import Mapbox from "mapbox-gl";
   import { MglMap, MglNavigationControl, MglFullscreenControl, MglAttributionControl, MglGeojsonLayer } from "vue-mapbox3";
   import { filterByDate } from '@openhistoricalmap/maplibre-gl-dates'
@@ -41,12 +41,19 @@
   function resetMap () {
     const map = mapRef.value;
     resultsExist.value = false;
-    map.flyTo({
-      center: [-95.9872222, 36.1619444], // Reset to the default center (or your preferred location)
-      zoom: 14,         // Reset zoom level to default
-      essential: true, // Ensure the animation is not skipped
-    });
-    map.setFilter('search-results', null); // Reset the filter
+
+    if (map){
+      map.flyTo({
+        center: [-95.9872222, 36.1619444], // Reset to the default center (or your preferred location)
+        zoom: 14,         // Reset zoom level to default
+        essential: true, // Ensure the animation is not skipped
+      });
+      if (map.getLayer('search-results')) {
+        map.removeLayer('search-results');
+      } else {
+        console.warn("Layer 'search-results' does not exist.");
+      }
+    }
   };
 
   defineExpose({

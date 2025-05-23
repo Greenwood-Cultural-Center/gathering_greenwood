@@ -12,8 +12,14 @@
   import 'vue-html-dialog/vue-html-dialog.css';
 
   const props = defineProps({
-    item: Object,
-    category: String
+    item: {
+      type: Object,
+      required: true,
+  },
+    category: {
+      type: String,
+      required: true
+  }
   });
 
   defineExpose({
@@ -21,7 +27,7 @@
     closeDialog: () => dialogRef.value?.closeDialog()
   })
 
-  const dialogRef = ref(null);
+  const dialogRef = ref(HtmlDialog);
 
   // Dynamically resolve the correct form component
   const getComponent = computed(() => {

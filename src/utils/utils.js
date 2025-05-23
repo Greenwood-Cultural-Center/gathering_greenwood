@@ -1,17 +1,18 @@
-const centuryPrefixes:Array<String> = ["16","17","18", "19", "20", "21", "22", "23"];
+export const centuryPrefixes = ["16", "17", "18", "19", "20", "21", "22", "23"];
 
-function findObjectByKey(array: Array<any>, key: string): Array<any>[] {
+export function findObjectByKey(array, key) {
   return array.find(obj => obj && Object.hasOwn(obj, key));
 }
 
-function isYear(value: string|number): boolean {
+export function isYear(value) {
   const centuryPrefix = value.toString().slice(0, 2);
   if (typeof value === 'number') {
     return (
-      (value >=1000 && value <= 9999) &&
+      value >= 1000 &&
+      value <= 9999 &&
       !isNaN(value) &&
       centuryPrefixes.includes(centuryPrefix)
-    )
+    );
   } else {
     return (
       value.length === 4 &&
@@ -21,7 +22,7 @@ function isYear(value: string|number): boolean {
   }
 }
 
-async function hashString(str: string): Promise<string>{
+export async function hashString(str) {
   const encoder = new TextEncoder();
   const data = encoder.encode(str);
   const hashBuffer = await crypto.subtle.digest('SHA-256', data);
@@ -30,5 +31,11 @@ async function hashString(str: string): Promise<string>{
     .join('');
 }
 
-export { centuryPrefixes, findObjectByKey, isYear, hashString }
-export default { findObjectByKey, isYear, hashString, centuryPrefixes };
+const utils = {
+  findObjectByKey,
+  isYear,
+  hashString,
+  centuryPrefixes
+};
+
+export default utils;

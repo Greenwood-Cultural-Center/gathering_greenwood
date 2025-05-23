@@ -1,12 +1,13 @@
 <script setup>
-const props = defineProps({ item: Object });
+
+const props = defineProps({ item: {type: Object, required: true} });
 </script>
 
 <template>
   <div>
     <h2>Census Record</h2>
-    <p><strong>Head of Household:</strong> {{ item.head }}</p>
-    <p><strong>Year:</strong> {{ item.year }}</p>
-    <p><strong>Residents:</strong> {{ item.residents?.join(', ') }}</p>
+    <img :src="item.URL" :alt="item.description" style="max-width: 100%" />
+    <p><strong>Name:</strong> {{ item.name }}</p>
+    <p><strong>Description:</strong> {{ item.description }}</p>
   </div>
 </template>
