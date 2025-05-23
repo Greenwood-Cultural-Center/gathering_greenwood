@@ -30,7 +30,7 @@
   const orderedResults = computed(() => {
     return categoryOrder.map((key) => {
         const group = results.value ? results.value[key] : null;
-        if (group && Array.isArray(group[key]) && group[key].length > 0 && key !== 'count') {
+        if (group && Array.isArray(group) && group.length > 0 && key !== 'count') {
           return key;
         }
         return null;
