@@ -62,7 +62,7 @@
   });
 
   // Map style ref
-  const style = ref('/historic.json');
+  const style = ref(`${import.meta.env.BASE_URL}historic.json`);
   const center = ref([-95.9872222, 36.1619444]); // starting position [lng, lat]
   const zoom = ref(14); // starting zoom level`
   const accessToken = ref('pk.eyJ1IjoidHVsc2FtYXBwaW5nIiwiYSI6ImNtNm4yeGk2dDBybmcyc3B5Y2kwZmZ1YXoifQ.2rjdphm0vkZ_4FBht5c7AA');
@@ -75,7 +75,7 @@
   const layers = [
     {
       id: 'streets',
-      url: '/data/streets/Demo_Street_Labels.geojson',
+      url: `${import.meta.env.BASE_URL}data/streets/Demo_Street_Labels.geojson`,
       paint: {
         'line-color': '#8888ff',
         'line-width': 2
@@ -83,7 +83,7 @@
     },
     {
       id: 'blocks',
-      url: '/data/blocks/Demo_Blocks.geojson',
+      url: `${import.meta.env.BASE_URL}data/blocks/Demo_Blocks.geojson`,
       paint: {
         'fill-color': '#333',
         'fill-opacity': 0.5
@@ -91,7 +91,7 @@
     },
     {
       id: 'parcels',
-      url: '/data/parcels/Demo_Parcels.geojson',
+      url: `${import.meta.env.BASE_URL}data/parcels/Demo_Parcels.geojson`,
       paint: {
         'fill-color': '#eee',
         'fill-opacity': 0.5
