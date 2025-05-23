@@ -6,15 +6,20 @@ import { fileURLToPath } from 'node:url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const isDev = !app.isPackaged; // Check if the app is in development mode
+const isDev = process.env.NODE_ENV === 'development' && !app.isPackaged; // Check if the app is in development mode
 
 const createWindow = () => {
+  const iconPath = isDev
+    ? path.join(__dirname, '../public/gcc.ico') // Path in development
+    : path.join(__dirname, 'gcc.ico'); // Path in production (copied to dist)
+
   const win = new BrowserWindow({
     width: 3840,
     height: 2160,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
-    }
+    },
+    icon: iconPath,
   });
 
   if (isDev) {

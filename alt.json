@@ -1,0 +1,22 @@
+{
+  "build": {
+    "appId": "com.Greenwood.Kiosk",
+    "productName": "Greenwood Kiosk",
+    "directories" : {
+      "output": "dist-electron"
+    },
+    "files": [
+      "dist-electron/**/*",
+      "dist/**/*"
+    ],
+    "linux": {
+      "icon": "electron/gcc.png"
+    },
+    "mac": {
+      "icon": "electron/gcc.png"
+    },
+    "win": {
+      "icon": "electron/gcc.ico"
+    }
+  }
+}
