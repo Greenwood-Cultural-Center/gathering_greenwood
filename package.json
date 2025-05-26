@@ -1,7 +1,7 @@
 {
   "name": "kiosk_frontend",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.3.0",
   "type": "module",
   "main": "electron/main.js",
   "description": "Greenwood Kiosk",
@@ -57,7 +57,7 @@
   "config": {
     "forge": {
       "packagerConfig": {
-      "icon": "public/gcc"
+        "icon": "public/gcc"
       },
       "makers": [
         {
