@@ -18,10 +18,10 @@
     category: String
   });
 
-  const dialog = ref(null)
+  const modalRef = ref(null);
 
   function showDialog() {
-    dialog.value?.openDialog()
+    modalRef.value?.openDialog()
   }
 
   const icon = computed(() => {
@@ -46,7 +46,7 @@
   <div class="search-result" @click="showDialog">
     <FontAwesomeIcon :icon="icon" class="icon" />
     <span>{{ item?.name || item?.description || item?.caption || item?.story?.name }}</span>
-    <ResultModal ref="dialog" :item="item" :category="category" />
+    <ResultModal ref="modalRef" :item="item" :category="category" />
   </div>
 </template>
 
