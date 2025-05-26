@@ -121,6 +121,12 @@ class ResultsGeoJson {
     return this.features.length;
   }
 
+  isEmpty() {
+    return (
+      this.features.length === 0
+    );
+  }
+
   static isResultsGeoJson(obj) {
     return obj &&
       typeof obj.type === "string" &&
