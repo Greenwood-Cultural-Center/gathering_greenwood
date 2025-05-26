@@ -27,7 +27,7 @@
       if (match) {
           DateOption.selected.value = match;
           filterByDate(map, match.date);
-          map.setFilter('search-results', ['==', 'date', match.year]);
+          //map.setFilter('search-results', ['==', 'date', match.year]);
       }
   };
 
@@ -48,11 +48,6 @@
         zoom: 14,         // Reset zoom level to default
         essential: true, // Ensure the animation is not skipped
       });
-      if (map.getLayer('search-results')) {
-        map.removeLayer('search-results');
-      } else {
-        console.warn("Layer 'search-results' does not exist.");
-      }
     }
   };
 

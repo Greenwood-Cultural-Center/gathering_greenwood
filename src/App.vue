@@ -9,10 +9,13 @@
   import FABButton from './components/FABButton.vue';
   import ResultsPane from './components/ResultsPane.vue';
   import YearSearchBar from './components/YearSearchBar.vue';
+  import DynamicGeoJsonLayer from './components/DynamicGeoJsonLayer.vue';
+
+  const emptyGeoJson = {type:'geojson',data:{id: 'search-source', type: 'FeatureCollection', features: []}};
 
   // State
   const appYear = ref('');
-  const geoJson = ref('');
+  const geoJson = ref(emptyGeoJson);
   const mapType = ref('MGL'); // or 'MB' for Mapbox GL JS
 
   const contrastMode = ref(false);
@@ -49,6 +52,13 @@
     }
   ];
 
+  const geoJsonFeaturePaint = {
+    'circle-radius': 8,
+    'circle-color': '#f37021',     // orange inner circle
+    'circle-stroke-color': '#ffffff', // white border
+    'circle-stroke-width': 3
+  }
+
   // Map and ResultsPane ref
   const mglMapRef = ref(null);
   const resultsPaneRef = ref(null);
@@ -81,10 +91,10 @@
   }
 
   function handleGeojson(newGeojson) {
-    // if (mglMapRef.value) {
-    //   geoJson.value = newGeojson;
-    //   mglMapRef.value.loadDynamicLayer(newGeojson);
-    // }
+    if (mglMapRef.value) {
+      geoJson.value = newGeojson;
+      //mglMapRef.value.loadDynamicLayer(newGeojson);
+    }
   }
 
   function clearResults() {
@@ -96,7 +106,7 @@
   function resetMap() {
     if (mglMapRef && mglMapRef.value) {
       mglMapRef.value.resetMap();
-      geoJson.value = '';
+      geoJson.value = emptyGeoJson; // Reset geoJson to empty
     }
   }
 
@@ -106,6 +116,10 @@
     if (resultsPaneRef && resultsPaneRef.value) {
       resultsPaneRef.value.search(searchValue);
     }
+  }
+
+  function handleFeatureClick(feature) {
+
   }
 
   // Create an array of FAB button properties
@@ -154,6 +168,15 @@
 
   <template v-if="mapType === 'MGL'">
     <MglMap :year="appYear" ref="mglMapRef">
+      <DynamicGeoJsonLayer
+        :geojson="geoJson"
+        :type="'circle'"
+        :paint=geoJsonFeaturePaint
+        :layout="{ 'visibility': 'visible' }"
+        layerId="search-layer"
+        @feature-click="handleFeatureClick"
+        :filterYear="appYear"
+      />
     </MglMap>
   </template>
   <template v-else-if ="mapType === 'MB'">
@@ -179,7 +202,7 @@
     :years="years"
     :year="appYear"
     @update:geojson="handleGeojson"
-    v-model:geoJson="geoJson"
+    v-model:geojson="geoJson"
     />
 </template>
 

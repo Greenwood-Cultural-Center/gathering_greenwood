@@ -20,7 +20,7 @@ class ResultsJson {
     }
 
     if (!obj || !obj.results || !Array.isArray(obj.results) || !obj.count || !Array.isArray(obj.count)) {
-      const response = new DetailedResponse(null, "No Results Found", Status.Success, null, false);
+      const response = new DetailedResponse(ResultsJson.createEmpty(), "No Results Found", Status.Success, null, false);
       callback(response);
       return;
     }
