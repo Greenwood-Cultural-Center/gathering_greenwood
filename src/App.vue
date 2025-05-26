@@ -1,9 +1,6 @@
 <script setup>
   import { ref, computed, onBeforeMount} from 'vue';
-  import { MapboxMap } from '@studiometa/vue-mapbox-gl';
-  import MBMap from './components/MBMap.vue'
   import MglMap from './components/MglMap.vue';
-  import GeoJsonLayer from './components/GeoJsonLayer.vue';
   import Layer from './components/Layer.vue';
   import FABMain from './components/FABMain.vue';
   import FABButton from './components/FABButton.vue';
@@ -16,7 +13,6 @@
   // State
   const appYear = ref('');
   const geoJson = ref(emptyGeoJson);
-  const mapType = ref('MGL'); // or 'MB' for Mapbox GL JS
 
   const contrastMode = ref(false);
 
@@ -59,69 +55,6 @@
     'circle-stroke-width': 3
   }
 
-  // Map and ResultsPane ref
-  const mglMapRef = ref(null);
-  const resultsPaneRef = ref(null);
-
-  function updateYear(newYear) {
-    appYear.value = newYear;
-  }
-
-  // Reset handler for app state and map
-  function resetApp() {
-    // Reset app year to default
-    updateYear('');
-
-    // Reset search results
-    clearResults();
-
-    // Reset map zoom and center to default values
-    resetMap();
-  }
-
-  function showHelpVideo() {
-    // Logic to show help video
-    console.log('Show help video');
-  }
-
-  function toggleContrastMode() {
-    contrastMode.value = !contrastMode.value;
-    // Logic to toggle high contrast mode
-    console.log('Toggle high contrast mode');
-  }
-
-  function handleGeojson(newGeojson) {
-    if (mglMapRef.value) {
-      geoJson.value = newGeojson;
-      //mglMapRef.value.loadDynamicLayer(newGeojson);
-    }
-  }
-
-  function clearResults() {
-    if (resultsPaneRef && resultsPaneRef.value) {
-      resultsPaneRef.value.resetState();
-    }
-  }
-
-  function resetMap() {
-    if (mglMapRef && mglMapRef.value) {
-      mglMapRef.value.resetMap();
-      geoJson.value = emptyGeoJson; // Reset geoJson to empty
-    }
-  }
-
-  function handleSearch(searchValue) {
-    clearResults();
-    resetMap();
-    if (resultsPaneRef && resultsPaneRef.value) {
-      resultsPaneRef.value.search(searchValue);
-    }
-  }
-
-  function handleFeatureClick(feature) {
-
-  }
-
   // Create an array of FAB button properties
   //  based on the custom properties defined above
   // This is a computed property that will be reactive to changes in the custom properties
@@ -147,63 +80,132 @@
       innerText: button.title === 'Contrast' ? `Contrast ${contrastMode.value ? 'ON' : 'OFF'}` : button.innerText, // Dynamically update innerText
     }));
   });
+
+  // Map and ResultsPane ref
+  const mglMapRef = ref(null);
+  const resultsPaneRef = ref(null);
+  const map = ref(null);
+
+  // Reset Functions
+
+  // Reset handler for app state and map
+  function resetApp() {
+    // Reset app year to default
+    updateYear('');
+
+    // Reset search results
+    clearResults();
+
+    // Reset map zoom and center to default values
+    resetMap();
+  }
+
+  function clearResults() {
+    if (resultsPaneRef && resultsPaneRef.value) {
+      resultsPaneRef.value.resetState();
+    }
+  }
+
+  function resetMap() {
+    if (mglMapRef && mglMapRef.value) {
+      mglMapRef.value.resetMap();
+      geoJson.value = emptyGeoJson; // Reset geoJson to empty
+    }
+  }
+
+  // FAB Button Handlers
+  // Functions to handle FAB button actions
+
+  function showHelpVideo() {
+    // Logic to show help video
+    console.log('Show help video');
+  }
+
+  function toggleContrastMode() {
+    contrastMode.value = !contrastMode.value;
+    // Logic to toggle high contrast mode
+    console.log('Toggle high contrast mode');
+  }
+
+  // Event Handlers
+  // Functions to handle events from child components
+
+  function handleGeojson(newGeojson) {
+    if (mglMapRef.value) {
+      geoJson.value = newGeojson;
+      //mglMapRef.value.loadDynamicLayer(newGeojson);
+    }
+  }
+
+  function handleSearch(searchValue) {
+    clearResults();
+    resetMap();
+    if (resultsPaneRef && resultsPaneRef.value) {
+      resultsPaneRef.value.search(searchValue);
+    }
+  }
+
+  function handleFeatureClick(feature) {
+    console.log('Feature clicked:', feature);
+  }
+
+  function updateYear(newYear) {
+    appYear.value = newYear;
+    console.log('Year updated:', newYear);
+    if (resultsPaneRef && resultsPaneRef.value) {
+      resultsPaneRef.value.yearChanged(newYear);
+    }
+  }
+
+  const handleMapCreated = (mbMap) => {
+    map.value = mbMap;
+  };
+
 </script>
 
 <template>
+
+  <!-- FAB Component to create menu with dynamic buttons-->
   <FABMain>
     <FABButton
       v-for="(item, index) in createFabButtonProps"
-      v-bind="item"
       :key="index"
+      v-bind="item"
       :state="item.state"
       :innerText="typeof item.innerText === 'function' ? item.innerText() : item.innerText"
       :clickHandler="item.clickHandler"
     ></FABButton>
   </FABMain>
-  <!-- YearSelector Component to change year -->
+
+  <!-- YearSelector Component to change year and perform searches -->
   <YearSearchBar
     :onSearch="handleSearch"
     :onYearChange="updateYear"
-    :years="years"></YearSearchBar>
+    :years="years"
+  ></YearSearchBar>
 
-  <template v-if="mapType === 'MGL'">
-    <MglMap :year="appYear" ref="mglMapRef">
-      <DynamicGeoJsonLayer
-        :geojson="geoJson"
-        :type="'circle'"
-        :paint=geoJsonFeaturePaint
-        :layout="{ 'visibility': 'visible' }"
-        layerId="search-layer"
-        @feature-click="handleFeatureClick"
-        :filterYear="appYear"
-      />
-    </MglMap>
-  </template>
-  <template v-else-if ="mapType === 'MB'">
-    <MBMap :year="appYear" :geoJson="geoJson">
-      <Layer
-        geojsonUrl="src\data\parcels\Demo_Parcels.geojson"
-        Name="Parcels">
-      </Layer>
-      <Layer
-        geojsonUrl="src\data\streets\Demo_Street_Labels.geojson"
-        Name="Streets">
-      </Layer>
-      <Layer
-        geojsonUrl="src\data\blocks\Demo_Blocks.geojson"
-        Name="Blocks">
-      </Layer>
-    </MBMap>
-  </template>
-  <!--
-    @update:results="handleResults"-->
+  <!-- Map Component with layer containing dynamic GeoJSON search results-->
+  <MglMap :year="appYear" ref="mglMapRef" @created="handleMapCreated">
+    <DynamicGeoJsonLayer
+      :geojson="geoJson"
+      :type="'circle'"
+      :paint="geoJsonFeaturePaint"
+      :layout="{ 'visibility': 'visible' }"
+      layerId="search-layer"
+      @feature-click="handleFeatureClick"
+      :filterYear="appYear"
+      :map="map"
+    />
+  </MglMap>
+
+  <!-- Results Pane Component with containing dynamic search results-->
   <ResultsPane
     ref="resultsPaneRef"
     :years="years"
     :year="appYear"
     @update:geojson="handleGeojson"
     v-model:geojson="geoJson"
-    />
+  />
 </template>
 
 <style>

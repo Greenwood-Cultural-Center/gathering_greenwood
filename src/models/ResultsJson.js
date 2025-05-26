@@ -190,6 +190,18 @@ class ResultsJson {
     return totalCount;
   }
 
+  isEmpty() {
+    return (
+      this.buildings.length === 0 &&
+      this.people.length === 0 &&
+      this.census_records.length === 0 &&
+      this.documents.length === 0 &&
+      this.media.length === 0 &&
+      this.stories.length === 0 &&
+      this.count.length === 0
+    );
+  }
+
   static isResultsJson(obj) {
     return (
       obj &&

@@ -4,13 +4,36 @@
   import { MglMap, MglNavigationControl, MglFullscreenControl, MglAttributionControl, MglGeojsonLayer } from "vue-mapbox3";
   import { filterByDate } from '@openhistoricalmap/maplibre-gl-dates'
 
-
   const props = defineProps({
     year: String
   });
 
+  defineExpose({
+    resetMap,
+    loadDynamicLayer,
+  });
+
+  const emit = defineEmits(['created']);
+
   const geoJson = ref(null);
   const resultsExist = ref(false);
+
+  // Store reference to map instance (if needed for advanced interactions)
+  const mapRef = ref(null);
+
+  // Reactive references for GeoJSON data
+  const geoJsonData = ref({});
+
+  // Map style ref
+  const style = ref(`${import.meta.env.BASE_URL}historic.json`);
+  const center = ref([-95.9872222, 36.1619444]); // starting position [lng, lat]
+  const zoom = ref(14); // starting zoom level`
+  const accessToken = ref('pk.eyJ1IjoidHVsc2FtYXBwaW5nIiwiYSI6ImNtNm4yeGk2dDBybmcyc3B5Y2kwZmZ1YXoifQ.2rjdphm0vkZ_4FBht5c7AA');
+
+  // GeoJSON data refs
+  const parcels = ref(null);
+  const streets = ref(null);
+  const blocks = ref(null);
 
   // Date selection logic
   const DateOption = {
@@ -21,6 +44,33 @@
     ],
     selected: ref({ year: '', date: '2025-01-01' })
   };
+
+  const layers = [
+    {
+      id: 'streets',
+      url: `${import.meta.env.BASE_URL}data/streets/Demo_Street_Labels.geojson`,
+      paint: {
+        'line-color': '#8888ff',
+        'line-width': 2
+      }
+    },
+    {
+      id: 'blocks',
+      url: `${import.meta.env.BASE_URL}data/blocks/Demo_Blocks.geojson`,
+      paint: {
+        'fill-color': '#333',
+        'fill-opacity': 0.5
+      }
+    },
+    {
+      id: 'parcels',
+      url: `${import.meta.env.BASE_URL}data/parcels/Demo_Parcels.geojson`,
+      paint: {
+        'fill-color': '#eee',
+        'fill-opacity': 0.5
+      }
+    }
+  ];
 
   function changeYear (map, newYear) {
       const match = DateOption.options.find(o => o.year === newYear);
@@ -50,55 +100,6 @@
       });
     }
   };
-
-  defineExpose({
-    resetMap,
-    loadDynamicLayer,
-  });
-
-  // Map style ref
-  const style = ref(`${import.meta.env.BASE_URL}historic.json`);
-  const center = ref([-95.9872222, 36.1619444]); // starting position [lng, lat]
-  const zoom = ref(14); // starting zoom level`
-  const accessToken = ref('pk.eyJ1IjoidHVsc2FtYXBwaW5nIiwiYSI6ImNtNm4yeGk2dDBybmcyc3B5Y2kwZmZ1YXoifQ.2rjdphm0vkZ_4FBht5c7AA');
-
-  // GeoJSON data refs
-  const parcels = ref(null);
-  const streets = ref(null);
-  const blocks = ref(null);
-
-  const layers = [
-    {
-      id: 'streets',
-      url: `${import.meta.env.BASE_URL}data/streets/Demo_Street_Labels.geojson`,
-      paint: {
-        'line-color': '#8888ff',
-        'line-width': 2
-      }
-    },
-    {
-      id: 'blocks',
-      url: `${import.meta.env.BASE_URL}data/blocks/Demo_Blocks.geojson`,
-      paint: {
-        'fill-color': '#333',
-        'fill-opacity': 0.5
-      }
-    },
-    {
-      id: 'parcels',
-      url: `${import.meta.env.BASE_URL}data/parcels/Demo_Parcels.geojson`,
-      paint: {
-        'fill-color': '#eee',
-        'fill-opacity': 0.5
-      }
-    }
-  ];
-
-  // Store reference to map instance (if needed for advanced interactions)
-  const mapRef = ref(null);
-
-  // Reactive references for GeoJSON data
-  const geoJsonData = ref({});
 
   async function loadGeoJson(url, id) {
     try {
@@ -131,6 +132,8 @@
   function onMapLoaded(event) {
     const map = mapRef.value = event.map; // Store the map instance
     if (map) {
+      // Emit created event with map instance
+      emit('created', map);
       changeYear(map, props.year);
     };
   };
