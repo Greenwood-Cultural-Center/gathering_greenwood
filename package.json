@@ -8,12 +8,14 @@
   "author": "Spark Collaborative",
   "scripts": {
     "dev": "vite --port 5173 --host & electron  --trace-warnings .",
+    "dev:web": "vite --port 5173 --host",
+    "dev:electron": "electron --trace-warnings .",
     "build": "vite build && vite build --config vite.config.js && copy public\\gcc.ico dist-electron\\ && copy public\\gcc.png dist-electron\\",
     "serve": "vite build && vite",
     "preview": "vite preview",
     "start": "electron-forge start",
-    "package": "electron-forge package",
-    "make": "electron-forge make",
+    "package": "npm run build && electron-forge package",
+    "make": "npm run build && electron-forge make",
     "publish": "electron-forge publish",
     "lint": "echo \"No linting configured\""
   },
