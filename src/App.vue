@@ -7,6 +7,7 @@
   import ResultsPane from './components/ResultsPane.vue';
   import YearSearchBar from './components/YearSearchBar.vue';
   import DynamicGeoJsonLayer from './components/DynamicGeoJsonLayer.vue';
+  import VideoModal from './components/VideoModal.vue';
 
   const emptyGeoJson = {type:'geojson',data:{id: 'search-source', type: 'FeatureCollection', features: []}};
 
@@ -85,6 +86,8 @@
   const mglMapRef = ref(null);
   const resultsPaneRef = ref(null);
   const map = ref(null);
+  const videoModalRef = ref(null);
+  const helpVideoUrl = `${import.meta.env.BASE_URL}GCC-Kiosk-April-2025.mp4`;
 
   // Reset Functions
 
@@ -118,7 +121,9 @@
 
   function showHelpVideo() {
     // Logic to show help video
-    console.log('Show help video');
+    if (videoModalRef.value) {
+      videoModalRef.value.openDialog();
+    }
   }
 
   function toggleContrastMode() {
@@ -160,7 +165,6 @@
   const handleMapCreated = (mbMap) => {
     map.value = mbMap;
   };
-
 </script>
 
 <template>
@@ -177,12 +181,11 @@
     ></FABButton>
   </FABMain>
 
+  <!-- Video Modal Component to show help video -->
+  <VideoModal ref="videoModalRef" :url="helpVideoUrl" :autoplay="true" class="fab fa-autoprefixer"></VideoModal>
+
   <!-- YearSelector Component to change year and perform searches -->
-  <YearSearchBar
-    :onSearch="handleSearch"
-    :onYearChange="updateYear"
-    :years="years"
-  ></YearSearchBar>
+  <YearSearchBar :onSearch="handleSearch" :onYearChange="updateYear" :years="years"></YearSearchBar>
 
   <!-- Map Component with layer containing dynamic GeoJSON search results-->
   <MglMap :year="appYear" ref="mglMapRef" @created="handleMapCreated">
