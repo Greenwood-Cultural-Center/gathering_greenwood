@@ -54,12 +54,9 @@
   const resultsData = ref({});
   const geoData = ref([]);
 
-  const stringResults = ref('');
-
-  const JsonResponse = ref(new DetailedResponse(null, null, Status.Success, null, false));
-  const geoJsonResponse = ref(new DetailedResponse(null, null, Status.Success, null, false));
+  const JsonResponse = ref(new DetailedResponse(ResultsJson.createEmpty(), null, Status.Success, null, false));
+  const geoJsonResponse = ref(new DetailedResponse(ResultsGeoJson.createEmpty(), null, Status.Success, null, false));
   const filteredJson = ref(ResultsJson.createEmpty());
-  const filteredGeoJson = ref(ResultsGeoJson.createEmpty());
 
   function resetState() {
     results.value = ResultsJson.createEmpty();
@@ -70,7 +67,28 @@
   defineExpose({
     resetState,
     search,
+    yearChanged
   });
+
+  function formatRawGeoJson(rawGeoJson) {
+    return {
+      type: 'geojson',
+      data: rawGeoJson
+    }
+  }
+
+  function yearChanged(newYear) {
+    if (!results.value.isEmpty()) {
+      if (newYear !== '') {
+        filteredJson.value = (JsonResponse.value.results).filterByYear(newYear);
+        results.value = filteredJson.value;
+        count.value = filteredJson.value.count.filter((count)=> count.year === newYear)[0];
+      } else {
+        results.value = JsonResponse.value.results;
+        count.value = JsonResponse.value.results.TotalCount();
+      }
+    }
+  }
 
   async function search(searchValue) {
     loading.value = true;
@@ -99,6 +117,7 @@
           console.error("Error:", response.error || response.message);
         }
       },resultsData.value)
+
       ResultsGeoJson.fromJson((response) => {
         if (response.status === Status.Success) {
           geoJsonResponse.value = response;
@@ -113,21 +132,20 @@
           geoJsonResponse.value.isError ||
           JsonResponse.value.results === null ||
           geoJsonResponse.value.results === null) {
-        console.error('Error fetching results:', JsonResponse.value.error);
-        return;
-      }
+            console.error('Error fetching results:', JsonResponse.value.error);
+            return;
+          }
 
       if (props.year !== '') {
         filteredJson.value = (JsonResponse.value.results).filterByYear(props.year);
-        filteredGeoJson.value = (geoJsonResponse.value.results).filterByYear(props.year);
         results.value = filteredJson.value;
-        count.value = filteredJson.value.count[0];
-        geojson.value = filteredGeoJson.value;
+        count.value = filteredJson.value.count.filter((count)=> count.year === year)[0];
       } else {
-        results.value = (JsonResponse.value.results);
+        results.value = JsonResponse.value.results;
         count.value = JsonResponse.value.results.TotalCount();
-        geojson.value = (geoJsonResponse.value.results);
       }
+
+      geojson.value = formatRawGeoJson(geoJsonResponse.value.results);
       lastSearch.value = searchTerm.value;
 
       emit('update:geojson', geojson.value);
@@ -137,16 +155,12 @@
     } finally {
       loading.value = false;
     }
-
-    stringResults.value = JSON.stringify(results.value, null, 2);
   }
 </script>
 
 <template>
   <div class="results-pane">
-    <LastSearch
-      :lastSearch="lastSearch"
-    />
+    <LastSearch v-if="!loading && results" :lastSearch="lastSearch" />
     <div v-if="loading" class="spinner-container">
       <div class="spinner"></div>
     </div>

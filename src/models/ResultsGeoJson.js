@@ -3,6 +3,7 @@ import { Status, DetailedResponse } from "../utils/DetailedResponse.js";
 
 class ResultsGeoJson {
   constructor(params) {
+    this.id = "search-source";
     this.type = params.type;
     this.features = params.features;
   }
@@ -21,13 +22,7 @@ class ResultsGeoJson {
       obj.type === "FeatureCollection" &&
       obj.features.length === 0)
     ) {
-      const response = new DetailedResponse(
-      null,
-      "No Results Found",
-      Status.Success,
-      null,
-      false
-      );
+      const response = new DetailedResponse(ResultsGeoJson.createEmpty(), "No Results Found", Status.Success, null, false);
       callback(response);
       return;
     }
@@ -106,7 +101,7 @@ class ResultsGeoJson {
 
   static createEmpty() {
     return new ResultsGeoJson({
-      type: "",
+      type: "FeatureCollection",
       features: []
     });
   }
@@ -124,6 +119,12 @@ class ResultsGeoJson {
 
   TotalCount() {
     return this.features.length;
+  }
+
+  isEmpty() {
+    return (
+      this.features.length === 0
+    );
   }
 
   static isResultsGeoJson(obj) {

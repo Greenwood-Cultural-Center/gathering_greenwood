@@ -4,62 +4,25 @@
   import { MglMap, MglNavigationControl, MglFullscreenControl, MglAttributionControl, MglGeojsonLayer } from "vue-mapbox3";
   import { filterByDate } from '@openhistoricalmap/maplibre-gl-dates'
 
-
   const props = defineProps({
     year: String
   });
-
-  const geoJson = ref(null);
-  const resultsExist = ref(false);
-
-  // Date selection logic
-  const DateOption = {
-    options: [
-      { year: '1910', date: '1910-04-15' },
-      { year: '1920', date: '1920-01-02' },
-      { year: '', date: '2025-01-01' }
-    ],
-    selected: ref({ year: '', date: '2025-01-01' })
-  };
-
-  function changeYear (map, newYear) {
-      const match = DateOption.options.find(o => o.year === newYear);
-      if (match) {
-          DateOption.selected.value = match;
-          filterByDate(map, match.date);
-          map.setFilter('search-results', ['==', 'date', match.year]);
-      }
-  };
-
-  function loadDynamicLayer(newGeoJson) {
-    geoJson.value = newGeoJson;
-    if (geoJson) {
-      resultsExist.value = true;
-    }
-  }
-
-  function resetMap () {
-    const map = mapRef.value;
-    resultsExist.value = false;
-
-    if (map){
-      map.flyTo({
-        center: [-95.9872222, 36.1619444], // Reset to the default center (or your preferred location)
-        zoom: 14,         // Reset zoom level to default
-        essential: true, // Ensure the animation is not skipped
-      });
-      if (map.getLayer('search-results')) {
-        map.removeLayer('search-results');
-      } else {
-        console.warn("Layer 'search-results' does not exist.");
-      }
-    }
-  };
 
   defineExpose({
     resetMap,
     loadDynamicLayer,
   });
+
+  const emit = defineEmits(['created']);
+
+  const geoJson = ref(null);
+  const resultsExist = ref(false);
+
+  // Store reference to map instance (if needed for advanced interactions)
+  const mapRef = ref(null);
+
+  // Reactive references for GeoJSON data
+  const geoJsonData = ref({});
 
   // Map style ref
   const style = ref(`${import.meta.env.BASE_URL}historic.json`);
@@ -71,6 +34,16 @@
   const parcels = ref(null);
   const streets = ref(null);
   const blocks = ref(null);
+
+  // Date selection logic
+  const DateOption = {
+    options: [
+      { year: '1910', date: '1910-04-15' },
+      { year: '1920', date: '1920-01-02' },
+      { year: '', date: '2025-01-01' }
+    ],
+    selected: ref({ year: '', date: '2025-01-01' })
+  };
 
   const layers = [
     {
@@ -99,11 +72,34 @@
     }
   ];
 
-  // Store reference to map instance (if needed for advanced interactions)
-  const mapRef = ref(null);
+  function changeYear (map, newYear) {
+      const match = DateOption.options.find(o => o.year === newYear);
+      if (match) {
+          DateOption.selected.value = match;
+          filterByDate(map, match.date);
+          //map.setFilter('search-results', ['==', 'date', match.year]);
+      }
+  };
 
-  // Reactive references for GeoJSON data
-  const geoJsonData = ref({});
+  function loadDynamicLayer(newGeoJson) {
+    geoJson.value = newGeoJson;
+    if (geoJson) {
+      resultsExist.value = true;
+    }
+  }
+
+  function resetMap () {
+    const map = mapRef.value;
+    resultsExist.value = false;
+
+    if (map){
+      map.flyTo({
+        center: [-95.9872222, 36.1619444], // Reset to the default center (or your preferred location)
+        zoom: 14,         // Reset zoom level to default
+        essential: true, // Ensure the animation is not skipped
+      });
+    }
+  };
 
   async function loadGeoJson(url, id) {
     try {
@@ -136,6 +132,8 @@
   function onMapLoaded(event) {
     const map = mapRef.value = event.map; // Store the map instance
     if (map) {
+      // Emit created event with map instance
+      emit('created', map);
       changeYear(map, props.year);
     };
   };
