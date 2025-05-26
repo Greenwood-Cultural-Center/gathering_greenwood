@@ -9,7 +9,6 @@
   import VideoMediaForm from './forms/VideoMediaForm.vue';
   import PhotoMediaForm from './forms/PhotoMediaForm.vue';
   import { HtmlDialog } from 'vue-html-dialog';
-  import Dialog from './Dialog.vue';
   import 'vue-html-dialog/vue-html-dialog.css';
 
   const props = defineProps({
@@ -54,7 +53,7 @@
 </script>
 
 <template>
-  <Dialog ref="dialogRef">
+  <HtmlDialog ref="dialogRef">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Details</h5>
@@ -64,7 +63,7 @@
         <p v-else>Unknown category: {{ category }}</p>
       </div>
     </div>
-  </Dialog>
+  </HtmlDialog>
 </template>
 
 <style scoped>

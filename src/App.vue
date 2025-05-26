@@ -1,7 +1,6 @@
 <script setup>
   import { ref, computed, onBeforeMount} from 'vue';
   import MglMap from './components/MglMap.vue';
-  import Layer from './components/Layer.vue';
   import FABMain from './components/FABMain.vue';
   import FABButton from './components/FABButton.vue';
   import ResultsPane from './components/ResultsPane.vue';
