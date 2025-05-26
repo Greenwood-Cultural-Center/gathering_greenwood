@@ -70,7 +70,7 @@
             "setupArgs": {
               "name": "Greenwood Kiosk",
               "description": "Greenwood Kiosk",
-              "version": "0.3.0",
+              "version": "0.3.1",
               "title": "Greenwood Kiosk",
               "exe": "GreenwoodKiosk.exe",
               "appId": "com.greenwoodculturalcenter.greenwoodkiosk"
