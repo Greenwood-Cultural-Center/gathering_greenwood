@@ -1,7 +1,7 @@
 <script setup>
   import { ref, computed, watch } from 'vue';
   import ResultsCount from './ResultsCount.vue';
-  import SearchResult from './SearchResult.vue';
+  import ResultsList from './ResultsList.vue';
   import LastSearch from './LastSearch.vue';
   import { ResultsJson, ResultsGeoJson, Status, DetailedResponse, Count } from '../utils/ResponseHandler.js';
 
@@ -18,6 +18,7 @@
 
   const loading = ref(false);
   const lastSearch = ref('');
+
   const categoryOrder = [
     'buildings',
     'people',
@@ -36,11 +37,6 @@
         return null;
       }).filter((key) => key !== null);
   });
-
-  function formatCategory(key) {
-    //var key = Object.keys(results.value)[index];
-    return key === 'narratives' ? 'Stories' : key.charAt(0).toUpperCase() + key.slice(1).replace('_', ' ');
-  }
 
   const emit = defineEmits(['update:geojson', 'update:results']);
   const backendHost = import.meta.env.VITE_BACKEND_HOST;
@@ -165,25 +161,7 @@
       <div class="spinner"></div>
     </div>
     <ResultsCount v-if="count" :count="count" :loading="loading" />
-
-    <div class="results-list">
-
-      <!-- Iterate through the properties of the object -->
-      <template v-if="!loading && results" v-for="(category) in orderedResults" :key="category">
-        <!-- Output the property name -->
-        <div class="result-category">
-          <h4 class="category-title">
-            {{ formatCategory(category) }}
-          </h4>
-        </div>
-        <SearchResult
-          v-for="item in results[category || '']"
-          :key="item?.id || item?.name || item?.description || item?.story?.name"
-          :item="item"
-          :category="category"/>
-      </template>
-
-    </div>
+    <ResultsList v-if="!loading && results" :results="results" :categories="orderedResults" />
   </div>
 </template>
 
@@ -194,26 +172,8 @@
     background: var(--gcc-white);
     padding: 1rem;
     color: #333;
-    overflow-y: none;
+    overflow-y: hidden;
     border-left: var(--gcc-dk-green) .2rem solid;
-  }
-
-  .results-list {
-    margin-top: 1rem;
-    padding: 0.5rem;
-    height: 76%;
-    overflow-y: scroll;
-    border-radius: 0.5rem;
-  }
-
-  .category-title {
-    margin-top: 1.5rem;
-    margin-bottom: 0.5rem;
-    font-weight: 700;
-    font-size: 2.5rem;
-    text-align: start;
-    padding-bottom: 0.25rem;
-    color: var(--gcc-orange);
   }
 
   .spinner-container {
@@ -224,84 +184,17 @@
   }
 
   .spinner {
-    border: 4px solid #eee;
-    border-top: 4px solid var(--gcc-orange);
+    border: 0.25rem solid #eee;
+    border-top: 0.25rem solid var(--gcc-orange);
     border-radius: 50%;
-    width: 24px;
-    height: 24px;
+    width: 1.5rem;
+    height: 1.5rem;
     animation: spin 0.8s linear infinite;
-  }
-
-    /* width */
-  div.results-list::-webkit-scrollbar {
-    width: 6rem;
-  }
-
-  /* Track */
-  div.results-list::-webkit-scrollbar-track {
-    box-shadow: inset 0 0 5px grey;
-    border-radius: 10px;
-  }
-
-  div.results-list::-webkit-scrollbar-button {
-    height: 7rem;
-    width: 5rem;
-    /* Set the font and weight for this icon style */
-    font: var(--fa-font-solid);
-    /* Make sure icons render pixel-perfect */
-    -webkit-font-smoothing: antialiased;
-    border-radius:10px;
-    background-color: #bcbcbc;
-  }
-
-  div.results-list::-webkit-scrollbar-button:vertical {
-  }
-
-  div.results-list::-webkit-scrollbar-button:vertical:decrement {
-    background-position: center;
-    background-repeat: no-repeat;
-    background-clip: content-box;
-    border-bottom: 1rem solid transparent;
-    border-bottom-left-radius: 10px;
-    border-bottom-right-radius: 10px;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path fill="%23EEEEEE" d="M182.6 137.4c-12.5-12.5-32.8-12.5-45.3 0l-128 128c-9.2 9.2-11.9 22.9-6.9 34.9s16.6 19.8 29.6 19.8l256 0c12.9 0 24.6-7.8 29.6-19.8s2.2-25.7-6.9-34.9l-128-128z"/></svg>');
-  }
-
-  div.results-list::-webkit-scrollbar-button:vertical:increment {
-    background-position: center;
-    background-repeat: no-repeat;
-    background-clip: content-box;
-    border-top: 1rem solid transparent;
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path fill="%23EEEEEE" d="M137.4 374.6c12.5 12.5 32.8 12.5 45.3 0l128-128c9.2-9.2 11.9-22.9 6.9-34.9s-16.6-19.8-29.6-19.8L32 192c-12.9 0-24.6 7.8-29.6 19.8s-2.2 25.7 6.9 34.9l128 128z"/></svg>');
-  }
-
-  div.results-list::-webkit-scrollbar-button:hover {
-    background: #233e27;
-  }
-
-  /* Handle */
-  div.results-list::-webkit-scrollbar-thumb {
-    background: #666;
-    border-radius: 10px;
-  }
-
-  /* Handle on hover */
-  div.results-list::-webkit-scrollbar-thumb:hover {
-    background: #333;
   }
 
   @keyframes spin {
     to {
       transform: rotate(360deg);
-    }
-  }
-
-  @media screen and (max-width: 1600px) {
-    .category-title {
-      font-size: 1.7rem;
-      margin-bottom: 0.1rem;
     }
   }
 </style>

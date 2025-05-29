@@ -1,16 +1,6 @@
 <script setup>
-  import { computed, onMounted, ref } from 'vue';
-  import {
-    faBuilding,
-    faUser,
-    faFileAlt,
-    faDatabase,
-    faBook,
-    faImage,
-    faVideo,
-    faVolumeHigh
-  } from '@fortawesome/free-solid-svg-icons';
-  import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+  import { computed, onBeforeMount, ref, useId } from 'vue';
+  import ListItem from './ListItem.vue';
   import ResultModal from './ResultModal.vue';
 
   const props = defineProps({
@@ -20,34 +10,63 @@
 
   const modalRef = ref(null);
 
+  const modalHidden = ref(true);
+
+  const thisId = useId();
+
+  const modalId = computed(() => {
+    console.log(`result-modal-${props.category}-${thisId}`);
+    return `result-modal-${props.category}-${thisId}`;
+  });
+
   function showDialog() {
-    modalRef.value?.openDialog()
+    modalRef.value?.openDialog();
+    modalHidden.value = false;
+  }
+
+  function modalClose() {
+    modalHidden.value = true;
   }
 
   const icon = computed(() => {
     switch (props.category.toLowerCase()) {
-      case 'buildings': return faBuilding;
-      case 'people': return faUser;
-      case 'documents': return faFileAlt;
-      case 'census_records': return faDatabase;
-      case 'stories': return faBook;
+      case 'buildings': return 'building';
+      case 'people': return 'user';
+      case 'documents': return 'file-alt';
+      case 'census_records': return 'database';
+      case 'stories': return 'book';
       case 'media':
         switch (props.item?.type) {
-          case 'photo': return faImage;
-          case 'video': return faVideo;
-          case 'audio': return faVolumeHigh;
+          case 'photo': return 'image';
+          case 'video': return 'video';
+          case 'audio': return 'volume-high';
         }
-      default: return faFileAlt;
+      default: return 'file-alt';
     }
   });
+
+  function formatKey(key, val) {
+    if (key === 'media') return 'media';
+    if (key === 'people') return val === 1 ? 'person' : 'people';
+    if (key === 'stories') return val === 1 ? 'story' : 'stories';
+    if (val === 1 && key.endsWith('s')) return key.slice(0, -1);
+    // Convert to lowercase and replace underscores or dashes with spaces
+    return key.toLowerCase().replace(/_|-/g, ' ');
+  }
 </script>
 
 <template>
-  <div class="search-result" @click="showDialog">
-    <FontAwesomeIcon :icon="icon" class="icon" />
-    <span>{{ item?.name || item?.description || item?.caption || item?.story?.name }}</span>
-    <ResultModal ref="modalRef" :item="item" :category="category" />
-  </div>
+  <ListItem class="search-result"
+    @click="showDialog"
+    aria-haspopup="dialog"
+    :aria-controls="modalId"
+    @keydown.enter="showDialog"
+    @keydown.space.prevent="showDialog"
+    :icon="icon"
+    :iconTitle="formatKey(category, 1)+' result-'+ thisId">
+    {{ item?.name || item?.description || item?.caption || item?.story?.name }}
+    <ResultModal ref="modalRef" :aria-hidden="modalHidden" :dialogId="modalId" @close="modalClose" :item="item" :category="category" />
+  </ListItem>
 </template>
 
 <style scoped>
@@ -65,5 +84,50 @@
     .search-result {
       font-size: 1.5rem;
     }
+  }
+
+  button {
+    --fa-li-margin: 3rem;
+    border-radius: unset;
+    background: none;
+    border: none;
+    display: flex;
+    width: 100%;
+    padding: 0;
+    cursor: pointer;
+    appearance: auto;
+    position: relative;
+    text-align: -webkit-match-parent;
+    unicode-bidi: isolate;
+    font-style: normal;
+    font-variant-ligatures: normal;
+    font-variant-caps: normal;
+    font-variant-numeric: normal;
+    font-variant-east-asian: normal;
+    font-variant-alternates: normal;
+    font-variant-position: normal;
+    font-variant-emoji: normal;
+    font-stretch: 100%;
+    font-size: 2rem;
+    font-weight: 400;
+    font-family: Poppins, system-ui, Avenir, Helvetica, Arial, sans-serif;
+    font-optical-sizing: auto;
+    font-size-adjust: none;
+    font-kerning: auto;
+    font-feature-settings: normal;
+    font-variation-settings: normal;
+    text-rendering: optimizeLegibility;
+    color: #333;
+    letter-spacing: normal;
+    word-spacing: 0px;
+    line-height: 1.5;
+    text-transform: none;
+    text-indent: 0px;
+    text-shadow: none;
+    box-sizing: content-box;
+    margin: 0em;
+    padding-block: 8px;
+    padding-inline: 0px;
+    transition: none;
   }
 </style>

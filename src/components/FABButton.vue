@@ -142,6 +142,7 @@ const iconPresent = computed(() => {
     position: absolute;
     top: 47%;
     left: 50%;
+    color: var(--gcc-white);
     transform: translate(-50%, -50%);
   }
 

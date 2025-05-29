@@ -216,6 +216,7 @@
   .mapboxgl-ctrl-attrib.mapboxgl-compact {
     background-color: var(--gcc-dk-green);
     color: var(--gcc-white);
+    border-radius: var(--gcc-border-radius);
   }
 
   div.mapboxgl-ctrl-group button[class^=mapboxgl-ctrl-] {
@@ -278,30 +279,31 @@
   }
 
   div.mapboxgl-ctrl button.mapboxgl-ctrl-fullscreen span.mapboxgl-ctrl-icon {
-    --svg:url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 29 29'><path fill='%23b47f31' d='M24 16v5.5c0 1.75-.75 2.5-2.5 2.5H16v-1l3-1.5-4-5.5 1-1 5.5 4 1.5-3h1zM6 16l1.5 3 5.5-4 1 1-4 5.5 3 1.5v1H7.5C5.75 24 5 23.25 5 21.5V16h1zm7-11v1l-3 1.5 4 5.5-1 1-5.5-4L6 13H5V7.5C5 5.75 5.75 5 7.5 5H13zm11 2.5c0-1.75-.75-2.5-2.5-2.5H16v1l3 1.5-4 5.5 1 1 5.5-4 1.5 3h1V7.5z'/></svg>");
+    --svg:url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 29 29'><path fill='%238C6326' d='M24 16v5.5c0 1.75-.75 2.5-2.5 2.5H16v-1l3-1.5-4-5.5 1-1 5.5 4 1.5-3h1zM6 16l1.5 3 5.5-4 1 1-4 5.5 3 1.5v1H7.5C5.75 24 5 23.25 5 21.5V16h1zm7-11v1l-3 1.5 4 5.5-1 1-5.5-4L6 13H5V7.5C5 5.75 5.75 5 7.5 5H13zm11 2.5c0-1.75-.75-2.5-2.5-2.5H16v1l3 1.5-4 5.5 1 1 5.5-4 1.5 3h1V7.5z'/></svg>");
     background-image: var(--svg);
   }
 
   div.mapboxgl-ctrl button.mapboxgl-ctrl-zoom-in span.mapboxgl-ctrl-icon {
-    --svg:url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 29 29'><path fill='%23b47f31' d='M14.5 8.5c-.75 0-1.5.75-1.5 1.5v3h-3c-.75 0-1.5.75-1.5 1.5S9.25 16 10 16h3v3c0 .75.75 1.5 1.5 1.5S16 19.75 16 19v-3h3c.75 0 1.5-.75 1.5-1.5S19.75 13 19 13h-3v-3c0-.75-.75-1.5-1.5-1.5z'/></svg>");
+    --svg:url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 29 29'><path fill='%238C6326' d='M14.5 8.5c-.75 0-1.5.75-1.5 1.5v3h-3c-.75 0-1.5.75-1.5 1.5S9.25 16 10 16h3v3c0 .75.75 1.5 1.5 1.5S16 19.75 16 19v-3h3c.75 0 1.5-.75 1.5-1.5S19.75 13 19 13h-3v-3c0-.75-.75-1.5-1.5-1.5z'/></svg>");
     background-image: var(--svg);
   }
 
   div.mapboxgl-ctrl button.mapboxgl-ctrl-zoom-out span.mapboxgl-ctrl-icon {
-    --svg:url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 29 29'><path fill='%23b47f31' d='M10 13c-.75 0-1.5.75-1.5 1.5S9.25 16 10 16h9c.75 0 1.5-.75 1.5-1.5S19.75 13 19 13h-9z'/></svg>");
+    --svg:url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 29 29'><path fill='%238C6326' d='M10 13c-.75 0-1.5.75-1.5 1.5S9.25 16 10 16h9c.75 0 1.5-.75 1.5-1.5S19.75 13 19 13h-9z'/></svg>");
     background-image: var(--svg);
   }
 
   div.mapboxgl-ctrl button.mapboxgl-ctrl-compass span.mapboxgl-ctrl-icon {
-    --svg:url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 29 29'><path fill='%23b47f31' d='M10.5 14l4-8 4 8h-8z'/><path id='south' d='M10.5 16l4 8 4-8h-8z'  fill='%23b47f31'/></svg>");
+    --svg:url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 29 29'><path fill='%238C6326' d='M10.5 14l4-8 4 8h-8z'/><path id='south' d='M10.5 16l4 8 4-8h-8z' fill='%238C6326'/></svg>");
     background-image: var(--svg);
   }
 
   div.mapboxgl-ctrl button.mapboxgl-ctrl-attrib-button span.mapboxgl-ctrl-icon {
-    --svg:url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill-rule='evenodd'><path fill='%23b47f31' d='M4 10a6 6 0 1 0 12 0 6 6 0 1 0-12 0m5-3a1 1 0 1 0 2 0 1 1 0 1 0-2 0m0 3a1 1 0 1 1 2 0v3a1 1 0 1 1-2 0'/></svg>");
+    --svg:url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill-rule='evenodd'><path fill='%238C6326' d='M4 10a6 6 0 1 0 12 0 6 6 0 1 0-12 0m5-3a1 1 0 1 0 2 0 1 1 0 1 0-2 0m0 3a1 1 0 1 1 2 0v3a1 1 0 1 1-2 0'/></svg>");
     background-image: var(--svg);
     background-position: 50%;
     background-repeat: no-repeat;
+    border-radius: var(--gcc-border-radius);
   }
 
   div.mapboxgl-ctrl button.mapboxgl-ctrl-attrib-button {
@@ -310,10 +312,15 @@
     padding: 0;
     height: 4rem;
     width: 4rem;
+    border-radius: var(--gcc-border-radius);
   }
 
   .mapboxgl-ctrl-attrib a {
     color: var(--gcc-white);
+  }
+
+  .mapboxgl-ctrl.mapboxgl-ctrl-attrib.mapboxgl-compact.mapboxgl-compact-show:hover a {
+    color: #333;
   }
 
   .mapboxgl-ctrl-bottom-right {

@@ -10,6 +10,9 @@ export default defineConfig({
       launchEditor: 'code',
     })
   ],
+  build: {
+    cacheDir: '.vite', // Make sure the cache is stored in a persistent location
+  },
   optimizeDeps: {
     include: ['map-promisified'],
   },

@@ -2,8 +2,7 @@
 import {
   ref,
   watch,
-  onBeforeUnmount,
-  defineExpose,
+  onBeforeUnmount
 } from 'vue'
 
 const props = defineProps({
@@ -69,7 +68,7 @@ defineExpose<{
 
 <template>
   <transition :enter-active-class="enterActiveClass" @after-enter="$emit('open')" :leave-active-class="leaveActiveClass" @after-leave="$emit('close')">
-    <div v-show="isVisible && showBackdrop" :class="['backdrop',backdropClass]" @pointerup="handleBackdropClick" role="presentation" :style="{ '--transition-duration': transitionDuration + 'ms' }">
+    <div v-show="isVisible && showBackdrop" :class="['backdrop',backdropClass]" @pointerup="handleBackdropClick" @click.stop @touchend.stop role="presentation" :style="{ '--transition-duration': transitionDuration + 'ms' }">
       <dialog ref="dialogEl" open :class="['dialog', dialogClass]" role="dialog" @click.stop @touchend.stop aria-modal="true" :aria-describedby="titleId">
         <div role="document">
           <button v-if="showCloseButton" :class="['close-button', closeButtonClass]" @pointerup="closeDialog" aria-label="Close the modal">×</button>
