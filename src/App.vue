@@ -1,5 +1,5 @@
 <script setup>
-  import { ref, computed, onBeforeMount} from 'vue';
+  import { ref, computed } from 'vue';
   import MglMap from './components/MglMap.vue';
   import FABMain from './components/FABMain.vue';
   import FABButton from './components/FABButton.vue';

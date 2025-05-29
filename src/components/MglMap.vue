@@ -1,6 +1,5 @@
 <script setup>
-  import { ref, onMounted, watch, nextTick } from 'vue'
-  import Mapbox from "mapbox-gl";
+  import { ref, onMounted, watch } from 'vue'
   import { MglMap, MglNavigationControl, MglFullscreenControl, MglAttributionControl, MglGeojsonLayer } from "vue-mapbox3";
   import { filterByDate } from '@openhistoricalmap/maplibre-gl-dates'
 

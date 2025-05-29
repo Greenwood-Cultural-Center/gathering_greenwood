@@ -1,5 +1,4 @@
 <script setup>
-import { ref, watch } from 'vue';
 
 defineProps({
 	lastSearch: {
