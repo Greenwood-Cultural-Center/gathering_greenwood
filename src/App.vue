@@ -25,14 +25,14 @@
   const fabButtonCustomProps = [
     {
       title: 'Home',
-      icon: ['fas', 'house'],
+      icon: 'house',
       ariaLabel: 'reset',
       ariaDescription: 'reset map and clear search results',
       clickHandler: () => resetApp(),
     },
     {
       title: 'Help',
-      icon: ['fas', 'question'],
+      icon: 'question',
       ariaLabel: 'help',
       ariaDescription: 'show help video',
       clickHandler: () => showHelpVideo(),
@@ -206,7 +206,6 @@
     :years="years"
     :year="appYear"
     @update:geojson="handleGeojson"
-    v-model:geojson="geoJson"
   />
 </template>
 

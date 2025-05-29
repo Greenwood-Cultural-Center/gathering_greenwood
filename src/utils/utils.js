@@ -31,10 +31,18 @@ export async function hashString(str) {
     .join('');
 }
 
+export function titleCase(s) {
+  return s.toLowerCase()
+          .split(' ')
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(' ');
+}
+
 const utils = {
   findObjectByKey,
   isYear,
   hashString,
+  titleCase,
   centuryPrefixes
 };
 

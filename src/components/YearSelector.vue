@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onBeforeMount } from 'vue';
+import { ref, computed, onMounted, onBeforeMount } from 'vue';
 import utils from '../utils/utils.js';
 import objectHash from 'object-hash';
 
@@ -16,6 +16,8 @@ const props = defineProps({
 });
 
 const years = props.yearArray;
+
+const selected = ref("");
 
 const firstYear = years[0].year;
 const lastYear = years[years.length - 1].year;
@@ -70,11 +72,12 @@ const clickedElement = ref(null);
 
 onBeforeMount(() => {
   buildYears();console.log(years);
-}),
+});
 
 onMounted(() => {
   // Set the default year to the last year in the array
   const defaultYear = years[years.length - 1].value;
+  selected.value = defaultYear;
   var selector = `input[value="${defaultYear}"]`;
   var el = document.querySelector(selector);
   setYear(defaultYear, { target: el });
@@ -89,6 +92,9 @@ function setYear(year, event) {
     document.querySelector(`label[for="${clickedElement.value.id}"]`).classList.remove('selected');
   }
 
+  // Update the selected year
+  selected.value = year;
+
   // Store the clicked element
   clickedElement.value = event.target;
 
@@ -100,6 +106,19 @@ function setYear(year, event) {
   // Call the function passed from the parent to set the year
   props.onYearChange(year);
 }
+
+const step = computed(() => {
+  return years.length > 1 ? 100 / (years.length - 1) : 0;
+});
+
+const selectedIndex = computed(() =>
+  years.findIndex(year => year.value === selected.value)
+);
+
+const lineWidth = computed(() => {
+  return `${selectedIndex.value * step.value}%`;
+});
+
 </script>
 
 <template>
@@ -117,7 +136,7 @@ function setYear(year, event) {
         </div>
         <div class="timeline">
           <label class="timeline-dot" v-for="year in years" :for="year.inputid"><span v-if="!showfancy" :id="year.labelid" :key="year.key" >{{ year.year }}</span></label>
-          <div class="timeline-line"></div>
+          <div class="timeline-line" :style="{ '--line-width': lineWidth }"></div>
         </div>
       </div>
     </div>
@@ -127,7 +146,7 @@ function setYear(year, event) {
   .year-selector {
     position: relative;
     user-select: none;
-    width: 25rem;
+    width: 30rem;
     height: 3rem;
     max-width: 100%;
     margin-left: 3rem;
@@ -141,7 +160,7 @@ function setYear(year, event) {
   .year-selector .timeline {
     position: absolute;
     bottom: 0;
-    right: 0;
+    right: 5rem;
     left: 0;
     height: 1.5rem;
     display: flex;
@@ -165,7 +184,8 @@ function setYear(year, event) {
     width: 0%;
     height: 100%;
     background: var(--gcc-orange);
-    transition: 350ms ease all;
+    width: var(--line-width, 0%);
+    transition: width 350ms ease;
   }
 
   .year-selector .timeline-dot {
@@ -195,7 +215,7 @@ function setYear(year, event) {
   }
 
   label:not(.selected) span {
-    color:#666;
+    color: #959595;
   }
 
   label.selected span {
@@ -252,10 +272,6 @@ function setYear(year, event) {
     background: #827B68;
   }
 
-  .year-selector #input-1:checked ~ .content .timeline-line:before {
-    width: 0%;
-  }
-
   .year-selector #input-1:not(:checked) ~ .content .map-info:nth-child(1) {
     right: 150px;
   }
@@ -283,10 +299,6 @@ function setYear(year, event) {
     background: #827B68;
   }
 
-  .year-selector #input-2:checked ~ .content .timeline-line:before {
-    width: 50%;
-  }
-
   .year-selector #input-2:not(:checked) ~ .content .map-date[class*="-2"] {
     right: 150px;
   }
@@ -308,10 +320,6 @@ function setYear(year, event) {
 
   .year-selector #input-3:checked ~ .content .timeline-dot:nth-child(3) ~ .timeline-dot {
     background: #827B68;
-  }
-
-  .year-selector #input-3:checked ~ .content .timeline-line:before {
-    width: 100%;
   }
 
   .year-selector #input-3:not(:checked) ~ .content .map-date[class*="-3"] {
