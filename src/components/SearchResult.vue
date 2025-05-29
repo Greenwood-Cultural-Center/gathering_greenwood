@@ -1,5 +1,5 @@
 <script setup>
-  import { computed, onBeforeMount, ref, useId } from 'vue';
+  import { computed, ref, useId } from 'vue';
   import ListItem from './ListItem.vue';
   import ResultModal from './ResultModal.vue';
 

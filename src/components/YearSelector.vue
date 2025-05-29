@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeMount } from 'vue';
-import utils from '../utils/utils.js';
+const objectHash = () => import( 'object-hash' );
 import objectHash from 'object-hash';
 
 // Props
