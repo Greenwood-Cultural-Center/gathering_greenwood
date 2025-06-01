@@ -97,7 +97,7 @@
   const map = ref(null);
   const videoModalRef = useTemplateRef('videoModalRef');
   const census1920GeoJson = ref(emptyGeoJson);
-  const helpVideoUrl = `${import.meta.env.BASE_URL}GCC-Kiosk-April-2025.mp4`;
+  const helpVideoUrl = `${import.meta.env.BASE_URL}GCC-Kiosk-April-2025.webm`;
   const census1920Url = `${import.meta.env.BASE_URL}Grouped_1920_Census.min.geojson`;
   async function fetchGeoJson (url) {
     await fetch(`${url}`);
