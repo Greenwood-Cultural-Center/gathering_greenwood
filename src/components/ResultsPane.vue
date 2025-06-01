@@ -1,8 +1,9 @@
 <script setup>
-  import { ref, computed, watch } from 'vue';
+  import { ref, computed } from 'vue';
   import ResultsCount from './ResultsCount.vue';
   import ResultsList from './ResultsList.vue';
   import LastSearch from './LastSearch.vue';
+  import { formatRawGeoJson } from '../utils/utils.js';
   import { ResultsJson, ResultsGeoJson, Status, DetailedResponse, Count } from '../utils/ResponseHandler.js';
 
   const props = defineProps({
@@ -65,13 +66,6 @@
     search,
     yearChanged
   });
-
-  function formatRawGeoJson(rawGeoJson) {
-    return {
-      type: 'geojson',
-      data: rawGeoJson
-    }
-  }
 
   function yearChanged(newYear) {
     if (!results.value.isEmpty()) {
