@@ -9,7 +9,7 @@
   import VideoMediaForm from './forms/VideoMediaForm.vue';
   import PhotoMediaForm from './forms/PhotoMediaForm.vue';
   import { HtmlDialog } from 'vue-html-dialog';
-  import Dialog from './Dialog.vue';
+  //import Dialog from './Dialog.vue';
   import 'vue-html-dialog/vue-html-dialog.css';
 
   const props = defineProps({

@@ -1,6 +1,5 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeMount } from 'vue';
-import utils from '../utils/utils.js';
 import objectHash from 'object-hash';
 
 // Props
@@ -71,7 +70,7 @@ const showfancy = ref(false);
 const clickedElement = ref(null);
 
 onBeforeMount(() => {
-  buildYears();console.log(years);
+  buildYears();
 });
 
 onMounted(() => {

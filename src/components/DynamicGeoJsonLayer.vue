@@ -4,8 +4,6 @@
   import FeatureModal from './FeatureModal.vue';
   import utils from '../utils/utils.js';
 
-  const emit = defineEmits(['feature-click'])
-
   const props = defineProps({
     geojson: {
       type: Object,
@@ -49,18 +47,30 @@
       type: Object,
       required: true,
       validator: val => val && typeof val === 'object' && 'on' in val && 'off' in val
+    },
+    featureFormatter: {
+      type: Function,
+      default: (feature) => feature
+    },
+    searchTerm: {
+      type: String,
+      default: ''
     }
   })
 
-  const clickedfeature = ref({});
+  const clickedfeature = ref({id:0, properties: {}, geometry: { type: 'Point', coordinates: [0, 0] } });
 
   const dialogRef = ref(null);
 
   // Conditionally apply filter based on string year
   const layerDefinition = computed(() => {
-    const filter = props.filterYear && utils.isYear(props.filterYear)
-      ? ['==', ['get', 'year'], props.filterYear]
-      : ['has', 'year']
+    const filter = !props.filterYear || !utils.isYear(props.filterYear)
+    ? !props.searchTerm
+      ? ['all'] // equivalent to "match all"
+      : ['all', ['in', props.searchTerm.toLowerCase(), ['get', 'searchable_text']]]
+    : !props.searchTerm
+      ? ['all', ['==', ['get', 'year'], props.filterYear]]
+      : ['all', ['==', ['get', 'year'], props.filterYear], ['in', props.searchTerm.toLowerCase(), ['get', 'searchable_text']]];
 
     return {
       id: props.layerId,
@@ -79,47 +89,33 @@
     props.map.off('click', props.layerId, handleClick); // Clean up click listener
   })
 
-  // function handleClick(e) {
-  //   const features = e.features;
-  //   if (features.length > 0) {
-  //     const clickedFeature = features[0];
-  //     console.log('Clicked feature:', clickedFeature);
-  //     new mapboxgl.Popup()
-  //       .setLngLat(e.lngLat)
-  //       .setHTML(`<h3>${clickedFeature.properties.name}</h3><p>${clickedFeature.properties.description}</p>`)
-  //       .addTo(this.$refs.map.map);
-  //   }
-  // }
+  function validateJsonData(json) {
+    if (!json || !json.data || !json.data.features || !Array.isArray(json.data.features)) {
+      console.warn('Invalid GeoJSON data, expected an object with a features array.');
+      return { type:'geojson', data: { id: data.id, type: 'FeatureCollection', features: [] } };
+    }
+    if (!json.data.id || typeof json.data.id !== 'string') {
+      console.error('GeoJSON data is missing a valid id');
+      return;
+    }
+    return json;
+  }
 
   function handleClick(e) {
-    console.log('Feature clicked:', e.features);
-    clickedfeature.value = formatFeature(e.features[0]);
+    if (!e || !e.features || e.features.length === 0) return;
+    if (e.features.length > 1) {
+      console.warn('Multiple features clicked, only the first will be processed.');
+    }
+    if (!e.features[0].properties) {
+      console.warn('Clicked feature has no properties, skipping.');
+      return;
+    }
+    if (!props.featureFormatter || typeof props.featureFormatter !== 'function') {
+      console.warn('featureFormatter is not a valid function, using default formatter.');
+      props.featureFormatter = (feature) => feature;
+    }
+    clickedfeature.value = props.featureFormatter(e.features[0]);
     dialogRef.value?.openDialog();
-  }
-
-  function formatFeature(feature) {
-    return {
-      type: feature.type,
-      geometry: feature.geometry,
-      properties: formatProperties(feature.properties)
-    }
-  }
-
-  function formatProperties(properties) {
-    for (const key in properties) {
-      if (properties[key] === null || properties[key] === undefined) {
-        properties[key] = 'N/A';
-      }
-      else {
-        try {
-          properties[key] = JSON.parse(properties[key]);
-        } catch (e) {
-          // If parsing fails, keep the original value
-        }
-      }
-    }
-    properties.people = properties[1910].concat(properties[1920])
-    return properties;
   }
 </script>
 
@@ -127,10 +123,12 @@
   <MglGeojsonLayer
     :layerId="layerId"
     :source-id="geojson.data.id"
-    :source="geojson"
+    :source="validateJsonData(geojson)"
     :reactive="true"
     :layer="layerDefinition"
   />
+  <!-- <slot name="modal" :feature="clickedfeature" />
+  <slot /> -->
   <FeatureModal
     v-if="clickedfeature"
     :feature="clickedfeature"
