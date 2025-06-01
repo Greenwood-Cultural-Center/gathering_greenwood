@@ -1,5 +1,4 @@
 <script setup>
-import { ref, watch } from 'vue';
 
 defineProps({
 	lastSearch: {
@@ -19,15 +18,15 @@ defineProps({
   }
 
 	.search-label {
-      font-family: 'Poppins';
       margin-right: auto;
       font-size: 2rem;
-      font-weight: 900;
+      font-weight: 700;
       color: #000000;
       background-color: var(--gcc-v-lt-green);
       background: radial-gradient(ellipse, rgba(114,169,127,0.6) 30%, rgba(114,169,127,0.02) 99%);
       flex-grow: 1;
       padding: 1rem;
+      letter-spacing: 0.5px;
     }
 
     @media screen and (max-width: 1600px) {

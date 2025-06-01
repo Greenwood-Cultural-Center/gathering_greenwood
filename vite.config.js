@@ -29,7 +29,29 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     emptyOutDir: true,
+    cacheDir: '.vite', // Make sure the cache is stored in a persistent location
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        defaults: true,
+        drop_console: ['log', 'info'], // Remove console logs and infos in production
+      },
+      format: {
+        comments: false, // Remove comments in production
+      },
+    },
     rollupOptions: {
+      output: {
+        manualChunks: (id) => {
+          if (id.includes('node_modules')) {
+            // Split vendor libraries into separate chunks
+            if (id.includes('vue')) return 'vue';
+            if (id.includes('map-promisified')) return 'map-promisified';
+            if (id.includes('@fortawesome')) return 'fontawesome';
+          }
+          return 'vendor';
+        },
+      },
       input: 'index.html',
     },
   },
@@ -39,5 +61,5 @@ export default defineConfig({
   server: {
     port: 5173,
     open: true,
-  }
+  },
 })

@@ -1,6 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue';
-import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
+import { ref } from 'vue';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 const searchValue = ref({});
@@ -38,7 +37,7 @@ function doSearch() {
         />
       </div>
       <button @click="doSearch" aria-label="search">
-        <FontAwesomeIcon :icon="faMagnifyingGlass" />
+        <FontAwesomeIcon icon="search" transform="grow-40 right-4" title="Perform Search"/>
       </button>
     </span>
   </div>
@@ -53,7 +52,7 @@ function doSearch() {
     }
 
     .input-group {
-      padding: 1rem;
+      padding: 1rem 0 1rem 1rem;
       background-color: var(--gcc-dk-green);
     }
 
@@ -90,11 +89,9 @@ function doSearch() {
       border-radius: unset;
       border: none;
       cursor: pointer;
-      color: var(--gcc-orange);
-      font-size: 3.5rem;
-      padding: 0px 0.5rem 0 1.5rem;
-      position: relative;
-      top: 10.5px;
-      left: 6px;
+      width: 4rem;
+      height: 3.2rem;
+      padding: 0px;
+      transform: translateY(-0.5rem);
     }
 </style>

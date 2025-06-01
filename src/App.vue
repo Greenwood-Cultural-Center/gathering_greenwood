@@ -1,5 +1,5 @@
 <script setup>
-  import { ref, computed, onBeforeMount} from 'vue';
+  import { ref, computed, useTemplateRef } from 'vue';
   import MglMap from './components/MglMap.vue';
   import FABMain from './components/FABMain.vue';
   import FABButton from './components/FABButton.vue';
@@ -7,12 +7,14 @@
   import YearSearchBar from './components/YearSearchBar.vue';
   import DynamicGeoJsonLayer from './components/DynamicGeoJsonLayer.vue';
   import VideoModal from './components/VideoModal.vue';
+  import { formatRawGeoJson } from './utils/utils.js';
 
   const emptyGeoJson = {type:'geojson',data:{id: 'search-source', type: 'FeatureCollection', features: []}};
 
   // State
   const appYear = ref('');
   const geoJson = ref(emptyGeoJson);
+  const searchTerm = ref('');
 
   const contrastMode = ref(false);
 
@@ -25,14 +27,14 @@
   const fabButtonCustomProps = [
     {
       title: 'Home',
-      icon: ['fas', 'house'],
+      icon: 'house',
       ariaLabel: 'reset',
       ariaDescription: 'reset map and clear search results',
       clickHandler: () => resetApp(),
     },
     {
       title: 'Help',
-      icon: ['fas', 'question'],
+      icon: 'question',
       ariaLabel: 'help',
       ariaDescription: 'show help video',
       clickHandler: () => showHelpVideo(),
@@ -51,6 +53,13 @@
   const geoJsonFeaturePaint = {
     'circle-radius': 8,
     'circle-color': '#f37021',     // orange inner circle
+    'circle-stroke-color': '#ffffff', // white border
+    'circle-stroke-width': 3
+  }
+
+  const census1920GeoJsonFeaturePaint = {
+    'circle-radius': 8,
+    'circle-color': '#405D47',     // orange inner circle
     'circle-stroke-color': '#ffffff', // white border
     'circle-stroke-width': 3
   }
@@ -82,11 +91,18 @@
   });
 
   // Map and ResultsPane ref
-  const mglMapRef = ref(null);
-  const resultsPaneRef = ref(null);
+  const mglMapRef = useTemplateRef('mglMapRef');
+  const resultsPaneRef = useTemplateRef('resultsPaneRef');
+  const census1920LayerRef = useTemplateRef('census1920LayerRef');
   const map = ref(null);
-  const videoModalRef = ref(null);
+  const videoModalRef = useTemplateRef('videoModalRef');
+  const census1920GeoJson = ref(emptyGeoJson);
   const helpVideoUrl = `${import.meta.env.BASE_URL}GCC-Kiosk-April-2025.mp4`;
+  const census1920Url = `${import.meta.env.BASE_URL}Grouped_1920_Census.min.geojson`;
+  // const census1920Url = `${import.meta.env.BASE_URL}1920.geojson`;
+  async function fetchGeoJson (url) {
+    await fetch(`${url}`);
+  }
 
   // Reset Functions
 
@@ -102,7 +118,18 @@
     resetMap();
   }
 
+  const dynamicLayers = [
+    "search-layer",
+    "1920-census-layer"
+  ]
+
+  const dynamicSources = [
+    "search-source",
+    "1920-census-source"
+  ];
+
   function clearResults() {
+    searchTerm.value = '';
     if (resultsPaneRef && resultsPaneRef.value) {
       resultsPaneRef.value.resetState();
     }
@@ -143,27 +170,84 @@
 
   function handleSearch(searchValue) {
     clearResults();
+    searchTerm.value = searchValue.search;
     resetMap();
     if (resultsPaneRef && resultsPaneRef.value) {
       resultsPaneRef.value.search(searchValue);
     }
   }
 
-  function handleFeatureClick(feature) {
-    console.log('Feature clicked:', feature);
-  }
-
   function updateYear(newYear) {
     appYear.value = newYear;
-    console.log('Year updated:', newYear);
     if (resultsPaneRef && resultsPaneRef.value) {
       resultsPaneRef.value.yearChanged(newYear);
     }
   }
 
-  const handleMapCreated = (mbMap) => {
+  const handleMapCreated = async (mbMap) => {
     map.value = mbMap;
+    // census1920GeoJson.value = await fetchGeoJson(census1920Url)
+    //   .then(response =>
+    //     formatRawGeoJson(response.json(), '1920-census-source'));
+    const response = await fetch(census1920Url);
+    const data = await response.json();
+    // Format the GeoJSON data for the 1920 census
+    var json = formatRawGeoJson(data, '1920-census-source', '1920');
+    json.data.features.forEach(feature => feature.properties.searchable_text = buildSearchableText(feature.properties));
+    census1920GeoJson.value = json;
   };
+
+  function formatFeature(feature) {
+    return {
+      id: feature.id,
+      source: feature.source,
+      layer: feature.layer,
+      type: feature.type,
+      geometry: feature.geometry,
+      properties: formatProperties(feature.properties, feature.source),
+    }
+  }
+
+  function formatProperties(properties, source) {
+    for (const key in properties) {
+      if (properties[key] === null || properties[key] === undefined) {
+        properties[key] = 'N/A';
+      }
+      else {
+        try {
+          properties[key] = JSON.parse(properties[key]);
+        } catch (e) {
+          // If parsing fails, keep the original value
+          properties[key] = properties[key];
+        }
+      }
+    }
+    if (source === 'search-source') {
+      properties.people = properties[1910].concat(properties[1920])
+    }
+    return properties;
+  }
+
+  function buildSearchableText(properties) {
+    const families = properties.families || [];
+    const allPeople = families.flatMap(fam => fam.people || []);
+    const searchableText = [
+      properties.StreetAddress || '',
+      properties.City || '',
+      properties.County || '',
+      properties.Place || '',
+      properties.Locality || '',
+      ...families.map(f => f.Last_Name || ''),
+      ...allPeople.map(p => p.First_Name || ''),
+      ...allPeople.map(p => p.Middle_Name || ''),
+      ...allPeople.map(p => p.Last_Name || ''),
+      ...allPeople.map(p => p.Occupation || ''),
+      ...allPeople.map(p => p.Industry || ''),
+      ...allPeople.map(p => p.Institution || '')
+    ].filter(Boolean); // Remove null/undefined/empty strings
+
+    return searchableText.join('|').toLowerCase();
+  }
 </script>
 
 <template>
@@ -187,26 +271,40 @@
   <YearSearchBar :onSearch="handleSearch" :onYearChange="updateYear" :years="years"></YearSearchBar>
 
   <!-- Map Component with layer containing dynamic GeoJSON search results-->
-  <MglMap :year="appYear" ref="mglMapRef" @created="handleMapCreated">
+  <MglMap :year="appYear" ref="mglMapRef" @created="handleMapCreated" :dynamicGeoJsonIds="{'dynamicLayers': dynamicLayers, 'dynamicSources': dynamicSources}">
     <DynamicGeoJsonLayer
+      v-if="geoJson && geoJson.data && geoJson.data.features && geoJson.data.features.length > 0"
       :geojson="geoJson"
       :type="'circle'"
       :paint="geoJsonFeaturePaint"
       :layout="{ 'visibility': 'visible' }"
       layerId="search-layer"
-      @feature-click="handleFeatureClick"
       :filterYear="appYear"
       :map="map"
+      :featureFormatter="formatFeature"
+    />
+    <DynamicGeoJsonLayer
+      v-if="census1920GeoJson && census1920GeoJson.data && census1920GeoJson.data.features && census1920GeoJson.data.features.length > 0"
+      ref="census1920LayerRef"
+      :geojson="census1920GeoJson"
+      :type="'circle'"
+      :paint="census1920GeoJsonFeaturePaint"
+      :layout="{ 'visibility': 'visible' }"
+      layerId="1920-census-layer"
+      :filterYear="appYear"
+      :map="map"
+      :featureFormatter="formatFeature"
+      :searchTerm="searchTerm"
     />
   </MglMap>
 
-  <!-- Results Pane Component with containing dynamic search results-->
+  <!-- Results Pane Component containing search results-->
   <ResultsPane
     ref="resultsPaneRef"
     :years="years"
     :year="appYear"
     @update:geojson="handleGeojson"
-    v-model:geojson="geoJson"
+    :featureFormatter="formatFeature"
   />
 </template>
 

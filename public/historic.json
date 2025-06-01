@@ -4,7 +4,15 @@
   "metadata": {"maputnik:renderer": "mbgljs"},
   "center": [-95.9872222, 36.1619444],
   "zoom": 14,
-  "light": {"color": "#EEE"},
+  "lights": [
+    {
+      "id": "my_flat_light",
+      "type": "flat",
+      "properties": {
+        "color": "#EEE"
+      }
+    }
+  ],
   "sources": {
     "osm": {
       "type": "vector",

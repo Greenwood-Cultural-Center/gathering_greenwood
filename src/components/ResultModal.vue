@@ -9,6 +9,7 @@
   import VideoMediaForm from './forms/VideoMediaForm.vue';
   import PhotoMediaForm from './forms/PhotoMediaForm.vue';
   import { HtmlDialog } from 'vue-html-dialog';
+  //import Dialog from './Dialog.vue';
   import 'vue-html-dialog/vue-html-dialog.css';
 
   const props = defineProps({
@@ -19,13 +20,19 @@
     category: {
       type: String,
       required: true
-  }
+  },
+    dialogId: {
+      type: String,
+      default: 'result-modal'
+    }
   });
 
   defineExpose({
     openDialog: () => dialogRef.value?.openDialog(),
     closeDialog: () => dialogRef.value?.closeDialog()
   })
+
+  const emit = defineEmits(['open', 'close']);
 
   const dialogRef = ref(HtmlDialog);
 
@@ -53,10 +60,10 @@
 </script>
 
 <template>
-  <HtmlDialog ref="dialogRef">
+  <HtmlDialog ref="dialogRef" :dialogId="dialogId" titleId="modal-title-id" @close="emit('close')">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Details</h5>
+        <h5 id="modal-title-id" class="modal-title">Details</h5>
       </div>
       <div class="modal-body">
         <component :is="getComponent" :item="item" v-if="getComponent" />

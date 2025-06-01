@@ -1,5 +1,5 @@
 <script setup>
-  import { ref, computed } from 'vue';
+  import { ref } from 'vue';
   import { HtmlDialog } from 'vue-html-dialog';
   import 'vue-html-dialog/vue-html-dialog.css';
 
