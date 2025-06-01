@@ -15,7 +15,6 @@
   const thisId = useId();
 
   const modalId = computed(() => {
-    console.log(`result-modal-${props.category}-${thisId}`);
     return `result-modal-${props.category}-${thisId}`;
   });
 
