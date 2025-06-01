@@ -99,7 +99,6 @@
   const census1920GeoJson = ref(emptyGeoJson);
   const helpVideoUrl = `${import.meta.env.BASE_URL}GCC-Kiosk-April-2025.mp4`;
   const census1920Url = `${import.meta.env.BASE_URL}Grouped_1920_Census.min.geojson`;
-  // const census1920Url = `${import.meta.env.BASE_URL}1920.geojson`;
   async function fetchGeoJson (url) {
     await fetch(`${url}`);
   }
