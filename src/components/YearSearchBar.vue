@@ -1,6 +1,9 @@
 <script setup>
+  import { useTemplateRef } from 'vue';
   import SearchBar from './SearchBar.vue';
   import YearSelector from './YearSelector.vue';
+
+  const searchBarRef = useTemplateRef('searchBarRef');
 
   // Props
   const props = defineProps({
@@ -26,13 +29,18 @@
     props.onSearch(searchValue);
   }
 
+  defineExpose({
+    clearSearch() {
+      searchBarRef.value.clearSearch();
+    },
+  });
 </script>
 
 
 <template>
   <div class="year-search-bar">
     <YearSelector :onYearChange="props.onYearChange" :yearArray="props.years"/>
-    <SearchBar :onSearch="props.onSearch"/>
+    <SearchBar ref="searchBarRef" :onSearch="props.onSearch"/>
   </div>
 </template>
 

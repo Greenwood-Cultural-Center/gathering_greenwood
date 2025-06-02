@@ -17,11 +17,16 @@ function doSearch() {
   if (!input.value.trim()) return;
   searchValue.value = {
     search: input.value,
-    lastSearch: lastSearch.value
   };
-  lastSearch.value = input.value;
   props.onSearch(searchValue.value);
 }
+
+defineExpose({
+  clearSearch() {
+    input.value = '';
+    searchValue.value = {};
+  },
+});
 </script>
 
 <template>
