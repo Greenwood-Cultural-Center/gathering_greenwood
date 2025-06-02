@@ -1,6 +1,7 @@
 <script setup>
-  import { ref, onMounted, watch } from 'vue';
+  import { ref, onBeforeMount, onMounted, watch } from 'vue';
   import { MglMap, MglNavigationControl, MglFullscreenControl, MglAttributionControl, MglGeojsonLayer } from "vue-mapbox3";
+  import Mapbox from "mapbox-gl";
   import { filterByDate } from '@openhistoricalmap/maplibre-gl-dates'
 
   const props = defineProps({
@@ -23,6 +24,7 @@
 
   // Store reference to map instance (if needed for advanced interactions)
   const mapRef = ref(null);
+  const mapbox = ref(Mapbox);
 
   // Reactive references for GeoJSON data
   const geoJsonData = ref({});
@@ -125,6 +127,10 @@
     },
     { immediate: true }
   );
+
+  onBeforeMount(() => {
+    mapbox.value = Mapbox;
+  });
 
   onMounted(() => {
     layers.forEach(layer => {
