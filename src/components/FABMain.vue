@@ -21,8 +21,6 @@
 
   .fabButton {
     display: block;
-    margin-bottom: 10px;
-    margin-left: 10px;
     background-color: var(--gcc-dk-green);
     color: var(--gcc-orange);
     border: none;
