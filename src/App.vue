@@ -171,12 +171,20 @@
     }
   }
 
-  function handleSearch(searchValue) {
-    clearResults();
+  async function handleSearch(searchValue) {
+    //clearResults();
+    //resetMap();
+    if (map.value.getLayer('search-layer')) {
+      map.value.setLayoutProperty('search-layer', 'visibility', 'none')
+    }
     searchTerm.value = searchValue.search;
-    resetMap();
     if (resultsPaneRef && resultsPaneRef.value) {
-      resultsPaneRef.value.search(searchValue);
+      await resultsPaneRef.value.search(searchValue);
+    }
+    if (map.value.getLayer('search-layer')) {
+      if (geoJson && geoJson.data && geoJson.data.features && geoJson.data.features.length > 0) {
+        map.value.setLayoutProperty('search-layer', 'visibility', 'visible')
+      }
     }
   }
 
