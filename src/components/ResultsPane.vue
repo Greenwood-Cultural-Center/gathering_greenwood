@@ -89,7 +89,7 @@
     }
 
     searchTerm.value = searchValue.search;
-    lastSearch.value = searchValue.lastSearch;
+    lastSearch.value = searchValue.search;
 
     try {
       const [resultsRes, geoJsonRes] = await Promise.all([

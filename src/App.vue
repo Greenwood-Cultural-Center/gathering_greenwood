@@ -93,6 +93,7 @@
   // Map and ResultsPane ref
   const mglMapRef = useTemplateRef('mglMapRef');
   const resultsPaneRef = useTemplateRef('resultsPaneRef');
+  const yearSearchBarRef = useTemplateRef('yearSearchBarRef');
   const census1920LayerRef = useTemplateRef('census1920LayerRef');
   const map = ref(null);
   const videoModalRef = useTemplateRef('videoModalRef');
@@ -131,6 +132,9 @@
     searchTerm.value = '';
     if (resultsPaneRef && resultsPaneRef.value) {
       resultsPaneRef.value.resetState();
+    }
+    if (yearSearchBarRef && yearSearchBarRef.value) {
+      yearSearchBarRef.value.clearSearch();
     }
   }
 
@@ -267,7 +271,7 @@
   <VideoModal ref="videoModalRef" :url="helpVideoUrl" :autoplay="true" class="fab fa-autoprefixer"></VideoModal>
 
   <!-- YearSelector Component to change year and perform searches -->
-  <YearSearchBar :onSearch="handleSearch" :onYearChange="updateYear" :years="years"></YearSearchBar>
+  <YearSearchBar ref="yearSearchBarRef" :onSearch="handleSearch" :onYearChange="updateYear" :years="years"></YearSearchBar>
 
   <!-- Map Component with layer containing dynamic GeoJSON search results-->
   <MglMap :year="appYear" ref="mglMapRef" @created="handleMapCreated" :dynamicGeoJsonIds="{'dynamicLayers': dynamicLayers, 'dynamicSources': dynamicSources}">
