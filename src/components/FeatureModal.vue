@@ -54,6 +54,13 @@
     return `N/A`;
   };
 
+  const rich_description = computed(() => {
+    if (!props.feature || !props.feature.properties || !props.feature.properties.rich_description) {
+      return 'N/A';
+    }
+    return props.feature.properties.rich_description.body || 'N/A';
+  });
+
   const categories = computed(() => {
     return [
       { title: 'people', list: props.feature.properties.people, icon: 'user' },
@@ -80,7 +87,7 @@
           <p><strong>Address:</strong> {{ feature.properties.addresses[0].searchable_text || 'N/A' }}</p>
           <!-- <p><strong>Year Built:</strong> {{ feature.properties.year_built || 'N/A' }}</p> -->
           <p><strong>Description:</strong> {{ feature.properties.description || 'N/A' }}</p>
-          <p><strong>Rich Description:</strong> <span class="rich-description" v-html="feature.properties.rich_description.body"></span></p>
+          <p><strong>Rich Description:</strong> <span class="rich-description" v-html="rich_description"></span></p>
           <template v-for="category in categories">
             <h3 class="category-title">{{ utils.titleCase(category.title) }}</h3>
             <ul class="fa-ul" role="group">

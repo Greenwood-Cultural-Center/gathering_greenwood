@@ -60,7 +60,7 @@
 </script>
 
 <template>
-  <HtmlDialog ref="dialogRef" :dialogId="dialogId" titleId="modal-title-id" @close="emit('close')">
+  <HtmlDialog ref="dialogRef" :dialogId="dialogId" class="result-modal" titleId="modal-title-id" @close="emit('close')">
     <div class="modal-content">
       <div class="modal-header">
         <h5 id="modal-title-id" class="modal-title">Details</h5>
@@ -87,5 +87,11 @@
   }
   .modal-title {
     margin: 0;
+  }
+</style>
+
+<style>
+  .result-modal .dialog {
+    width: 700px;
   }
 </style>
