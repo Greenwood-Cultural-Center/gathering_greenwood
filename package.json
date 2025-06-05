@@ -62,12 +62,12 @@
           "config": {
             "name": "gathering_greenwood",
             "setupIcon": "public/gcc.ico",
-            "setupExe": "GatheringGreenwoodSetup0.5.0.exe",
+            "setupExe": "GatheringGreenwoodSetup0.5.1.exe",
             "noMsi": false,
             "setupArgs": {
               "name": "Gathering Greenwood",
               "description": "Gathering Greenwood",
-              "version": "0.5.0",
+              "version": "0.5.1",
               "title": "Gathering Greenwood",
               "exe": "GatheringGreenwood.exe",
               "appId": "com.greenwoodculturalcenter.gatheringgreenwood"
