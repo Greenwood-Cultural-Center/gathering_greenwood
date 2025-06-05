@@ -182,7 +182,7 @@
       await resultsPaneRef.value.search(searchValue);
     }
     if (map.value.getLayer('search-layer')) {
-      if (geoJson && geoJson.data && geoJson.data.features && geoJson.data.features.length > 0) {
+      if (geoJson.value && geoJson.value.data && geoJson.value.data.features && geoJson.value.data.features.length > 0) {
         map.value.setLayoutProperty('search-layer', 'visibility', 'visible')
       }
     }
@@ -200,12 +200,12 @@
     // census1920GeoJson.value = await fetchGeoJson(census1920Url)
     //   .then(response =>
     //     formatRawGeoJson(response.json(), '1920-census-source'));
-    const response = await fetch(census1920Url);
-    const data = await response.json();
+    // const response = await fetch(census1920Url);
+    // const data = await response.json();
     // Format the GeoJSON data for the 1920 census
-    var json = formatRawGeoJson(data, '1920-census-source', '1920');
-    json.data.features.forEach(feature => feature.properties.searchable_text = buildSearchableText(feature.properties));
-    census1920GeoJson.value = json;
+    // var json = formatRawGeoJson(data, '1920-census-source', '1920');
+    // json.data.features.forEach(feature => feature.properties.searchable_text = buildSearchableText(feature.properties));
+    // census1920GeoJson.value = json;
   };
 
   function formatFeature(feature) {
@@ -294,7 +294,7 @@
       :map="map"
       :featureFormatter="formatFeature"
     />
-    <DynamicGeoJsonLayer
+    <!-- <DynamicGeoJsonLayer
       v-if="census1920GeoJson && census1920GeoJson.data && census1920GeoJson.data.features && census1920GeoJson.data.features.length > 0"
       ref="census1920LayerRef"
       :geojson="census1920GeoJson"
@@ -306,7 +306,7 @@
       :map="map"
       :featureFormatter="formatFeature"
       :searchTerm="searchTerm"
-    />
+    /> -->
   </MglMap>
 
   <!-- Results Pane Component containing search results-->
