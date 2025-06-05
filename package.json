@@ -1,10 +1,10 @@
 {
-  "name": "kiosk_frontend",
+  "name": "gathering_greenwood",
   "private": true,
   "version": "0.4.0",
   "type": "module",
   "main": "electron/main.js",
-  "description": "Greenwood Kiosk",
+  "description": "Gathering Greenwood",
   "author": "Spark Collaborative",
   "scripts": {
     "dev": "vite --port 5173 --host & electron  --trace-warnings .",
@@ -60,17 +60,17 @@
         {
           "name": "@electron-forge/maker-squirrel",
           "config": {
-            "name": "greenwood_kiosk",
+            "name": "gathering_greenwood",
             "setupIcon": "public/gcc.ico",
-            "setupExe": "GreenwoodKioskSetup.exe",
+            "setupExe": "GatheringGreenwoodSetup0.5.0.exe",
             "noMsi": false,
             "setupArgs": {
-              "name": "Greenwood Kiosk",
-              "description": "Greenwood Kiosk",
-              "version": "0.4.0",
-              "title": "Greenwood Kiosk",
-              "exe": "GreenwoodKiosk.exe",
-              "appId": "com.greenwoodculturalcenter.greenwoodkiosk"
+              "name": "Gathering Greenwood",
+              "description": "Gathering Greenwood",
+              "version": "0.5.0",
+              "title": "Gathering Greenwood",
+              "exe": "GatheringGreenwood.exe",
+              "appId": "com.greenwoodculturalcenter.gatheringgreenwood"
             }
           }
         },
