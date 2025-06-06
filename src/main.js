@@ -20,7 +20,8 @@ import { faSearch,
   faVolumeHigh,
   faHouse,
   faQuestion,
-  faLink } from '@fortawesome/free-solid-svg-icons';
+  faLink,
+  faTimes } from '@fortawesome/free-solid-svg-icons';
 
 /* add icons to the library */
 library.add(faSearch,
@@ -34,7 +35,8 @@ library.add(faSearch,
   faVolumeHigh,
   faHouse,
   faQuestion,
-  faLink);
+  faLink,
+  faTimes);
 
 config.familyDefault = 'classic';
 config.styleDefault = 'solid';

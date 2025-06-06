@@ -101,7 +101,7 @@
     return json;
   }
 
-  function handleClick(e) {
+  async function handleClick(e) {
     if (!e || !e.features || e.features.length === 0) return;
     if (e.features.length > 1) {
       console.warn('Multiple features clicked, only the first will be processed.');
@@ -115,7 +115,15 @@
       props.featureFormatter = (feature) => feature;
     }
     clickedfeature.value = props.featureFormatter(e.features[0]);
-    dialogRef.value?.openDialog();
+    props.map.flyTo({
+      center: clickedfeature.value.geometry.coordinates,
+      zoom: 16,
+      speed: 1.2,
+      curve: 1.5,
+      easing: (t) => t
+    });
+    var open = dialogRef.value?.openDialog;
+    await utils.delayedAction(open, 1300); // Open dialog with a delay
   }
 </script>
 

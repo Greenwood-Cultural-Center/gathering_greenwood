@@ -161,8 +161,8 @@
 
 <style scoped>
   .results-pane {
-    width: 38vw;
-    height: 95vh;
+    width: var(--results-width);
+    height: var(--results-height);
     background: var(--gcc-white);
     padding: 1rem;
     color: #333;

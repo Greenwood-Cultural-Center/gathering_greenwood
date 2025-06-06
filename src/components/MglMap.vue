@@ -223,6 +223,11 @@
     --gcc-border-radius: 0.9rem;
   }
 
+  .mapboxgl-map canvas {
+    height: var(--map-height, 100vh);
+    width: var(--map-width, 60vw);
+  }
+
   div.mapboxgl-ctrl-attrib.mapboxgl-compact {
     min-height: 3.333125rem;
     padding: 0.3333125rem 4rem 0.3333125rem 0;

@@ -134,12 +134,24 @@ export function formatRawGeoJson(rawGeoJson, id='search-source', inject_year=nul
   }
 }
 
+export async function delayedAction(func, ms) {
+  console.log("Action started");
+  await delay(ms); // Wait for ms seconds
+  func();
+  console.log("Action finished");
+}
+
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 const utils = {
   findObjectByKey,
   isYear,
   hashString,
   titleCase,
   formatRawGeoJson,
+  delayedAction,
   centuryPrefixes
 };
 
