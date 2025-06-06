@@ -73,14 +73,25 @@
     transform: translateY(-6%);
   }
 
+  .video-dialog .close-button {
+    font-size: 3.5rem;
+    z-index: 1001;
+    height: 5rem;
+    width: 5rem;
+    padding-block: 0;
+    padding-inline: 0;
+    top: -9px;
+    right: 0px;
+  }
+
   @media screen and (max-width: 1600px) {
     .video-dialog .dialog {
       transform: translateY(-12%);
     }
-  }
 
-  .video-dialog .close-button {
-    font-size: 3.5rem;
-    z-index: 1001;
+    .video-dialog .close-button {
+      top: -10px;
+      right: -9px;
+    }
   }
 </style>
