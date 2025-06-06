@@ -9,6 +9,7 @@
   import VideoMediaForm from './forms/VideoMediaForm.vue';
   import PhotoMediaForm from './forms/PhotoMediaForm.vue';
   import { HtmlDialog } from 'vue-html-dialog';
+  import ScrollbarCss from '../styles/scrollbar.module.css';
   //import Dialog from './Dialog.vue';
   import 'vue-html-dialog/vue-html-dialog.css';
 
@@ -65,7 +66,7 @@
       <div class="modal-header">
         <h5 id="modal-title-id" class="modal-title">Details</h5>
       </div>
-      <div class="modal-body">
+      <div :class="['modal-body', ScrollbarCss.scrollbar]">
         <component :is="getComponent" :item="item" v-if="getComponent" />
         <p v-else>Unknown category: {{ category }}</p>
       </div>
@@ -77,21 +78,51 @@
   .modal-content {
     background: white;
     padding: 1rem;
+    height: 100%;
+    width: 100%;
     color: #333;
   }
+
   .modal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid #ddd;
   }
+
   .modal-title {
     margin: 0;
+  }
+
+  .modal-body {
+    overflow-y: scroll;
+    height: 95%;
+    width: 100%;
+  }
+
+  @media screen and (max-width: 1600px) {
+    .modal-body {
+      height: 80%;
+    }
   }
 </style>
 
 <style>
   .result-modal .dialog {
-    width: 700px;
+    width: 43.75rem;
+    max-height: 56.25rem;
+  }
+
+  .result-modal .dialog>div {
+    width: 100%;
+    height: 100%;
+  }
+
+  @media screen and (max-width: 1600px) {
+    .result-modal .dialog {
+      transform: translateY(-4rem);
+      width: 43.75rem;
+      max-height: 31.25rem;
+    }
   }
 </style>

@@ -1,5 +1,5 @@
 <script setup>
-  import { ref, computed, useTemplateRef } from 'vue';
+  import { ref, computed, useTemplateRef, onMounted, onUpdated } from 'vue';
   import MglMap from './components/MglMap.vue';
   import FABMain from './components/FABMain.vue';
   import FABButton from './components/FABButton.vue';
@@ -259,6 +259,22 @@
 
     return searchableText.join('|').toLowerCase();
   }
+
+  // Component Lifecycle Hooks
+  onMounted(() => {
+    const searchBar = yearSearchBarRef.value;
+    if (searchBar) {
+      document.getElementById('search-input').focus();
+    }
+  });
+
+  onUpdated(() => {
+    const searchBar = yearSearchBarRef.value;
+    if (searchBar) {
+      document.getElementById('search-input').focus();
+    }
+  });
+
 </script>
 
 <template>
@@ -320,23 +336,21 @@
 </template>
 
 <style>
-  .historical-map-container {
-    height: 100vh;
-    width: 60vw;
-  }
   .mgl-map-wrapper {
-    height: 97.05vh;
-    width: 60vw;
+    height: var(--map-height);
+    width: var(--map-width);
   }
+
   .dialog {
     border: none;
     border-radius: 8px;
     width: 90vw;
-    max-width: 800px;
+    max-width: 900px;
     padding: 0;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
     color: #333
   }
+
   .close-button {
     font-size: 2.5rem;
     background: none;
@@ -345,6 +359,7 @@
     padding: 0;
     color: var(--gcc-lt-green);
   }
+
   .fabInnerButton[title="Contrast"] {
     background-image: linear-gradient(to right, var(--gcc-dk-green) 50%, var(--gcc-white) 50%);
   }

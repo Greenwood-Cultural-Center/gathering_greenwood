@@ -162,6 +162,12 @@
   --gcc-white: #EEE;
   --gcc-black: #333;
 
+  --map-width: 60vw;
+  --map-height: 100vh;
+
+  --results-width: 38vw;
+  --results-height: 100vh;
+
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -228,7 +234,6 @@ button:focus-visible {
 }
 
 #app {
-  margin: 0 0.7rem;
   text-align: center;
   display: flex;
   align-items: flex-start;

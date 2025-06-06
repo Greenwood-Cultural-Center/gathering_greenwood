@@ -70,6 +70,13 @@
     width: 73vw;
     height: 74vh;
     padding: 0.2rem 0rem 0rem 0rem;
+    transform: translateY(-6%);
+  }
+
+  @media screen and (max-width: 1600px) {
+    .video-dialog .dialog {
+      transform: translateY(-12%);
+    }
   }
 
   .video-dialog .close-button {

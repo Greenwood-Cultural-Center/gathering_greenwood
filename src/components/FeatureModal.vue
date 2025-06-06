@@ -172,6 +172,8 @@
   .modal-content {
     background: var(--gcc-white);
     color: #333;
+    height: 100%;
+    width: 100%;
   }
 
   h4, h5 {
@@ -214,10 +216,25 @@
     height: 5px;
   }
 
+  @media screen and (max-width: 1600px) {
+    .modal-body {
+      height: 80%;
+    }
+  }
+
   .modal-body {
     max-height: 70vh;
-    overflow-y: auto;
+    overflow-y: scroll;
+    overflow-x: visible;
+    height: 95%;
+    width: 100%;
     padding-right: 1rem;
+  }
+
+  .modal-body > div > p,
+  .modal-body > details > summary,
+  .modal-body > details > p {
+    word-wrap: break-word;
   }
 
   .modal-header {
@@ -249,7 +266,50 @@
 
 <style>
   .feature-dialog .dialog{
-    width: 56.25rem;
+    anchor-name: --dialog;
     background: var(--gcc-white);
+    border-radius: 8px;
+    border: none;
+    box-shadow: 0 2px 12px #0000004d;
+    color: #333;
+    height: 56rem;
+    margin: 1.5rem;
+    max-height: 56.25rem;
+    max-width: 90%;
+    opacity: 1;
+    overflow-y: hidden;
+    padding: 1.5rem;
+    position: static;
+    transform: translateY(-2rem);
+    transition: transform 300ms ease,opacity 300ms ease;
+    width: 61rem;
+  }
+
+  .feature-dialog .dialog>div {
+    width: 100%;
+    height: 100%;
+  }
+
+  .feature-dialog .dialog>div button.close-button {
+    top: -25px;
+    font-size: 5rem;
+  }
+
+
+  @media screen and (max-width: 1600px) {
+    .feature-dialog .dialog {
+      transform: translateY(-4rem);
+      height: 31.25rem;
+      max-height: 37.5rem;
+      padding: 1.5rem 1.5rem 2.1rem 1.5rem;
+    }
+
+    .feature-dialog .dialog>div {
+      position-anchor: --dialog;
+      height: anchor-size(--dialog height);
+      box-sizing: border-box;
+      width: 100%;
+      align-items: center;
+    }
   }
 </style>

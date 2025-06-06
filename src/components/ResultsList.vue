@@ -54,7 +54,7 @@
 .results-list {
     margin-top: 1rem;
     padding: 0.5rem;
-    height: 78%;
+    height: 75%;
     overflow-y: scroll;
     border-radius: 0.5rem;
   }
@@ -72,6 +72,10 @@
     .category-title {
       font-size: 1.7rem;
       margin-bottom: 0.1rem;
+    }
+
+    .results-list {
+      height: 60%;
     }
   }
 </style>
