@@ -78,14 +78,6 @@
         'fill-color': '#333',
         'fill-opacity': 0.5
       }
-    },
-    {
-      id: 'parcels',
-      url: `${import.meta.env.BASE_URL}data/parcels/Demo_Parcels.geojson`,
-      paint: {
-        'fill-color': '#eee',
-        'fill-opacity': 0.5
-      }
     }
   ];
 
