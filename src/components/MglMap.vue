@@ -70,14 +70,6 @@
         'line-color': '#8888ff',
         'line-width': 2
       }
-    },
-    {
-      id: 'blocks',
-      url: `${import.meta.env.BASE_URL}data/blocks/Demo_Blocks.geojson`,
-      paint: {
-        'fill-color': '#333',
-        'fill-opacity': 0.5
-      }
     }
   ];
 
