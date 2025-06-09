@@ -4,15 +4,6 @@
   "metadata": {"maputnik:renderer": "mbgljs"},
   "center": [-95.9872222, 36.1619444],
   "zoom": 14,
-  "lights": [
-    {
-      "id": "my_flat_light",
-      "type": "flat",
-      "properties": {
-        "color": "#EEE"
-      }
-    }
-  ],
   "sources": {
     "osm": {
       "type": "vector",
@@ -6038,7 +6029,7 @@
       "id": "transport_points",
       "type": "symbol",
       "source": "osm",
-      "source-layer": "transport_points",
+      "source-layer": "transport_points_centroids",
       "minzoom": 14,
       "maxzoom": 24,
       "filter": ["all"],
@@ -6722,6 +6713,9 @@
         "text-translate-anchor": "map"
       }
     }
+  ],
+  "lights": [
+    {"id": "my_flat_light", "type": "flat", "properties": {"color": "#EEE"}}
   ],
   "id": "ab271ed3-6fe4-403a-b5ae-07113f8c57ab"
 }
