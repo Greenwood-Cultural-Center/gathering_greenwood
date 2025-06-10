@@ -62,16 +62,7 @@
     selected: ref({ year: '', date: '2025-01-01' })
   };
 
-  const layers = [
-    {
-      id: 'streets',
-      url: `${import.meta.env.BASE_URL}data/streets/Demo_Street_Labels.geojson`,
-      paint: {
-        'line-color': '#8888ff',
-        'line-width': 2
-      }
-    }
-  ];
+  const layers = [];
 
   function changeYear (map, newYear) {
       const match = DateOption.options.find(o => o.year === newYear);
