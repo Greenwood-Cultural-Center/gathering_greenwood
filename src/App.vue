@@ -266,6 +266,9 @@
     if (searchBar) {
       document.getElementById('search-input').focus();
     }
+    if (mglMapRef.value) {
+      map.value = mglMapRef.value.map;
+    }
   });
 
   onUpdated(() => {
