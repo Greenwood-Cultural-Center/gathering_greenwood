@@ -68,14 +68,14 @@
     padding-bottom: 0.25rem;
   }
 
-  @media screen and (max-width: 1600px) {
+  @media screen and (max-width: 1920px) {
     .category-title {
       font-size: 1.7rem;
       margin-bottom: 0.1rem;
     }
 
     .results-list {
-      height: 60%;
+      height: 72%;
     }
   }
 </style>
