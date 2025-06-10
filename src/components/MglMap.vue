@@ -166,10 +166,6 @@
   >
     <!-- Controls -->
     <MglNavigationControl position="bottom-right" />
-    <MglAttributionControl
-      position="bottom-right"
-      :custom-attribution="'<a href=&quot;https://www.openhistoricalmap.org/&quot; target=&quot;_blank&quot;>OpenHistoricalMap</a>'"
-    />
 
     <!-- Dynamic Layer Rendering -->
     <template v-for="layer in layers" :key="layer.id">

@@ -296,11 +296,11 @@
   }
 
 
-  @media screen and (max-width: 1600px) {
+  @media screen and (max-width: 1920px) {
     .feature-dialog .dialog {
       transform: translateY(-4rem);
-      height: 31.25rem;
-      max-height: 37.5rem;
+      height: 50rem;
+      max-height: 52rem;
       padding: 1.5rem 1.5rem 2.1rem 1.5rem;
     }
 
