@@ -166,7 +166,6 @@
   >
     <!-- Controls -->
     <MglNavigationControl position="bottom-right" />
-    <MglFullscreenControl position="bottom-right" />
     <MglAttributionControl
       position="bottom-right"
       :custom-attribution="'<a href=&quot;https://www.openhistoricalmap.org/&quot; target=&quot;_blank&quot;>OpenHistoricalMap</a>'"
@@ -203,23 +202,12 @@
     width: var(--map-width, 60vw);
   }
 
-  div.mapboxgl-ctrl-attrib.mapboxgl-compact {
-    min-height: 3.333125rem;
-    padding: 0.3333125rem 4rem 0.3333125rem 0;
-  }
-
   div.mapboxgl-ctrl-attrib.mapboxgl-compact-show {
     padding-left: 0.6875rem;
     padding-right: 4.6875rem;
     visibility: visible;
     display: flex;
     align-items: center;
-  }
-
-  .mapboxgl-ctrl-attrib.mapboxgl-compact {
-    background-color: var(--gcc-dk-green);
-    color: var(--gcc-white);
-    border-radius: var(--gcc-border-radius);
   }
 
   div.mapboxgl-ctrl-group button[class^=mapboxgl-ctrl-] {
@@ -257,14 +245,8 @@
     background-color: initial;
   }
 
-  .mapboxgl-ctrl.mapboxgl-ctrl-attrib.mapboxgl-compact.mapboxgl-compact-show:hover,
-  .mapboxgl-ctrl.mapboxgl-ctrl-attrib.mapboxgl-compact.mapboxgl-compact-show:hover button.mapboxgl-ctrl-attrib-button {
-    background-color: var(--gcc-beige);
-    color: #333;
-  }
-
-  .mapboxgl-ctrl button:not(:disabled):hover .mapboxgl-ctrl-icon,
-  .mapboxgl-ctrl-attrib button.mapboxgl-ctrl-attrib-button:not(:disabled):hover {
+  .mapboxgl-ctrl button:not(:disabled, button.mapboxgl-ctrl-attrib-button):hover .mapboxgl-ctrl-icon
+  {
     background-color: var(--gcc-beige);
     color: #333;
   }
@@ -306,25 +288,8 @@
     background-image: var(--svg);
   }
 
-  div.mapboxgl-ctrl button.mapboxgl-ctrl-attrib-button span.mapboxgl-ctrl-icon {
-    --svg:url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill-rule='evenodd'><path fill='%238C6326' d='M4 10a6 6 0 1 0 12 0 6 6 0 1 0-12 0m5-3a1 1 0 1 0 2 0 1 1 0 1 0-2 0m0 3a1 1 0 1 1 2 0v3a1 1 0 1 1-2 0'/></svg>");
-    background-image: var(--svg);
-    background-position: 50%;
-    background-repeat: no-repeat;
-    border-radius: var(--gcc-border-radius);
-  }
-
   div.mapboxgl-ctrl button.mapboxgl-ctrl-attrib-button {
-    background-image: none;
-    background-color: var(--gcc-dk-green);
     padding: 0;
-    height: 4rem;
-    width: 4rem;
-    border-radius: var(--gcc-border-radius);
-  }
-
-  .mapboxgl-ctrl-attrib a {
-    color: var(--gcc-white);
   }
 
   .mapboxgl-ctrl.mapboxgl-ctrl-attrib.mapboxgl-compact.mapboxgl-compact-show:hover a {
