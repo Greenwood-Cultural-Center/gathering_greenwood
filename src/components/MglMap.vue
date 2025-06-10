@@ -13,6 +13,10 @@
         dynamicLayers: []
       }),
       validator: (val) => Array.isArray(val.dynamicSources) && Array.isArray(val.dynamicLayers)
+    },
+    showResultsPane: {
+      type: Boolean,
+      default: false
     }
   });
 

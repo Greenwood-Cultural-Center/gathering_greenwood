@@ -100,6 +100,7 @@
   const census1920GeoJson = ref(emptyGeoJson);
   const helpVideoUrl = `${import.meta.env.BASE_URL}GCC-Kiosk-April-2025.webm`;
   const census1920Url = `${import.meta.env.BASE_URL}Grouped_1920_Census.min.geojson`;
+  const showResultsPane = ref(false);
   async function fetchGeoJson (url) {
     await fetch(`${url}`);
   }
@@ -131,6 +132,7 @@
   function clearResults() {
     searchTerm.value = '';
     if (resultsPaneRef && resultsPaneRef.value) {
+      showResultsPane.value = false;
       resultsPaneRef.value.resetState();
     }
     if (yearSearchBarRef && yearSearchBarRef.value) {
@@ -174,6 +176,7 @@
   async function handleSearch(searchValue) {
     //clearResults();
     //resetMap();
+    showResultsPane.value = true;
     if (map.value.getLayer('search-layer')) {
       map.value.setLayoutProperty('search-layer', 'visibility', 'none')
     }
@@ -298,7 +301,7 @@
   <YearSearchBar ref="yearSearchBarRef" :onSearch="handleSearch" :onYearChange="updateYear" :years="years"></YearSearchBar>
 
   <!-- Map Component with layer containing dynamic GeoJSON search results-->
-  <MglMap :year="appYear" ref="mglMapRef" @created="handleMapCreated" :dynamicGeoJsonIds="{'dynamicLayers': dynamicLayers, 'dynamicSources': dynamicSources}">
+  <MglMap :year="appYear" ref="mglMapRef" @created="handleMapCreated" :showResultsPane="showResultsPane" :dynamicGeoJsonIds="{'dynamicLayers': dynamicLayers, 'dynamicSources': dynamicSources}">
     <DynamicGeoJsonLayer
       v-if="geoJson && geoJson.data && geoJson.data.features && geoJson.data.features.length > 0"
       :geojson="geoJson"
@@ -326,15 +329,16 @@
   </MglMap>
 
   <!-- Results Pane Component containing search results-->
-  <ResultsPane
-    ref="resultsPaneRef"
-    :years="years"
-    :year="appYear"
-    @update:geojson="handleGeojson"
-    :featureFormatter="formatFeature"
-  />
+  <transition name="slide">
+    <ResultsPane
+      v-if="showResultsPane"
+      ref="resultsPaneRef"
+      :years="years"
+      :year="appYear"
+      @update:geojson="handleGeojson"
+    />
+  </transition>
 </template>
-
 <style>
   .mgl-map-wrapper {
     height: var(--map-height);
