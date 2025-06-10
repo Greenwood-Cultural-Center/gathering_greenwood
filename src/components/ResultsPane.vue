@@ -5,6 +5,7 @@
   import LastSearch from './LastSearch.vue';
   import { formatRawGeoJson } from '../utils/utils.js';
   import { ResultsJson, ResultsGeoJson, Status, DetailedResponse, Count } from '../utils/ResponseHandler.js';
+  import { useToast } from "vue-toastification";
 
   const props = defineProps({
     year: {
@@ -19,6 +20,7 @@
 
   const loading = ref(false);
   const lastSearch = ref('');
+  const toast = useToast();
 
   const categoryOrder = [
     'buildings',
@@ -141,7 +143,7 @@
       emit('update:geojson', geojson.value);
       emit('update:results', results.value);
     } catch (err) {
-      console.error('Search error:', err);
+      toast.error(`There was an error fetching resutls: Server is not responding. Please notify Administrator.`);
     } finally {
       loading.value = false;
     }

@@ -179,7 +179,9 @@ svg.svg-inline--fa, .category-title{
   color: var(--gcc-orange);
 }
 
-
+.Vue-Toastification__toast svg.svg-inline--fa {
+  color: var(--gcc-white);
+}
 
 html {
   overflow:hidden;
