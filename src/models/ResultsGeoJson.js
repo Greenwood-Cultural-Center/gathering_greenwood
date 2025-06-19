@@ -55,25 +55,7 @@ class ResultsGeoJson {
     let type = "";
     let features = [];
 
-    if (utils.isYear(Object.keys(obj[0])[0])) {
-      obj.map((result) => {
-        const year = Object.keys(result)[0];
-        const results = result[year];
-        type = results.type;
-        results.features.map((feature) => {
-          if (!feature) return;
-          const featureType = feature.type;
-          const geometry = feature.geometry;
-          feature.properties.year = year;
-          const properties = feature.properties;
-          features.push(new Feature(
-            featureType,
-            new Geometry(geometry.type, geometry.coordinates),
-            properties
-          ));
-        });
-      });
-    } else {
+
       type = obj.type;
       obj.features.map((feature) => {
         const featureType = feature.type;
@@ -85,7 +67,6 @@ class ResultsGeoJson {
           properties
         ));
       });
-    }
 
     callback(new DetailedResponse(
       new ResultsGeoJson({
