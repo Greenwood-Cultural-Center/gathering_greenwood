@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import vueDevTools from 'vite-plugin-vue-devtools';
 import vue from '@vitejs/plugin-vue';
 import AutoZip from 'vite-plugin-auto-zip';
+//import { VitePWA } from 'vite-plugin-pwa';
 
 const __APP_VERSION__ = process.env.npm_package_version;
 const __APP_NAME__ = process.env.npm_package_name;
@@ -16,7 +17,45 @@ export default defineConfig({
     vueDevTools({
       launchEditor: 'code',
     }),
-    AutoZip(zipName,'dist'),
+    AutoZip(zipName,'dist')
+    // VitePWA({
+    //   // generates 'manifest.webmanifest' file on build
+    //   manifest: {
+    //     // caches the assets/icons mentioned (assets/* includes all the assets present in your src/ directory)
+    //     includeAssets: ["gcc.ico", "gcc192.png", "gcc256.png", "gcc512.png", "gcc.png"],
+    //     name: 'Gathering Greenwood: Connecting people today with the memories of yeseterday',
+    //     short_name: 'Gathering Greenwood',
+    //     start_url: '/',
+    //     background_color: '#15341C',
+    //     theme_color: '#15341C',
+    //     icons: [
+    //       {
+    //         "src": "gcc192.png",
+    //         "type": "image/png",
+    //         "sizes": "192x192"
+    //       },
+    //       {
+    //         "src": "gcc256.png",
+    //         "type": "image/png",
+    //         "sizes": "256x256"
+    //       },
+    //       {
+    //         "src": "gcc512.png",
+    //         "type": "image/png",
+    //         "sizes": "512x512"
+    //       },
+    //       {
+    //         "src": "gcc.png",
+    //         "type": "image/png",
+    //         "sizes": "1042x1042"
+    //       }
+    //     ]
+    //   },
+    //   workbox: {
+    //     // defining cached files formats
+    //     globPatterns: ["**/*.{js,css,html,ico,png,svg,webmanifest, json, woff, woff2, geojson, webm, webp, mp4}"],
+    //   }
+    // })
   ],
   build: {
     cacheDir: '.vite', // Make sure the cache is stored in a persistent location
