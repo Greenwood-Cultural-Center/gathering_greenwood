@@ -19,24 +19,21 @@ class ResultsJson {
       throw new Error("Callback must be a function");
     }
 
-    if (!obj || !obj.results || !Array.isArray(obj.results) || !obj.count || !Array.isArray(obj.count)) {
+    if (!obj || !obj.results || !obj.count) {
       const response = new DetailedResponse(ResultsJson.createEmpty(), "No Results Found", Status.Success, null, false);
       callback(response);
       return;
     }
 
     if (
-      !obj ||
-      (Array.isArray(obj.results) && !obj.results.every((result) => result && Object.keys(result).length > 0)) ||
-      !(typeof obj.results === "object" && Object.keys(obj.results).length > 0)
+      !obj || !(typeof obj.results === "object" && Object.keys(obj.results).length > 0)
     ) {
       const response = new DetailedResponse(null, null, Status.Error, new Error("Invalid results format"), true);
       callback(response);
       return;
     }
 
-    if (!obj || (Array.isArray(obj.count) && !obj.results.every((result) => result && Object.keys(result).length > 0)) ||
-       !(typeof obj.count === "object" && Object.keys(obj.count).length > 0)) {
+    if (!obj || !(typeof obj.count === "object" && Object.keys(obj.count).length > 0)) {
       const response = new DetailedResponse(null, null, Status.Error, new Error("Invalid count format"), true);
       callback(response);
       return;
@@ -44,99 +41,40 @@ class ResultsJson {
 
     let FinalResultsJson = ResultsJson.createEmpty();
 
-    if (Array.isArray(obj.results) && utils.isYear(Object.keys(obj.results[0])[0])) {
-      const results = obj.results;
+    const newObj = obj;
+    const results = newObj.results;
+    const tempJson = ResultsJson.createEmpty();
 
-      const YearRecords = results.map((entry) => {
-        const [year, contentEntry] = Object.entries(entry)[0];
+    tempJson.buildings = results.buildings;
+    tempJson.people = results.people;
+    tempJson.census_records = results.documents.filter((item) => item.category === "Census Records");
+    tempJson.documents = results.documents.filter((item) => item.category !== "Census Records");
+    tempJson.media = results.media;
+    tempJson.stories = results.stories;
 
-        if (!Array.isArray(contentEntry)) {
-          throw new Error("Invalid content format");
-        }
+    const count = [];
 
-        const content = contentEntry;
-
-        const buildingBlock = content.find((c) => c.buildings);
-        const peopleBlock = content.find((c) => c.people);
-        const docBlock = content.find((c) => c.documents);
-        const mediaBlock = content.find((c) => c.media);
-        const storyBlock = content.find((c) => c.stories);
-
-        return {
-          buildings: buildingBlock?.buildings?.map((b) => ({ ...b, year })) || [],
-          people: peopleBlock?.people?.map((p) => ({ ...p, year })) || [],
-          census_records: docBlock?.documents?.filter((item) => item.category === "Census Records").map((d) => ({ ...d, year })) || [],
-          documents: docBlock?.documents?.filter((item) => item.category !== "Census Records").map((d) => ({ ...d, year })) || [],
-          media: mediaBlock?.media?.map((m) => ({ ...m, year })) || [],
-          stories: storyBlock?.stories?.map((s) => ({ ...s, year })) || []
-        };
+    newObj.count
+      .filter((c) => c.year !== "Total")
+      .forEach((yearCount) => {
+        count.push(new Count({ ...yearCount, totalFlag: false }));
       });
 
-      const count = obj.count.filter((c) => Object.keys(c)[0] !== "Total")
+    // newObj.count
+    //   .filter((year) => Object.keys(year)[0] === "Total")
+    //   .forEach((yearCount) => {
+    //     count.push(new Count({ ...yearCount, totalFlag: true }));
+    //   });
 
-      const YearCountRecords = count.map((entry) => {
-        const [year, contentEntry] = Object.entries(entry)[0];
-        if (typeof contentEntry !== "object") {
-          throw new Error("Invalid content format");
-        }
-          return new Count({
-            year,
-            buildings: contentEntry?.buildings || 0,
-            people: contentEntry?.people || 0,
-            census_records: contentEntry?.census_records || 0,
-            documents: contentEntry?.documents || 0,
-            media: contentEntry?.media || 0,
-            stories: contentEntry?.stories || 0,
-            totalFlag: year === "Total"
-          });
-      });
-
-      FinalResultsJson = new ResultsJson({
-        buildings: YearRecords.flatMap((entry) => entry.buildings),
-        people: YearRecords.flatMap((entry) => entry.people),
-        census_records: YearRecords.flatMap((entry) => entry.census_records),
-        documents: YearRecords.flatMap((entry) => entry.documents),
-        media: YearRecords.flatMap((entry) => entry.media),
-        stories: YearRecords.flatMap((entry) => entry.stories),
-        count: YearCountRecords
-      });
-
-    } else {
-      const newObj = obj;
-      const results = newObj.results;
-      const tempJson = ResultsJson.createEmpty();
-
-      tempJson.buildings = results.buildings;
-      tempJson.people = results.people;
-      tempJson.census_records = results.documents.filter((item) => item.category === "Census Records");
-      tempJson.documents = results.documents.filter((item) => item.category !== "Census Records");
-      tempJson.media = results.media;
-      tempJson.stories = results.stories;
-
-      const count = [];
-
-      newObj.count
-        .filter((c) => c.year !== "Total")
-        .forEach((yearCount) => {
-          count.push(new Count({ ...yearCount, totalFlag: false }));
-        });
-
-      // newObj.count
-      //   .filter((year) => Object.keys(year)[0] === "Total")
-      //   .forEach((yearCount) => {
-      //     count.push(new Count({ ...yearCount, totalFlag: true }));
-      //   });
-
-      FinalResultsJson = new ResultsJson({
-        buildings: tempJson.buildings,
-        people: tempJson.people,
-        census_records: tempJson.census_records,
-        documents: tempJson.documents,
-        media: tempJson.media,
-        stories: tempJson.stories,
-        count
-      });
-    }
+    FinalResultsJson = new ResultsJson({
+      buildings: tempJson.buildings,
+      people: tempJson.people,
+      census_records: tempJson.census_records,
+      documents: tempJson.documents,
+      media: tempJson.media,
+      stories: tempJson.stories,
+      count
+    });
 
     const response = new DetailedResponse(FinalResultsJson, "Success", Status.Success, null, false);
     callback(response);
