@@ -1,8 +1,11 @@
 <script setup>
-  import { ref, onBeforeMount, onMounted, watch } from 'vue';
-  import { MglMap, MglNavigationControl, MglFullscreenControl, MglAttributionControl, MglGeojsonLayer } from "vue-mapbox3";
+  import { ref, onBeforeMount, onMounted, watch, h, render, nextTick, inject, provide } from 'vue';
+  import { MglMap, MglNavigationControl, MglGeojsonLayer, $helpers } from "vue-mapbox3";
   import Mapbox from "mapbox-gl";
-  import { filterByDate } from '@openhistoricalmap/maplibre-gl-dates'
+  import ContrastButton from './ContrastButton.vue';
+  import { filterByDate } from '@openhistoricalmap/maplibre-gl-dates';
+  import utils from '../utils/utils.js';
+
 
   const props = defineProps({
     year: String,
@@ -17,14 +20,14 @@
   });
 
   defineExpose({
-    resetMap
+    resetMap,
   });
 
   const emit = defineEmits(['created']);
 
   // Store reference to map instance (if needed for advanced interactions)
-  const mapRef = ref(null);
-  const mapbox = ref(Mapbox);
+  const mapboxgl = inject('mapboxgl');
+  const mapboxMap = ref({});
 
   // Reactive references for GeoJSON data
   const geoJsonData = ref({});
@@ -63,20 +66,30 @@
   };
 
   const layers = [];
+  const ctrl = ref({});
 
-  function changeYear (map, newYear) {
+  async function changeYear (map, newYear) {
+      // if (newYear === '') {
+      //   map.setStyle('mapbox://styles/mapbox/streets-v12');
+      // }
+      // else {
+      //   map.setStyle(`${import.meta.env.BASE_URL}historic.json`);
+      // }
       const match = DateOption.options.find(o => o.year === newYear);
       if (match) {
           DateOption.selected.value = match;
-          filterByDate(map, match.date);
+          // const filter = () => {filterByDate(map, match.date);}
+          // utils.delayedAction(filter,200);
+          await nextTick(() => {
+             filterByDate(map, match.date)
+          });
           //map.setFilter('search-results', ['==', 'date', match.year]);
       }
   };
 
   function resetMap () {
-    const map = mapRef.value;
-
-    if (map){
+    let map = mapboxMap.value;
+    if (!utils.isEmpty(map)) {
       map.fitBounds(boundingBox.value);
     }
   };
@@ -95,16 +108,15 @@
   watch(
     () => props.year,
     (newYear) => {
-        const map = mapRef.value;
-        if (map) {
-            changeYear(map, newYear);
-        }
+      let map = mapboxMap.value;
+      if (!utils.isEmpty(map)) {
+        changeYear(map, newYear);
+      }
     },
     { immediate: true }
   );
 
   onBeforeMount(() => {
-    mapbox.value = Mapbox;
   });
 
   onMounted(() => {
@@ -114,9 +126,9 @@
   });
 
   function onSourceUpdated(event) {
-    const map = mapRef.value;
     const mapSource = event.mapboxEvent.sourceId;
-    if (map && props.dynamicGeoJsonIds.dynamicSources.includes(mapSource)) {
+    let map = mapboxMap.value;
+    if (!utils.isEmpty(map) && props.dynamicGeoJsonIds.dynamicSources.includes(mapSource)) {
       const dynamicSource = event.mapboxEvent.sourceId;
       const dynamicIndex = props.dynamicGeoJsonIds.dynamicSources.indexOf(dynamicSource);
       const dynamicLayer = props.dynamicGeoJsonIds.dynamicLayers[dynamicIndex];
@@ -144,31 +156,40 @@
     }
   };
 
-  function onMapLoaded(event) {
-    const map = mapRef.value = event.map; // Store the map instance
-    if (map) {
-      // Emit created event with map instance
+  async function onMapLoaded(event) {
+    mapboxMap.value = event.map;
+    let map = mapboxMap.value;
+    if (!utils.isEmpty(map)) {
       emit('created', map);
       changeYear(map, props.year);
+      // let map_container = map.getContainer();
+      // mb_logo = map_container.querySelector('.mapboxgl-ctrl-logo');
+      // if (!utils.isEmpty(mb_logo)) {
+      //   mb_logo.parentNode.parentNode.removeChild(mb_logo.parentNode)
+      // }
     };
   };
+  provide('map', mapboxMap.value);
 </script>
 
 <template>
   <MglMap
+    :mapboxGl="mapboxgl"
     :accessToken="accessToken"
     :mapStyle="style"
     :bounds="boundingBox"
     :maxZoom=21
     :maxBounds="maxBounds"
+    :attributionControl="false"
     @load="onMapLoaded"
     @sourcedata="onSourceUpdated"
   >
     <!-- Controls -->
     <MglNavigationControl position="bottom-right" />
+    <ContrastButton></ContrastButton>
 
     <!-- Dynamic Layer Rendering -->
-    <template v-for="layer in layers" :key="layer.id">
+    <!-- <template v-for="layer in layers" :key="layer.id">
       <MglGeojsonLayer
         v-if="geoJsonData[layer.id]"
         :source-id="layer.id"
@@ -182,7 +203,7 @@
           paint: layer.paint
         }"
       />
-    </template>
+    </template> -->
     <slot></slot>
   </MglMap>
 </template>
@@ -244,19 +265,15 @@
   .mapboxgl-ctrl button:not(:disabled, button.mapboxgl-ctrl-attrib-button):hover .mapboxgl-ctrl-icon
   {
     background-color: var(--gcc-beige);
-    color: #333;
+    color: var(--gcc-black);
   }
 
   .mapboxgl-ctrl-bottom-left .mapboxgl-ctrl {
-    opacity: 0;
     pointer-events: none;
-    visibility: hidden;
   }
 
-  .mapboxgl-ctrl-bottom-left .mapboxgl-ctrl .mapboxgl-ctrl-logo.mapboxgl-compact {
-    opacity: 0;
+  .mapboxgl-ctrl-bottom-left .mapboxgl-ctrl .mapboxgl-ctrl-logo.mapboxgl-compact, .mapboxgl-ctrl-bottom-left  {
     pointer-events: none;
-    visibility: hidden;
   }
 
   div.mapboxgl-ctrl button.mapboxgl-ctrl-fullscreen span.mapboxgl-ctrl-icon {
@@ -289,7 +306,11 @@
   }
 
   .mapboxgl-ctrl.mapboxgl-ctrl-attrib.mapboxgl-compact.mapboxgl-compact-show:hover a {
-    color: #333;
+    color: var(--gcc-black);
+  }
+
+  .mapboxgl-ctrl-bottom-right .mapboxgl-ctrl {
+    margin: 0 0.625rem 0.1875rem 0;
   }
 
   .mapboxgl-ctrl-bottom-right {
