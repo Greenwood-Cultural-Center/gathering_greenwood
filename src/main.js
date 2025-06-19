@@ -1,7 +1,8 @@
-import { createApp } from 'vue';
+import { createApp, provide } from 'vue';
 import './style.css';
 import App from './App.vue';
-import Toast from "vue-toastification"; 
+import Toast from "vue-toastification";
+import mapboxgl from 'mapbox-gl';
 import "vue-toastification/dist/index.css";
 
 /* import the fontawesome core */
@@ -23,7 +24,21 @@ import { faSearch,
   faHouse,
   faQuestion,
   faLink,
-  faTimes } from '@fortawesome/free-solid-svg-icons';
+  faTimes,
+  faChurch,
+  faLocationDot,
+  faIndustry,
+  faStore,
+  faCircleHalfStroke,
+  faAdjust,
+  faFilePdf,
+  faFileWord,
+  faFileExcel,
+  faFileImage,
+  faFileVideo,
+  faFileAudio,
+  faFileText
+} from '@fortawesome/free-solid-svg-icons';
 
 /* add icons to the library */
 library.add(faSearch,
@@ -38,7 +53,20 @@ library.add(faSearch,
   faHouse,
   faQuestion,
   faLink,
-  faTimes);
+  faTimes,
+  faChurch,
+  faLocationDot,
+  faIndustry,
+  faStore,
+  faCircleHalfStroke,
+  faAdjust,
+  faFilePdf,
+  faFileWord,
+  faFileExcel,
+  faFileImage,
+  faFileVideo,
+  faFileAudio,
+  faFileText);
 
 const toastOptions = {
   position: "top-right",
@@ -61,4 +89,5 @@ config.styleDefault = 'solid';
 createApp(App)
   .component('font-awesome-icon', FontAwesomeIcon)
   .use(Toast, toastOptions)
+  .provide('mapboxgl', mapboxgl)
   .mount('#app');

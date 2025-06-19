@@ -2,7 +2,7 @@ export const centuryPrefixes = ["16", "17", "18", "19", "20", "21", "22", "23"];
 
 export function findObjectByKey(array, key) {
   return array.find(obj => obj && Object.hasOwn(obj, key));
-}
+};
 
 export function isYear(value) {
   const centuryPrefix = value.toString().slice(0, 2);
@@ -29,36 +29,36 @@ export async function hashString(str) {
   return Array.from(new Uint8Array(hashBuffer))
     .map(b => b.toString(16).padStart(2, '0'))
     .join('');
-}
+};
 
 export function titleCase(s) {
   return s.toLowerCase()
           .split(' ')
-          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+          .map(word => capitalize(word))
           .join(' ');
-}
+};
 
 export function formatRawGeoJson(rawGeoJson, id='search-source', inject_year=null) {
   if (rawGeoJson.type !== 'FeatureCollection') {
     console.warn('Invalid GeoJSON type, expected FeatureCollection.');
     return { type:'geojson', data: { id: id, type: 'FeatureCollection', features: [] } };
-  }
+  };
   if (rawGeoJson.features.length === 0) {
     console.warn('No features found in GeoJSON data.');
     return { type:'geojson', data: { id: id, type: 'FeatureCollection', features: [] } };
-  }
+  };
   if (!rawGeoJson.features.every(feature => feature && feature.type === 'Feature')) {
     console.warn('Some features are not valid GeoJSON features.');
     return { type:'geojson', data: { id: id, type: 'FeatureCollection', features: [] } };
-  }
+  };
   if (!rawGeoJson.features.every(feature => feature.geometry && feature.properties)) {
     console.warn('Some features are missing geometry or properties.');
     return { type:'geojson', data: { id: id, type: 'FeatureCollection', features: [] } };
-  }
+  };
   if (!rawGeoJson.features.every(feature => feature.properties && typeof feature.properties === 'object')) {
     console.warn('Some features have invalid properties, converting to empty object.');
     return { type:'geojson', data: { id: id, type: 'FeatureCollection', features: [] } };
-  }
+  };
 
   if(!rawGeoJson.id) {
     rawGeoJson.id = id;
@@ -131,19 +131,56 @@ export function formatRawGeoJson(rawGeoJson, id='search-source', inject_year=nul
   return {
     type: 'geojson',
     data: rawGeoJson
-  }
-}
+  };
+};
 
 export async function delayedAction(func, ms) {
-  console.log("Action started");
-  await delay(ms); // Wait for ms seconds
+  await sleep(ms); // Wait for ms seconds
   func();
-  console.log("Action finished");
-}
+};
 
-function delay(ms) {
+export function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
-}
+};
+
+export function isEmpty(obj) {
+  return obj && Object.keys(obj).length === 0 && obj.constructor === Object;
+};
+
+export function debounce(func, delay = 300) {
+  let timeout;
+  return (...args) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func(...args), delay);
+  };
+};
+
+export async function copyToClipboard(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch (err) {
+    console.error("Copy failed:", err);
+    return false;
+  };
+};
+
+export function downloadFile(url, filename) {
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+};
+
+export function uniqueArray(arr) {
+  return [...new Set(arr)];
+};
+
+export function capitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+};
 
 const utils = {
   findObjectByKey,
@@ -152,7 +189,14 @@ const utils = {
   titleCase,
   formatRawGeoJson,
   delayedAction,
-  centuryPrefixes
+  sleep,
+  centuryPrefixes,
+  isEmpty,
+  debounce,
+  copyToClipboard,
+  downloadFile,
+  uniqueArray,
+  capitalize
 };
 
 export default utils;

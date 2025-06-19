@@ -1,20 +1,27 @@
 <script setup>
-  import { ref, computed, useTemplateRef, onMounted, onUpdated } from 'vue';
+  import { ref, computed, useTemplateRef, onMounted, inject, onUpdated, nextTick } from 'vue';
   import MglMap from './components/MglMap.vue';
   import FABMain from './components/FABMain.vue';
   import FABButton from './components/FABButton.vue';
   import ResultsPane from './components/ResultsPane.vue';
   import YearSearchBar from './components/YearSearchBar.vue';
   import DynamicGeoJsonLayer from './components/DynamicGeoJsonLayer.vue';
-  import VideoModal from './components/VideoModal.vue';
+  import LandingPage from './components/LandingPage.vue';
   import { formatRawGeoJson } from './utils/utils.js';
 
   const emptyGeoJson = {type:'geojson',data:{id: 'search-source', type: 'FeatureCollection', features: []}};
+
+  const map = ref(null);
+  const mbMap = ref({});
 
   // State
   const appYear = ref('');
   const geoJson = ref(emptyGeoJson);
   const searchTerm = ref('');
+  const landingPageRef = useTemplateRef('landingPageRef');
+  // const showResults = ref(false);
+
+  const showLanding = ref(true);
 
   const contrastMode = ref(false);
 
@@ -85,7 +92,7 @@
       shadowBlurTop: 0,
       shadowBlurBottom: 1,
       shadowWidth: 0.5,
-      shadowColor: '#eee',
+      shadowColor: 'var(--gcc-white)',
       innerText: button.title === 'Contrast' ? `Contrast ${contrastMode.value ? 'ON' : 'OFF'}` : button.innerText, // Dynamically update innerText
     }));
   });
@@ -95,7 +102,6 @@
   const resultsPaneRef = useTemplateRef('resultsPaneRef');
   const yearSearchBarRef = useTemplateRef('yearSearchBarRef');
   const census1920LayerRef = useTemplateRef('census1920LayerRef');
-  const map = ref(null);
   const videoModalRef = useTemplateRef('videoModalRef');
   const census1920GeoJson = ref(emptyGeoJson);
   const helpVideoUrl = `${import.meta.env.BASE_URL}GCC-Kiosk-April-2025.webm`;
@@ -130,11 +136,16 @@
 
   function clearResults() {
     searchTerm.value = '';
+    // showResults.value = false;
     if (resultsPaneRef && resultsPaneRef.value) {
       resultsPaneRef.value.resetState();
     }
     if (yearSearchBarRef && yearSearchBarRef.value) {
       yearSearchBarRef.value.clearSearch();
+    }
+
+    if (map.value?.getLayer('search-layer')) {
+      map.value.setLayoutProperty('search-layer', 'visibility', 'none')
     }
   }
 
@@ -172,18 +183,27 @@
   }
 
   async function handleSearch(searchValue) {
-    //clearResults();
-    //resetMap();
-    if (map.value.getLayer('search-layer')) {
-      map.value.setLayoutProperty('search-layer', 'visibility', 'none')
-    }
-    searchTerm.value = searchValue.search;
-    if (resultsPaneRef && resultsPaneRef.value) {
-      await resultsPaneRef.value.search(searchValue);
-    }
-    if (map.value.getLayer('search-layer')) {
+    // showResults.value = true;
+    await nextTick(async() => {
+      setTimeout(() => {
+        if (mglMapRef.value && mbMap.value) {
+          mbMap.value.resize();
+          resetMap();
+        }
+      }, 300);
+      //clearResults();
+      //resetMap();
+      if (mbMap.value?.getLayer('search-layer')) {
+        mbMap.value.setLayoutProperty('search-layer', 'visibility', 'none')
+      }
+      searchTerm.value = searchValue.search;
+      if (resultsPaneRef && resultsPaneRef.value) {
+        await resultsPaneRef.value.search(searchValue);
+      }
+    });
+    if (map.value?.getLayer('search-layer')) {
       if (geoJson.value && geoJson.value.data && geoJson.value.data.features && geoJson.value.data.features.length > 0) {
-        map.value.setLayoutProperty('search-layer', 'visibility', 'visible')
+        mbMap.value.setLayoutProperty('search-layer', 'visibility', 'visible')
       }
     }
   }
@@ -195,8 +215,9 @@
     }
   }
 
-  const handleMapCreated = async (mbMap) => {
-    map.value = mbMap;
+  const handleMapCreated = async (mapbMap) => {
+    mbMap.value = mapbMap;
+
     // census1920GeoJson.value = await fetchGeoJson(census1920Url)
     //   .then(response =>
     //     formatRawGeoJson(response.json(), '1920-census-source'));
@@ -232,9 +253,6 @@
           properties[key] = properties[key];
         }
       }
-    }
-    if (source === 'search-source') {
-      properties.people = properties[1910].concat(properties[1920])
     }
     return properties;
   }
@@ -278,67 +296,113 @@
     }
   });
 
+  function closeLandingPage() {
+    showLanding.value = false;
+  }
+
+  function openLandingPage() {
+    clearResults();
+    showLanding.value = true;
+  }
+
+// map.value = inject('map');
 </script>
 
 <template>
+  <transition name="slide" mode="out-in">
+    <LandingPage
+      ref="landingPageRef"
+      v-if="showLanding"
+      @close="closeLandingPage">
+    </LandingPage>
+  </transition>
+  <template v-if="!showLanding">
+    <!-- FAB Component to create menu with dynamic buttons-->
+    <FABMain nonce="ajJERjdDc1g5MlFadlZfdGdFIWI4dVchQ3o4Q3ZRYlQ=" @click="openLandingPage">
+      <!-- <FABButton
+        v-for="(item, index) in createFabButtonProps"
+        :key="index"
+        v-bind="item"
+        :state="item.state"
+        :innerText="typeof item.innerText === 'function' ? item.innerText() : item.innerText"
+        :clickHandler="item.clickHandler"
+      ></FABButton> -->
+    </FABMain>
 
-  <!-- FAB Component to create menu with dynamic buttons-->
-  <FABMain>
-    <FABButton
-      v-for="(item, index) in createFabButtonProps"
-      :key="index"
-      v-bind="item"
-      :state="item.state"
-      :innerText="typeof item.innerText === 'function' ? item.innerText() : item.innerText"
-      :clickHandler="item.clickHandler"
-    ></FABButton>
-  </FABMain>
+    <!-- YearSelector Component to change year and perform searches -->
+    <YearSearchBar ref="yearSearchBarRef" @clear="clearResults" :onSearch="handleSearch" :onYearChange="updateYear" :years="years"></YearSearchBar>
 
-  <!-- Video Modal Component to show help video -->
-  <VideoModal ref="videoModalRef" :url="helpVideoUrl" :autoplay="true" class="fab fa-autoprefixer"></VideoModal>
-
-  <!-- YearSelector Component to change year and perform searches -->
-  <YearSearchBar ref="yearSearchBarRef" :onSearch="handleSearch" :onYearChange="updateYear" :years="years"></YearSearchBar>
-
-  <!-- Map Component with layer containing dynamic GeoJSON search results-->
-  <MglMap :year="appYear" ref="mglMapRef" @created="handleMapCreated" :dynamicGeoJsonIds="{'dynamicLayers': dynamicLayers, 'dynamicSources': dynamicSources}">
-    <DynamicGeoJsonLayer
-      v-if="geoJson && geoJson.data && geoJson.data.features && geoJson.data.features.length > 0"
-      :geojson="geoJson"
-      :type="'circle'"
-      :paint="geoJsonFeaturePaint"
-      :layout="{ 'visibility': 'visible' }"
-      layerId="search-layer"
-      :filterYear="appYear"
-      :map="map"
-      :featureFormatter="formatFeature"
-    />
-    <!-- <DynamicGeoJsonLayer
-      v-if="census1920GeoJson && census1920GeoJson.data && census1920GeoJson.data.features && census1920GeoJson.data.features.length > 0"
-      ref="census1920LayerRef"
-      :geojson="census1920GeoJson"
-      :type="'circle'"
-      :paint="census1920GeoJsonFeaturePaint"
-      :layout="{ 'visibility': 'visible' }"
-      layerId="1920-census-layer"
-      :filterYear="appYear"
-      :map="map"
-      :featureFormatter="formatFeature"
-      :searchTerm="searchTerm"
-    /> -->
-  </MglMap>
-
-  <!-- Results Pane Component containing search results-->
-  <ResultsPane
-    ref="resultsPaneRef"
-    :years="years"
-    :year="appYear"
-    @update:geojson="handleGeojson"
-    :featureFormatter="formatFeature"
-  />
+    <!-- Map Component with layer containing dynamic GeoJSON search results-->
+    <!-- <MglMap nonce="ajJERjdDc1g5MlFadlZfdGdFIWI4dVchQ3o4Q3ZRYlQ=" :class="['map-area', { 'map-area-shrunk' : showResults }]" :year="appYear" ref="mglMapRef" @created="handleMapCreated" :dynamicGeoJsonIds="{'dynamicLayers': dynamicLayers, 'dynamicSources': dynamicSources}"> -->
+    <MglMap nonce="ajJERjdDc1g5MlFadlZfdGdFIWI4dVchQ3o4Q3ZRYlQ=" class='map-area' :year="appYear" ref="mglMapRef" @created="handleMapCreated" :dynamicGeoJsonIds="{'dynamicLayers': dynamicLayers, 'dynamicSources': dynamicSources}">
+      <DynamicGeoJsonLayer
+        v-if="geoJson && geoJson.data && geoJson.data.features && geoJson.data.features.length > 0"
+        :geojson="geoJson"
+        :type="'circle'"
+        :paint="geoJsonFeaturePaint"
+        :layout="{ 'visibility': 'visible' }"
+        layerId="search-layer"
+        :filterYear="appYear"
+        :map="mbMap"
+        :featureFormatter="formatFeature">
+      </DynamicGeoJsonLayer>
+      <!-- <DynamicGeoJsonLayer
+        v-if="census1920GeoJson && census1920GeoJson.data && census1920GeoJson.data.features && census1920GeoJson.data.features.length > 0"
+        ref="census1920LayerRef"
+        :geojson="census1920GeoJson"
+        :type="'circle'"
+        :paint="census1920GeoJsonFeaturePaint"
+        :layout="{ 'visibility': 'visible' }"
+        layerId="1920-census-layer"
+        :filterYear="appYear"
+        :map="map"
+        :featureFormatter="formatFeature"
+        :searchTerm="searchTerm"
+      /> -->
+    </MglMap>
+    <!-- Results Pane Component containing search results-->
+    <!-- <transition name="slide-results" mode="out-in"> -->
+      <!-- <ResultsPane v-if="showResults" -->
+      <ResultsPane
+        ref="resultsPaneRef"
+        class="results-pane"
+        :years="years"
+        :year="appYear"
+        @update:geojson="handleGeojson">
+      </ResultsPane>
+    <!-- </transition> -->
+  </template>
 </template>
 
+<style scoped>
+  .map-area {
+    /* width: 100vw; */
+    width: var(--map-width);
+    height: var(--map-height);
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  /* .map-area-shrunk {
+    width: var(--map-width);
+  } */
+</style>
+
 <style>
+  .slide-enter-active, .slide-leave-active {
+    transition: all 0.7s cubic-bezier(0.215, 0.610, 0.355, 1.000);
+  }
+
+  .slide-enter-from, .slide-leave-to {
+    transform: translateY(-100%);
+  }
+
+  .slide-results-enter-active, .slide-results-leave-active {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .slide-results-enter-from, .slide-results-leave-to {
+    transform: translateX(100%);
+  }
+
   .mgl-map-wrapper {
     height: var(--map-height);
     width: var(--map-width);
@@ -346,12 +410,12 @@
 
   .dialog {
     border: none;
-    border-radius: 8px;
+    border-radius: 0.5rem;
     width: 90vw;
-    max-width: 900px;
+    max-width: 56.25;
     padding: 0;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    color: #333
+    box-shadow: 0 0.3125rem 1rem rgba(0, 0, 0, 0.3);
+    color: var(--gcc-black)
   }
 
   .close-button {
