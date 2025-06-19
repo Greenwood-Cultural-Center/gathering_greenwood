@@ -23,35 +23,47 @@
   });
 
   const searchableName = (person) => {
-    return `${ person.First_Name } ${person.Middle_Name} ${ person.Last_Name }`;
-  };
+    if (person && person.name) {
+      return person.name;
+    }
+    else if (person)
+    {
+      return `${ person?.first_name || persson?.First_Name } ${person?.middle_name || person?.Middle_Name} ${ person?.last_name || person?.Last_Name } `;
+    }
+    else {
+      return 'Unknown';
+  }};
 
-  const age = (person) => {
-    if (!person || !person.Age || person.age_months == null) {
-      return 'N/A';
-    }
-    if (person.Age === 0 && person.age_months === 0) {
-      return 'Newborn';
-    }
-    if (person.Age < 0 || person.age_months < 0) {
-      return 'N/A';
-    }
-    if (person.Age === 0 && person.age_months > 0) {
-      return `${ person.age_months } months`;
-    }
-    if (person.Age > 0 && (person.age_months === 0 || person.age_months === '')) {
-      return `${ person.Age } years`;
-    }
-    if (person.Age > 0 && person.age_months > 0) {
-      return `${ person.Age } years, ${ person.age_months } months`;
-    }
-    if (person.Age > 0 && person.age_months < 0) {
-      return `${ person.Age } years`;
-    }
-    if (person.Age < 0 && person.age_months > 0) {
-      return `${ person.age_months } months`;
-    }
-    return `N/A`;
+  const age = () => {
+    if (person) {
+      (person) => {
+      if (!person || !person.Age || person.age_months == null) {
+        return 'N/A';
+      }
+      if (person.Age === 0 && person.age_months === 0) {
+        return 'Newborn';
+      }
+      if (person.Age < 0 || person.age_months < 0) {
+        return 'N/A';
+      }
+      if (person.Age === 0 && person.age_months > 0) {
+        return `${ person.age_months } months`;
+      }
+      if (person.Age > 0 && (person.age_months === 0 || person.age_months === '')) {
+        return `${ person.Age } years`;
+      }
+      if (person.Age > 0 && person.age_months > 0) {
+        return `${ person.Age } years, ${ person.age_months } months`;
+      }
+      if (person.Age > 0 && person.age_months < 0) {
+        return `${ person.Age } years`;
+      }
+      if (person.Age < 0 && person.age_months > 0) {
+        return `${ person.age_months } months`;
+      }
+      return `N/A`;
+    }};
+    return '';
   };
 
   const rich_description = computed(() => {
@@ -87,7 +99,7 @@
           <p><strong>Address:</strong> {{ feature.properties.addresses[0].searchable_text || 'N/A' }}</p>
           <!-- <p><strong>Year Built:</strong> {{ feature.properties.year_built || 'N/A' }}</p> -->
           <p><strong>Description:</strong> {{ feature.properties.description || 'N/A' }}</p>
-          <p><strong>Rich Description:</strong> <span class="rich-description" v-html="rich_description"></span></p>
+          <p><strong>Full Description:</strong> <span class="rich-description" v-html="rich_description"></span></p>
           <template v-for="category in categories">
             <h3 class="category-title">{{ utils.titleCase(category.title) }}</h3>
             <ul class="fa-ul" role="group">
@@ -103,7 +115,7 @@
               </template>
               <template v-else>
                 <ListItem v-for="item in category.list" :key="item.id" :icon="category.icon">
-                  <a :href="item.url" target="_blank">{{ item.name || item.description || item.caption }}</a><FontAwesomeIcon icon="link" style="color:#646cff; margin-left:5px;"></FontAwesomeIcon>
+                  <a :href="item.url" target="_blank">{{ item.name || item.description || item.caption }}</a><FontAwesomeIcon class="link" nonce="ajJERjdDc1g5MlFadlZfdGdFIWI4dVchQ3o4Q3ZRYlQ=" icon="link"></FontAwesomeIcon>
                 </ListItem>
               </template>
             </ul>
@@ -171,9 +183,13 @@
 <style scoped>
   .modal-content {
     background: var(--gcc-white);
-    color: #333;
+    color: var(--gcc-black);
     height: 100%;
     width: 100%;
+  }
+
+  .link {
+    color:#646cff; margin-left:0.3125rem;
   }
 
   h4, h5 {
@@ -182,38 +198,38 @@
 
   hr.section{
     border: none;
-    border-top: 3px groove #333;
-    color: #333;
+    border-top: 0.1875rem groove var(--gcc-black);
+    color: var(--gcc-black);
     overflow: visible;
     text-align: center;
-    height: 5px;
+    height: 0.3125rem;
   }
 
   hr.sub-section{
     border: none;
-    border-top: 1px groove #333;
-    color: #333;
+    border-top: 1px groove var(--gcc-black);
+    color: var(--gcc-black);
     overflow: visible;
     text-align: center;
-    height: 5px;
+    height: 0.3125rem;
   }
 
   hr.sub-section-item{
     border: none;
-    border-top: 3px double #333;
-    color: #333;
+    border-top: 0.1875rem double var(--gcc-black);
+    color: var(--gcc-black);
     overflow: visible;
     text-align: center;
-    height: 5px;
+    height: 0.3125rem;
   }
 
   hr.item{
     border: none;
-    border-top: 1px double #333;
-    color: #333;
+    border-top: 1px double var(--gcc-black);
+    color: var(--gcc-black);
     overflow: visible;
     text-align: center;
-    height: 5px;
+    height: 0.3125rem;
   }
 
   @media screen and (max-width: 1600px) {
@@ -271,7 +287,7 @@
     border-radius: 8px;
     border: none;
     box-shadow: 0 2px 12px #0000004d;
-    color: #333;
+    color: var(--gcc-black);
     height: 56rem;
     margin: 1.5rem;
     max-height: 56.25rem;
@@ -291,16 +307,41 @@
   }
 
   .feature-dialog .dialog>div button.close-button {
-    top: -25px;
-    font-size: 5rem;
+    font-size: 3.5rem;
+    z-index: 1001;
+    height: 4rem;
+    width: 4rem;
+    padding-block: 0;
+    padding-inline: 0;
+    top: -13px;
+    right: 9px;
+    position: absolute;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    user-select: none;
+    padding: 0;
+    color: var(--gcc-lt-green);
+    border-radius: 8px;
+    font-weight: 500;
+    font-family: inherit;
+    transition: border-color 0.25s;
   }
 
+  @media screen and (max-height: 900px) {
+    .feature-dialog .dialog {
+      transform: translateY(-4rem);
+        height: 40rem;
+        max-height: 50rem;
+        padding: 1.5rem 1.5rem 2.1rem 1.5rem;
+    }
+  }
 
   @media screen and (max-width: 1920px) {
     .feature-dialog .dialog {
       transform: translateY(-4rem);
-      height: 50rem;
-      max-height: 52rem;
+      height: 29rem;
+      max-height: 31rem;
       padding: 1.5rem 1.5rem 2.1rem 1.5rem;
     }
 

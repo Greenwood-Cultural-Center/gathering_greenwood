@@ -8,6 +8,7 @@
   import AudioMediaForm from './forms/AudioMediaForm.vue';
   import VideoMediaForm from './forms/VideoMediaForm.vue';
   import PhotoMediaForm from './forms/PhotoMediaForm.vue';
+  import PDFForm from './forms/PDFForm.vue';
   import { HtmlDialog } from 'vue-html-dialog';
   import ScrollbarCss from '../styles/scrollbar.module.css';
   //import Dialog from './Dialog.vue';
@@ -45,10 +46,17 @@
       audio: AudioMediaForm
     }
 
+    const documentTypes = {
+      "application/pdf": PDFForm,
+      "image/png": PhotoMediaForm,
+      "image/jpeg": PhotoMediaForm,
+      "image/gif": PhotoMediaForm,
+    }
+
     const formMap = {
       buildings: BuildingForm,
       people: PersonForm,
-      documents: DocumentForm,
+      documents: documentTypes[props.item?.content_type] || DocumentForm,
       census_records: CensusRecordForm,
       stories: StoryForm,
       media: mediaTypes[props.item?.type]
@@ -105,12 +113,21 @@
       height: 80%;
     }
   }
+
+  @media screen and (max-height: 900px) {
+    .modal-body {
+      overflow-y: scroll;
+      height: 95%;
+      width: 100%;
+    }
+  }
 </style>
 
 <style>
   .result-modal .dialog {
-    width: 43.75rem;
+    width: 53.75rem;
     max-height: 56.25rem;
+    cursor: initial;
   }
 
   .result-modal .dialog>div {
@@ -118,11 +135,40 @@
     height: 100%;
   }
 
-  @media screen and (max-width: 1600px) {
+  .result-modal .dialog > div button.close-button {
+    font-size: 3.5rem;
+    z-index: 1001;
+    height: 4rem;
+    width: 4rem;
+    padding-block: 0;
+    padding-inline: 0;
+    top: -13px;
+    right: 9px;
+    position: absolute;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    user-select: none;
+    padding: 0;
+    color: var(--gcc-lt-green);
+    border-radius: 8px;
+    font-weight: 500;
+    font-family: inherit;
+    transition: border-color 0.25s;
+  }
+
+  @media screen and (max-height: 700px) {
     .result-modal .dialog {
       transform: translateY(-4rem);
       width: 43.75rem;
       max-height: 31.25rem;
+    }
+  }
+
+  @media screen and (max-height: 900px) {
+    .result-modal .dialog {
+      transform: translateY(-4rem);
+      height: 40rem;
     }
   }
 </style>
