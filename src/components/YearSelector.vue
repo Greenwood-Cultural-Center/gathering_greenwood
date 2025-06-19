@@ -14,53 +14,51 @@ const props = defineProps({
   }
 });
 
-const years = props.yearArray;
+const years = ref([]);
 
 const selected = ref("");
 
-const firstYear = years[0].year;
-const lastYear = years[years.length - 1].year;
+const firstYear = props.yearArray[0].year;
+const lastYear = props.yearArray[props.yearArray.length - 1].year;
 
 function buildYears() {
-  years.forEach(async (year, index) => {
-    year.d = year.year.slice(2, 3);
-    year.y = year.year.slice(3, 4);
-    year.c = year.year.slice(0, 2);
-    year.inputid = `input-${index + 1}`;
-    year.labelid = `label-${index + 1}`;
-    year.dclass = `d-${index + 1}`;
-    year.yclass = `y-${index + 1}`;
-    year.cclass = `c-${index + 1}`;
-    year.value = year.year;
+  years.value = props.yearArray.map((year, index) => {
+    const obj = {
+      ...year,
+      d: year.year.slice(2, 3),
+      y: year.year.slice(3, 4),
+      c: year.year.slice(0, 2),
+      inputid: `input-${index + 1}`,
+      labelid: `label-${index + 1}`,
+      dclass: `d-${index + 1}`,
+      yclass: `y-${index + 1}`,
+      cclass: `c-${index + 1}`,
+      value: year.year,
+      key: objectHash(year),
+    };
+
+    return {
+      ...obj,
+      key: objectHash(obj),
+    };
   });
 
-  years.map((year, index) => {
-    year.key = objectHash(year);
-  });
-
-  years.push({
-    year: `${firstYear} - ${lastYear}`,
+  // Add "Current" only once
+  const currentObj = {
+    year: `Current`,
     c: '',
     d: '',
     y: '',
-    inputid: `input-${years.length + 1}`,
-    labelid: `label-${years.length + 1}`,
-    dclass: `d-${years.length + 1}`,
-    yclass: `y-${years.length + 1}`,
-    cclass: `c-${years.length + 1}`,
+    inputid: `input-${years.value.length + 1}`,
+    labelid: `label-${years.value.length + 1}`,
+    dclass: `d-${years.value.length + 1}`,
+    yclass: `y-${years.value.length + 1}`,
+    cclass: `c-${years.value.length + 1}`,
     value: '',
-    key: objectHash({
-      year: `${firstYear} - ${lastYear}`,
-      c: '',
-      d: '',
-      y: '',
-      inputid: `input-${years.length + 1}`,
-      labelid: `label-${years.length + 1}`,
-      dclass: `d-${years.length + 1}`,
-      yclass: `y-${years.length + 1}`,
-      cclass: `c-${years.length + 1}`,
-      value: ''
-    })
+  };
+  years.value.push({
+    ...currentObj,
+    key: objectHash(currentObj),
   });
 }
 
@@ -75,7 +73,7 @@ onBeforeMount(() => {
 
 onMounted(() => {
   // Set the default year to the last year in the array
-  const defaultYear = years[years.length - 1].value;
+  const defaultYear = years.value[years.value.length - 1].value;
   selected.value = defaultYear;
   var selector = `input[value="${defaultYear}"]`;
   var el = document.querySelector(selector);
@@ -107,11 +105,11 @@ function setYear(year, event) {
 }
 
 const step = computed(() => {
-  return years.length > 1 ? 100 / (years.length - 1) : 0;
+  return years.value.length > 1 ? 100 / (years.value.length - 1) : 0;
 });
 
 const selectedIndex = computed(() =>
-  years.findIndex(year => year.value === selected.value)
+  years.value.findIndex(year => year.value === selected.value)
 );
 
 const lineWidth = computed(() => {
@@ -135,7 +133,7 @@ const lineWidth = computed(() => {
         </div>
         <div class="timeline">
           <label class="timeline-dot" v-for="year in years" :for="year.inputid"><span v-if="!showfancy" :id="year.labelid" :key="year.key" >{{ year.year }}</span></label>
-          <div class="timeline-line" :style="{ '--line-width': lineWidth }"></div>
+          <div class="timeline-line" nonce="ajJERjdDc1g5MlFadlZfdGdFIWI4dVchQ3o4Q3ZRYlQ=" :style="{ '--line-width': lineWidth }"></div>
         </div>
       </div>
     </div>
@@ -198,6 +196,10 @@ const lineWidth = computed(() => {
     transition: 350ms ease all;
   }
 
+  .year-selector .timeline-dot.selected {
+    background: var(--gcc-white);
+  }
+
   .year-selector .maps-date {
     position: absolute;
     bottom: 2rem;
@@ -223,14 +225,14 @@ const lineWidth = computed(() => {
 
   label:not(:last-of-type) span {
     position: relative;
-    left: -1.3rem;
-    top: -3.8rem;
+    left: -1.1rem;
+    top: -3.4rem;
   }
 
   label:last-of-type span {
     position: relative;
-    left: -3.8rem;
-    top: -3.8rem;
+    left: -2.8rem;
+    top: -3.6rem;
     display: flex;
     width: 11rem;
   }
@@ -248,7 +250,7 @@ const lineWidth = computed(() => {
   }
 
   .year-selector .map-date:not(.fixed) {
-    transform: translate(50px);
+    transform: translate(3.125rem);
     opacity: 0;
   }
 
@@ -331,12 +333,12 @@ const lineWidth = computed(() => {
   }
 
   button {
-    padding: 10px 20px;
+    padding: 0.625rem 1.25rem;
     font-size: 2rem;
     background-color: var(--gcc-dk-green);
     color: var(--gcc-orange);
     border: none;
-    border-radius: 5px;
+    border-radius: 0.3125rem;
     cursor: pointer;
   }
 

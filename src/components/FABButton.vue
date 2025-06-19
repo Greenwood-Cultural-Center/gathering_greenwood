@@ -92,10 +92,10 @@ const iconPresent = computed(() => {
 </script>
 
 <template>
-  <a href="#" :style="cssVars" :title="title" class="fabInnerButton" :aria-label="ariaLabel" role="button" @click="clickHandler" :aria-description="ariaDescription" data-index="dataIndex">
-    <FontAwesomeIcon v-if="iconPresent" :icon="icon" :class="`icon ${iconClass}`" />
+  <a href="#" :style="cssVars" nonce="ajJERjdDc1g5MlFadlZfdGdFIWI4dVchQ3o4Q3ZRYlQ=" :title="title" class="fabInnerButton" :aria-label="ariaLabel" role="button" @click="clickHandler" :aria-description="ariaDescription" data-index="dataIndex">
+    <FontAwesomeIcon nonce="ajJERjdDc1g5MlFadlZfdGdFIWI4dVchQ3o4Q3ZRYlQ=" v-if="iconPresent" :icon="icon" :class="`icon ${iconClass}`" />
   </a>
-  <div :style="cssVars" class="fabLabel" @click="clickHandler">{{ innerText ? innerText : title }}</div>
+  <div :style="cssVars" nonce="ajJERjdDc1g5MlFadlZfdGdFIWI4dVchQ3o4Q3ZRYlQ=" class="fabLabel" @click="clickHandler">{{ innerText ? innerText : title }}</div>
 </template>
 
 <style>
