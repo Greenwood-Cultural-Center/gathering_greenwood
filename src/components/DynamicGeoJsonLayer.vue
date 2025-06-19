@@ -1,6 +1,6 @@
 <script setup>
   import { computed, onMounted, onUnmounted, ref } from 'vue';
-  import { MglGeojsonLayer } from 'vue-mapbox3';
+  import { MglGeojsonLayer, MglPopup } from 'vue-mapbox3';
   import FeatureModal from './FeatureModal.vue';
   import utils from '../utils/utils.js';
 
@@ -81,6 +81,12 @@
     }
   })
 
+
+// Popup state
+const popupCoords = ref(null);
+const popupProps = ref(null);
+
+
   onMounted(() => {
     props.map.on('click', props.layerId, handleClick); // Attach click listener to the layer
   })
@@ -122,8 +128,22 @@
       curve: 1.5,
       easing: (t) => t
     });
+
     var open = dialogRef.value?.openDialog;
+     // new MglPopup({
+    //   closeButton: true,
+    //   closeOnClick: false,
+    //   coordinates: clickedfeature.value.geometry.coordinates,
+    //   anchor: 'top',
+    //   offset: [0, -20],
+
+    // })
     await utils.delayedAction(open, 1300); // Open dialog with a delay
+  }
+
+  function openPopup()
+  {
+    popupCoords.value = clickedfeature.value.geometry.coordinates;
   }
 </script>
 
@@ -135,6 +155,13 @@
     :reactive="true"
     :layer="layerDefinition"
   />
+   <!-- Popup for selected feature -->
+  <!-- <MglPopup :coordinates="popupCoords" anchor="bottom" @close="popupCoords = null">
+    <div @click="{ dialogRef.value?.openDialog; }">
+      <strong>{{ popupProps?.name || popupProps?.description }}</strong><br>
+      <small>{{ popupProps?.type || 'Feature' }}</small>
+    </div>
+  </MglPopup> -->
   <!-- <slot name="modal" :feature="clickedfeature" />
   <slot /> -->
   <FeatureModal

@@ -25,10 +25,10 @@
 <template>
   <li>
     <div v-if="hasClickListener" role="button" tabindex="0" @click="$emit('click')" @keyup.enter="$emit('click')" class="list-item clickable">
-      <span class="fa-li"><FontAwesomeIcon :icon="icon" :title="iconTitle" /></span><slot></slot>
+      <span class="fa-li"><FontAwesomeIcon nonce="ajJERjdDc1g5MlFadlZfdGdFIWI4dVchQ3o4Q3ZRYlQ=" :icon="icon" :title="iconTitle" /></span><slot></slot>
     </div>
     <template v-else>
-      <span class="fa-li"><FontAwesomeIcon :icon="icon" :title="iconTitle" /></span><slot></slot>
+      <span class="fa-li"><FontAwesomeIcon nonce="ajJERjdDc1g5MlFadlZfdGdFIWI4dVchQ3o4Q3ZRYlQ=" :icon="icon" :title="iconTitle" /></span><slot></slot>
     </template>
   </li>
 </template>
