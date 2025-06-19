@@ -29,9 +29,28 @@
 
   const icon = computed(() => {
     switch (props.category.toLowerCase()) {
-      case 'buildings': return 'building';
+      case 'buildings':
+        switch (props.item.type[0]) {
+          case 'public': return 'building';
+          case 'residential': return 'house';
+          case 'religious': return 'church';
+          case 'marker': return 'location-dot';
+          case 'commercial': return 'industry'; //'store'?
+          default: return 'building';
+        }
       case 'people': return 'user';
-      case 'documents': return 'file-alt';
+      case 'documents':
+        switch (props.item.category) {
+          case 'census_record': return 'database';
+          default:
+            switch (props.item.content_type) {
+              case 'application/pdf': return 'file-pdf';
+              case 'image/png': return 'file-image';
+              case 'image/jpeg': return 'file-image';
+              case 'image/gif': return 'file-image';
+              default: return 'file-alt';
+            }
+        }
       case 'census_records': return 'database';
       case 'stories': return 'book';
       case 'media':

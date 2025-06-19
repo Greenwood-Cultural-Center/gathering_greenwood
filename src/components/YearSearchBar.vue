@@ -21,6 +21,12 @@
     },
   });
 
+  const emits = defineEmits(['clear']);
+
+  function emitClear() {
+    emits('clear');
+  }
+
   function updateYear(year) {
     props.onYearChange(year);
   }
@@ -40,7 +46,7 @@
 <template>
   <div class="year-search-bar">
     <YearSelector :onYearChange="props.onYearChange" :yearArray="props.years"/>
-    <SearchBar ref="searchBarRef" :onSearch="props.onSearch"/>
+    <SearchBar ref="searchBarRef" @clear="emitClear" :onSearch="props.onSearch"/>
   </div>
 </template>
 

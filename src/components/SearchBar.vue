@@ -25,6 +25,8 @@
     clearSearch
   });
 
+  const emits = defineEmits(['clear']);
+
   function clearSearch() {
       input.value = '';
       searchValue.value = {};
@@ -36,6 +38,7 @@
 
   function handleClearClick() {
     clearSearch();
+    emits('clear');
   }
 
   // Component Lifecycle Hooks
@@ -55,7 +58,7 @@
         <input
           v-model="input"
           id="search-input"
-          @keyup.enter="doSearch"
+          @keyup.enter.native="doSearch"
           @onChange="handleInputChange"
           aria-description="search results will appear above"
           type="search"
@@ -64,7 +67,7 @@
           autocomplete="on"
         />
       </div>
-      <button id="search-button" @click="doSearch" aria-label="search">
+      <button id="search-button" @click="doSearch" @keyup.enter="doSearch" aria-label="search">
         <FontAwesomeIcon icon="search" transform="grow-40 right-4" title="Perform Search"/>
       </button>
       <button type="button" v-if="input" class="clear-search" @click="handleClearClick">
@@ -94,17 +97,18 @@
       padding-left: 0.3rem;
       padding-right: 0.3rem;
       display: inline-block;
-      border-radius: 10px;
+      border-radius: 0.625rem;
     }
 
     .input input {
       padding: 0.4rem 0.6rem;
       background-color: var(--gcc-white);
-      border-radius: 10px;
+      border-radius: 0.625rem;
       border: none;
       color: var(--gcc-dk-green);
-      padding: 3px;
+      padding: 0.1875rem;
       font-size: 2rem;
+      text-indent: 0.5rem;
     }
 
     input[type="search"]::-webkit-search-cancel-button {
@@ -118,7 +122,7 @@
       right: 5.6rem;
       width: 2.2rem;
       height: 2rem;
-      padding: 0px;
+      padding: 0;
       background: none;
       border-radius: unset;
       border: none;
@@ -140,7 +144,7 @@
       cursor: pointer;
       width: 4rem;
       height: 3.2rem;
-      padding: 0px;
+      padding: 0;
       transform: translateY(-0.5rem);
     }
 </style>
