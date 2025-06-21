@@ -182,6 +182,38 @@ export function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
+export function dedupeByCustomKey(array, keyFunction) {
+  return Array.from(
+    new Map(array.map(item => [keyFunction(item), item])).values()
+  );
+}
+
+export function isValidNamedColor(colorName) {
+  const style = new Option().style;
+  style.color = colorName;
+  return style.color !== '';
+}
+
+export function extractValuesFromRGB(rgb) {
+  return rgb.match(/\b(\d{1,3})\b(?=\s*[,)])/g);
+}
+
+export function objectMap(obj, fn) {
+  const newObject = {};
+  Object.keys(obj).forEach((key) => {
+    newObject[key] = fn(obj[key]);
+  });
+  return newObject;
+}
+
+export function objectMapToArray(obj, fn) {
+  const array = [];
+  Object.keys(obj).forEach((key) => {
+    array.push(fn(obj[key]));
+  });
+  return array;
+}
+
 const utils = {
   findObjectByKey,
   isYear,
@@ -196,7 +228,12 @@ const utils = {
   copyToClipboard,
   downloadFile,
   uniqueArray,
-  capitalize
+  capitalize,
+  dedupeByCustomKey,
+  isValidNamedColor,
+  extractValuesFromRGB,
+  objectMap,
+  objectMapToArray
 };
 
 export default utils;

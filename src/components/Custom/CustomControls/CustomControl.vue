@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, ref, inject, useTemplateRef, computed, nextTick, onBeforeUnmount, onBeforeMount, h, render, useAttrs, useSlots, Fragment } from 'vue';
-import { createCustomControl } from '../models/CustomControl.js'
+import { createCustomControl } from '@CustomControls/models/CustomControl.js'
 
 // Inject the map instance
 const map = inject('map');
@@ -60,7 +60,7 @@ function createElementFromHTML(htmlString) {
 onBeforeMount(() => {
   let classList = props.classList || [];
   classList.push(props.containerClass || (props.customControlType ? `custom-mapbox-${props.customControlType}-control` : `custom-mapbox3-control`));
-  container.value = createElementFromHTML(`<div id="mapboxgl-ctrl-custom" class="mapboxgl-ctrl ${classList.join(' ')} ${$attrs.class}"></div>`);
+  container.value = createElementFromHTML(`<div id="mapboxgl-ctrl-custom" class="mapboxgl-ctrl ${classList.join(' ')} ${$attrs.class || ""}"></div>`);
   control.value = createCustomControl(options.value);
 }),
 
@@ -75,7 +75,7 @@ onMounted(() => {
 const parentClass = computed(() => {
   const mapboxgl_ctrl_class = 'mapboxgl-ctrl';
 
-  return `${mapboxgl-ctrl_class}-${props.position}`;
+  return `${mapboxgl_ctrl_class}-${props.position}`;
 });
 
 onBeforeUnmount(() => {
@@ -103,5 +103,5 @@ defineExpose({
   <div v-if="!container" class="mapboxgl-ctrl mapboxgl-ctrl-group custom-mapbox3-control">
     <slot></slot>
   </div>
-  <slot v-else></slot>
+  <slot v-else v-if="false"></slot>
 </template>

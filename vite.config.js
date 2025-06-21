@@ -1,3 +1,4 @@
+import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite';
 import vueDevTools from 'vite-plugin-vue-devtools';
 import vue from '@vitejs/plugin-vue';
@@ -57,6 +58,26 @@ export default defineConfig({
     //   }
     // })
   ],
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+      '@Components': fileURLToPath(new URL('./src/components', import.meta.url)),
+      '@Custom': fileURLToPath(new URL('./src/components/Custom', import.meta.url)),
+      '@CustomControls': fileURLToPath(new URL('./src/components/Custom/CustomControls', import.meta.url)),
+      '@Composables': fileURLToPath(new URL('./src/components/Custom/CustomControls/utilities/composables', import.meta.url)),
+      '@FAB': fileURLToPath(new URL('./src/components/FAB', import.meta.url)),
+      '@Forms': fileURLToPath(new URL('./src/components/Forms', import.meta.url)),
+      '@Landing': fileURLToPath(new URL('./src/components/LandingPages', import.meta.url)),
+      '@Maps': fileURLToPath(new URL('.src/components/Map', import.meta.url)),
+      '@MapControls': fileURLToPath(new URL('./src/components/Map/Controls', import.meta.url)),
+      '@Modals': fileURLToPath(new URL('./src/components/Modals', import.meta.url)),
+      '@Search': fileURLToPath(new URL('./src/components/SearchControls', import.meta.url)),
+      '@Results': fileURLToPath(new URL('./src/components/SearchResults', import.meta.url)),
+      '@Utility': fileURLToPath(new URL('./src/components/Utility', import.meta.url)),
+      '@utils': fileURLToPath(new URL('./src/utils', import.meta.url)),
+      'vue': 'vue/dist/vue.esm-bundler.js', // Use the full build of Vue for development
+    },
+  },
   build: {
     cacheDir: '.vite', // Make sure the cache is stored in a persistent location
     minify: 'terser',

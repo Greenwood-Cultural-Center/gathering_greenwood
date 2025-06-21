@@ -1,8 +1,8 @@
 <script setup>
   import { ref, computed, watch } from 'vue';
-  import { ResultsJson } from '../utils/ResponseHandler.js';
-  import ScrollbarCss from '../styles/scrollbar.module.css';
-  import SearchResult from './SearchResult.vue';
+  import { ResultsJson } from '@utils/ResponseHandler.js';
+  import ScrollbarCss from '@/styles/scrollbar.module.css';
+  import SearchResult from '@Results/SearchResult.vue';
 
   const props = defineProps({
     results: {
@@ -76,6 +76,17 @@
 
     .results-list {
       height: 72%;
+    }
+  }
+
+  @media screen and (max-height: 700px) {
+    .category-title {
+      font-size: 1.7rem;
+      margin-bottom: 0.1rem;
+    }
+
+    .results-list {
+      height: 68%;
     }
   }
 </style>

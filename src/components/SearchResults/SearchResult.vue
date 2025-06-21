@@ -1,7 +1,7 @@
 <script setup>
   import { computed, ref, useId } from 'vue';
-  import ListItem from './ListItem.vue';
-  import ResultModal from './ResultModal.vue';
+  import ListItem from '@Utility/ListItem.vue';
+  import ResultModal from '@Modals/ResultModal.vue';
 
   const props = defineProps({
     item: Object,

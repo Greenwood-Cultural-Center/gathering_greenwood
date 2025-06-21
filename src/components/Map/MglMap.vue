@@ -2,9 +2,10 @@
   import { ref, onBeforeMount, onMounted, watch, h, render, nextTick, inject, provide } from 'vue';
   import { MglMap, MglNavigationControl, MglGeojsonLayer, $helpers } from "vue-mapbox3";
   import Mapbox from "mapbox-gl";
-  import ContrastButton from './ContrastButton.vue';
+  import ContrastButton from '@MapControls/ContrastButton.vue';
+  import Legend from '@MapControls/Legend.vue';
   import { filterByDate } from '@openhistoricalmap/maplibre-gl-dates';
-  import utils from '../utils/utils.js';
+  import utils from '@utils/utils.js';
 
 
   const props = defineProps({
@@ -16,6 +17,10 @@
         dynamicLayers: []
       }),
       validator: (val) => Array.isArray(val.dynamicSources) && Array.isArray(val.dynamicLayers)
+    },
+    paintOptions: {
+      type: Object,
+      default:() => {}
     }
   });
 
@@ -69,21 +74,12 @@
   const ctrl = ref({});
 
   async function changeYear (map, newYear) {
-      // if (newYear === '') {
-      //   map.setStyle('mapbox://styles/mapbox/streets-v12');
-      // }
-      // else {
-      //   map.setStyle(`${import.meta.env.BASE_URL}historic.json`);
-      // }
       const match = DateOption.options.find(o => o.year === newYear);
       if (match) {
           DateOption.selected.value = match;
-          // const filter = () => {filterByDate(map, match.date);}
-          // utils.delayedAction(filter,200);
           await nextTick(() => {
              filterByDate(map, match.date)
           });
-          //map.setFilter('search-results', ['==', 'date', match.year]);
       }
   };
 
@@ -185,25 +181,9 @@
     @sourcedata="onSourceUpdated"
   >
     <!-- Controls -->
-    <MglNavigationControl position="bottom-right" />
+    <MglNavigationControl position="bottom-right"></MglNavigationControl>
     <ContrastButton></ContrastButton>
-
-    <!-- Dynamic Layer Rendering -->
-    <!-- <template v-for="layer in layers" :key="layer.id">
-      <MglGeojsonLayer
-        v-if="geoJsonData[layer.id]"
-        :source-id="layer.id"
-        :layer-id="`${layer.id}-layer`"
-        :source="{
-          type: 'geojson',
-          data: geoJsonData[layer.id]
-        }"
-        :layer="{
-          type: layer.id === 'streets' ? 'line' : 'fill',
-          paint: layer.paint
-        }"
-      />
-    </template> -->
+    <!-- <Legend :markerPaintOptions="paintOptions" position="top-left"></Legend> -->
     <slot></slot>
   </MglMap>
 </template>
@@ -310,11 +290,18 @@
   }
 
   .mapboxgl-ctrl-bottom-right .mapboxgl-ctrl {
-    margin: 0 0.625rem 0.1875rem 0;
+    margin: 0 0.625rem 0.625rem 0;
   }
 
   .mapboxgl-ctrl-bottom-right {
-    bottom: 8.125rem;
+    bottom: 10rem;
     right: 0;
+  }
+
+  @media (max-width: 2500px) and (max-height: 1400px) {
+    .mapboxgl-ctrl-bottom-right {
+      bottom: 8.5rem;
+      right: 0;
+    }
   }
 </style>

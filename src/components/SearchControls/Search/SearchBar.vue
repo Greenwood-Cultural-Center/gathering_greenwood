@@ -119,7 +119,7 @@
     .clear-search {
       position: absolute;
       transform: translateY(32%);
-      right: 5.6rem;
+      right: 7.75rem;
       width: 2.2rem;
       height: 2rem;
       padding: 0;

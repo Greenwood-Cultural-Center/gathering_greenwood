@@ -182,7 +182,7 @@ const lineWidth = computed(() => {
     height: 100%;
     background: var(--gcc-orange);
     width: var(--line-width, 0%);
-    transition: width 350ms ease;
+    transition: width 100ms ease;
   }
 
   .year-selector .timeline-dot {
@@ -191,9 +191,10 @@ const lineWidth = computed(() => {
     height: 2rem;
     width: 2rem;
     border-radius: 50%;
+    cursor: pointer;
     border: 2px solid #827B68;
     background: var(--gcc-orange);
-    transition: 350ms ease all;
+    transition: 100ms ease all;
   }
 
   .year-selector .timeline-dot.selected {
@@ -210,7 +211,7 @@ const lineWidth = computed(() => {
     position: absolute;
     bottom: -1rem;
     left: 0;
-    font-family: Righteous;
+    font-family: Poppins;
     font-size: 3.3rem;
     transition: 350ms ease all;
   }

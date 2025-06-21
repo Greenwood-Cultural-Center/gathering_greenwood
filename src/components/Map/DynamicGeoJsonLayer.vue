@@ -1,8 +1,8 @@
 <script setup>
   import { computed, onMounted, onUnmounted, ref } from 'vue';
   import { MglGeojsonLayer, MglPopup } from 'vue-mapbox3';
-  import FeatureModal from './FeatureModal.vue';
-  import utils from '../utils/utils.js';
+  import FeatureModal from '@Modals/FeatureModal.vue';
+  import utils from '@utils/utils.js';
 
   const props = defineProps({
     geojson: {
@@ -26,14 +26,17 @@
       default: () => ({}),
       validator: val => typeof val === 'object' &&
         Object.keys(val).length > 0 &&
-        Object.values(val).every(value => typeof value === 'string' || typeof value === 'number')
+        Object.values(val).every(value => typeof value === 'string' ||
+          typeof value === 'number'||
+          typeof value === 'boolean')
     },
     layout: {
       type: Object,
       default: () => ({}),
       validator: val => typeof val === 'object' &&
         Object.keys(val).length > 0 &&
-        Object.values(val).every(value => typeof value === 'string' || typeof value === 'boolean')
+        Object.values(val).every(value => typeof value === 'string' ||
+          typeof value === 'boolean')
     },
     layerId: {
       type: String,
@@ -70,7 +73,9 @@
       : ['all', ['in', props.searchTerm.toLowerCase(), ['get', 'searchable_text']]]
     : !props.searchTerm
       ? ['all', ['==', ['get', 'year'], props.filterYear]]
-      : ['all', ['==', ['get', 'year'], props.filterYear], ['in', props.searchTerm.toLowerCase(), ['get', 'searchable_text']]];
+      : ['all', ['==', ['get', 'year'], props.filterYear],
+        ['in', props.searchTerm.toLowerCase(),
+        ['get', 'searchable_text']]];
 
     return {
       id: props.layerId,

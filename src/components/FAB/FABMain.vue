@@ -14,7 +14,7 @@
 <style scoped>
   .fab {
     position: fixed;
-    bottom: 1rem;
+    bottom: 12rem;
     left: 1rem;
     z-index: 10;
   }
@@ -70,5 +70,14 @@
     width: 100%;
     bottom: 120%;
     text-align: center;
+  }
+
+  @media (max-width: 2500px) and (max-height: 1400px) {
+    .fab {
+      position: fixed;
+      bottom: 1rem;
+      left: 1rem;
+      z-index: 10;
+    }
   }
 </style>

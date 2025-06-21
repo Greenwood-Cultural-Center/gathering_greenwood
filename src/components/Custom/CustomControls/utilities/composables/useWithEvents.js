@@ -4,7 +4,7 @@ import { getCurrentInstance } from 'vue';
  * Composable for emitting map events with additional data.
  * @param {Object} map - The map instance to include in emitted events.
  */
-export function useMapboxEmit(map) {
+export function useWithEvents(map) {
   const instance = getCurrentInstance();
 
   /**
