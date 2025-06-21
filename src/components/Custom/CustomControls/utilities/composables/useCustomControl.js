@@ -1,6 +1,6 @@
 import { onBeforeUnmount, inject } from 'vue';
-import { useWithEvents } from '@/composables/useWithEvents';
-import { useWithSelfEvents } from '@/composables/useWithSelfEvents';
+import { useWithEvents } from '@Composables/useWithEvents.js';
+import { useWithSelfEvents } from '@Composables/useWithSelfEvents.js';
 
 /**
  * Composable to register a Mapbox control with lifecycle management.

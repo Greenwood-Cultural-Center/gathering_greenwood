@@ -1,16 +1,16 @@
 <script setup>
   import { onMounted, onBeforeMount, ref, computed, watch } from 'vue';
-  import BuildingForm from './forms/BuildingForm.vue';
-  import PersonForm from './forms/PersonForm.vue';
-  import DocumentForm from './forms/DocumentForm.vue';
-  import CensusRecordForm from './forms/CensusRecordForm.vue';
-  import StoryForm from './forms/StoryForm.vue';
-  import AudioMediaForm from './forms/AudioMediaForm.vue';
-  import VideoMediaForm from './forms/VideoMediaForm.vue';
-  import PhotoMediaForm from './forms/PhotoMediaForm.vue';
-  import PDFForm from './forms/PDFForm.vue';
+  import BuildingForm from '@Forms/BuildingForm.vue';
+  import PersonForm from '@Forms/PersonForm.vue';
+  import DocumentForm from '@Forms/DocumentForm.vue';
+  import CensusRecordForm from '@Forms/CensusRecordForm.vue';
+  import StoryForm from '@Forms/StoryForm.vue';
+  import AudioMediaForm from '@Forms/AudioMediaForm.vue';
+  import VideoMediaForm from '@Forms/VideoMediaForm.vue';
+  import PhotoMediaForm from '@Forms/PhotoMediaForm.vue';
+  import PDFForm from '@Forms/PDFForm.vue';
   import { HtmlDialog } from 'vue-html-dialog';
-  import ScrollbarCss from '../styles/scrollbar.module.css';
+  import ScrollbarCss from '@/styles/scrollbar.module.css';
   //import Dialog from './Dialog.vue';
   import 'vue-html-dialog/vue-html-dialog.css';
 
@@ -108,34 +108,19 @@
     width: 100%;
   }
 
-  @media screen and (max-width: 1600px) {
-    .modal-body {
-      height: 80%;
-    }
+  .result-modal:deep(.dialog) {
+    transform: translateY(-4rem);
+    height: 70rem;
+    width: 75rem;
+    max-height: 70rem;
   }
 
-  @media screen and (max-height: 900px) {
-    .modal-body {
-      overflow-y: scroll;
-      height: 95%;
-      width: 100%;
-    }
-  }
-</style>
-
-<style>
-  .result-modal .dialog {
-    width: 53.75rem;
-    max-height: 56.25rem;
-    cursor: initial;
-  }
-
-  .result-modal .dialog>div {
+  .result-modal:deep(.dialog>div) {
     width: 100%;
     height: 100%;
   }
 
-  .result-modal .dialog > div button.close-button {
+  .result-modal:deep(.dialog > div button.close-button) {
     font-size: 3.5rem;
     z-index: 1001;
     height: 4rem;
@@ -157,18 +142,63 @@
     transition: border-color 0.25s;
   }
 
-  @media screen and (max-height: 700px) {
-    .result-modal .dialog {
+  @media (max-width: 2500px) and (max-height: 1400px) {
+    .result-modal:deep(.dialog) {
       transform: translateY(-4rem);
-      width: 43.75rem;
-      max-height: 31.25rem;
+      height: 70rem;
+      max-height: 70rem;
     }
   }
 
-  @media screen and (max-height: 900px) {
-    .result-modal .dialog {
+  @media (max-width: 2500px) and (max-height: 1300px) {
+    .result-modal:deep(.dialog) {
       transform: translateY(-4rem);
-      height: 40rem;
+      height: 60rem;
+      max-height: 60rem;
+    }
+  }
+
+  @media (max-width: 1600px) and (max-height:900px) {
+    .result-modal:deep(.dialog) {
+      transform: translateY(-4rem);
+      height: 38rem;
+    }
+
+    .modal-body {
+      height: 80%;
+    }
+
+    .modal-body {
+      overflow-y: scroll;
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 1600px) and (max-height:700px) {
+    .result-modal:deep(.dialog) {
+      transform: translateY(-4rem);
+      width: 43.75rem;
+      max-height: 29.25rem;
+    }
+
+    .modal-body {
+      height: 93%;
+    }
+  }
+
+  @media (max-width: 1400px) and (max-height: 1300px) {
+    .result-modal:deep(.dialog) {
+        transform: translateY(-4rem);
+        max-height: 58rem;
+        height: 58rem;
+    }
+  }
+
+  @media (max-width: 1400px) and (max-height: 1100px) {
+  .result-modal:deep(.dialog) {
+        transform: translateY(-4rem);
+        max-height: 51rem;
+        height: 51rem;
     }
   }
 </style>

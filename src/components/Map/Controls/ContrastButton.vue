@@ -1,13 +1,13 @@
 <script setup>
 import { onMounted, useTemplateRef} from 'vue';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import CustomControl from './CustomControl.vue';
+import CustomControl from '@CustomControls/CustomControl.vue';
 
 const control = useTemplateRef('control');
 
 function onClick() {
   // Your control logic here
-  alert('Custom control clicked!');
+  //alert('Custom control clicked!');
 }
 
 onMounted(() => {
@@ -42,20 +42,13 @@ defineExpose({
 </template>
 
 <style scoped>
-/* .custom-mapbox3-control {
-  position: absolute;
-  right: 0.625rem;
-  bottom: 26.8875rem;
-  z-index: 2;
-  border-radius: var(--gcc-border-radius) var(--gcc-border-radius) var(--gcc-border-radius) var(--gcc-border-radius);
-} */
 
-button.custom-mapbox-contrast:hover {
-  Background-color: var(--gcc-beige);
+div.mapboxgl-ctrl-custom button.custom-mapbox-contrast:hover, div.mapboxgl-ctrl-custom button.custom-mapbox-contrast:active {
+  background-color: var(--gcc-beige);
   box-shadow: 0 0.0625rem 0.25rem rgba(0, 0, 0, 0.2);
 }
 
-button.custom-mapbox-contrast {
+div.mapboxgl-ctrl-custom button.custom-mapbox-contrast {
   background: var(--gcc-dk-green);
   border: 1px solid #ccc;
   border-radius: 4px;

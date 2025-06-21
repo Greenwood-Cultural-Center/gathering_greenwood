@@ -1,14 +1,16 @@
 <script setup>
   import { ref, computed, useTemplateRef, onMounted, inject, onUpdated, nextTick } from 'vue';
-  import MglMap from './components/MglMap.vue';
-  import FABMain from './components/FABMain.vue';
-  import FABButton from './components/FABButton.vue';
-  import ResultsPane from './components/ResultsPane.vue';
-  import YearSearchBar from './components/YearSearchBar.vue';
-  import DynamicGeoJsonLayer from './components/DynamicGeoJsonLayer.vue';
-  import LandingPage from './components/LandingPage.vue';
-  import { formatRawGeoJson } from './utils/utils.js';
+  import MglMap from '@/components/Map/MglMap.vue';
+  import FABMain from '@FAB/FABMain.vue';
+  import FABButton from '@FAB/FABButton.vue';
+  import ResultsPane from '@Results/ResultsPane.vue';
+  import YearSearchBar from '@Search/YearSearchBar.vue';
+  import DynamicGeoJsonLayer from '@/components/Map/DynamicGeoJsonLayer.vue';
+  import LandingPage from '@Landing/LandingPage.vue';
+  import utils from '@utils/utils.js';
+  import { useFaMapService } from '@Composables/useFaMapservice.js';
 
+  const { fontAwesomeCharacterCode } = useFaMapService();
   const emptyGeoJson = {type:'geojson',data:{id: 'search-source', type: 'FeatureCollection', features: []}};
 
   const map = ref(null);
@@ -57,18 +59,33 @@
     }
   ];
 
-  const geoJsonFeaturePaint = {
-    'circle-radius': 8,
-    'circle-color': '#f37021',     // orange inner circle
-    'circle-stroke-color': '#ffffff', // white border
-    'circle-stroke-width': 3
-  }
-
-  const census1920GeoJsonFeaturePaint = {
-    'circle-radius': 8,
-    'circle-color': '#405D47',     // orange inner circle
-    'circle-stroke-color': '#ffffff', // white border
-    'circle-stroke-width': 3
+  const markerPaintOptions = {
+    'Search Results' : {
+      'circle-color': '#f37021',     // orange inner circle
+      'circle-opacity': 1,
+      'circle-radius': 8,
+      'circle-stroke-color': '#ffffff', // white border
+      'circle-stroke-opacity': 1,
+      'circle-stroke-width': 3,
+      'circle-blur': 0
+    },
+    census1920GeoJsonFeaturePaint : {
+      'circle-radius': 8,
+      'circle-color': '#405D47',     // orange inner circle
+      'circle-stroke-color': '#ffffff', // white border
+      'circle-stroke-width': 3,
+      'visibility': false,
+      'label': 'Census Records'
+    },
+    'Points of Interest' : {
+      'circle-radius': 16,
+      'circle-color': '#FFCC00',     // orange inner circle
+      'circle-opacity': 1,
+      'circle-stroke-color': '#405D47', // white border
+      'circle-stroke-width': 5,
+      'circle-stroke-opacity': 1,
+      'circle-blur': 0,
+    }
   }
 
   // Create an array of FAB button properties
@@ -104,8 +121,9 @@
   const census1920LayerRef = useTemplateRef('census1920LayerRef');
   const videoModalRef = useTemplateRef('videoModalRef');
   const census1920GeoJson = ref(emptyGeoJson);
-  const helpVideoUrl = `${import.meta.env.BASE_URL}GCC-Kiosk-April-2025.webm`;
-  const census1920Url = `${import.meta.env.BASE_URL}Grouped_1920_Census.min.geojson`;
+  const backendHost = import.meta.env.VITE_BACKEND_HOST;
+  const poiGeoJSON = ref({});
+
   async function fetchGeoJson (url) {
     await fetch(`${url}`);
   }
@@ -201,8 +219,14 @@
         await resultsPaneRef.value.search(searchValue);
       }
     });
-    if (map.value?.getLayer('search-layer')) {
+    if (mbMap.value?.getLayer('search-layer')) {
       if (geoJson.value && geoJson.value.data && geoJson.value.data.features && geoJson.value.data.features.length > 0) {
+        if (mbMap.value?.getSource('search-source')) {
+          mbMap.value.getSource('search-source').setData(geoJson.value.data);
+        } else {
+          mbMap.value.addSource('search-source', geoJson.value);
+        }
+
         mbMap.value.setLayoutProperty('search-layer', 'visibility', 'visible')
       }
     }
@@ -217,7 +241,7 @@
 
   const handleMapCreated = async (mapbMap) => {
     mbMap.value = mapbMap;
-
+    getPOIs();
     // census1920GeoJson.value = await fetchGeoJson(census1920Url)
     //   .then(response =>
     //     formatRawGeoJson(response.json(), '1920-census-source'));
@@ -296,6 +320,25 @@
     }
   });
 
+  function getPOIs() {
+    let poiGeoJSONTemplate = {
+      type: 'geojson',
+      data: {
+        id: 'poi-source',
+        type: 'FeatureCollection',
+        features: []
+      }
+    };
+
+    fetch(`${backendHost}/api/v2/search?search=data-poi&strict=false`,{method: 'GET', mode: 'cors'})
+    .then(response => response.json())
+    .then(data => {
+      let features = utils.dedupeByCustomKey(data.features, feature => feature.properties.location_id);
+      poiGeoJSONTemplate.data.features = features;
+      poiGeoJSON.value = poiGeoJSONTemplate;
+    })
+  };
+
   function closeLandingPage() {
     showLanding.value = false;
   }
@@ -305,7 +348,6 @@
     showLanding.value = true;
   }
 
-// map.value = inject('map');
 </script>
 
 <template>
@@ -319,14 +361,6 @@
   <template v-if="!showLanding">
     <!-- FAB Component to create menu with dynamic buttons-->
     <FABMain nonce="ajJERjdDc1g5MlFadlZfdGdFIWI4dVchQ3o4Q3ZRYlQ=" @click="openLandingPage">
-      <!-- <FABButton
-        v-for="(item, index) in createFabButtonProps"
-        :key="index"
-        v-bind="item"
-        :state="item.state"
-        :innerText="typeof item.innerText === 'function' ? item.innerText() : item.innerText"
-        :clickHandler="item.clickHandler"
-      ></FABButton> -->
     </FABMain>
 
     <!-- YearSelector Component to change year and perform searches -->
@@ -334,17 +368,31 @@
 
     <!-- Map Component with layer containing dynamic GeoJSON search results-->
     <!-- <MglMap nonce="ajJERjdDc1g5MlFadlZfdGdFIWI4dVchQ3o4Q3ZRYlQ=" :class="['map-area', { 'map-area-shrunk' : showResults }]" :year="appYear" ref="mglMapRef" @created="handleMapCreated" :dynamicGeoJsonIds="{'dynamicLayers': dynamicLayers, 'dynamicSources': dynamicSources}"> -->
-    <MglMap nonce="ajJERjdDc1g5MlFadlZfdGdFIWI4dVchQ3o4Q3ZRYlQ=" class='map-area' :year="appYear" ref="mglMapRef" @created="handleMapCreated" :dynamicGeoJsonIds="{'dynamicLayers': dynamicLayers, 'dynamicSources': dynamicSources}">
+    <MglMap nonce="ajJERjdDc1g5MlFadlZfdGdFIWI4dVchQ3o4Q3ZRYlQ=" class='map-area' :year="appYear" ref="mglMapRef" @created="handleMapCreated" :dynamicGeoJsonIds="{'dynamicLayers': dynamicLayers, 'dynamicSources': dynamicSources}" :paintOptions="markerPaintOptions">
       <DynamicGeoJsonLayer
         v-if="geoJson && geoJson.data && geoJson.data.features && geoJson.data.features.length > 0"
         :geojson="geoJson"
         :type="'circle'"
-        :paint="geoJsonFeaturePaint"
+        :paint="markerPaintOptions['Search Results']"
         :layout="{ 'visibility': 'visible' }"
         layerId="search-layer"
         :filterYear="appYear"
         :map="mbMap"
         :featureFormatter="formatFeature">
+      </DynamicGeoJsonLayer>
+      <DynamicGeoJsonLayer
+        v-if="poiGeoJSON && poiGeoJSON.data && poiGeoJSON.data.features && poiGeoJSON.data.features.length > 0"
+        ref="POILayerRef"
+        :geojson="poiGeoJSON"
+        :type="'circle'"
+        :paint="markerPaintOptions['Points of Interest']"
+        :layout="{ 'visibility': 'visible'
+        }"
+        layerId="poi-layer"
+        :filterYear="appYear"
+        :map="mbMap"
+        :featureFormatter="formatFeature"
+        :searchTerm="searchTerm">
       </DynamicGeoJsonLayer>
       <!-- <DynamicGeoJsonLayer
         v-if="census1920GeoJson && census1920GeoJson.data && census1920GeoJson.data.features && census1920GeoJson.data.features.length > 0"
@@ -355,10 +403,10 @@
         :layout="{ 'visibility': 'visible' }"
         layerId="1920-census-layer"
         :filterYear="appYear"
-        :map="map"
+        :map="mbM ap"
         :featureFormatter="formatFeature"
         :searchTerm="searchTerm"
-      /> -->
+      </DynamicGeoJsonLayer> -->
     </MglMap>
     <!-- Results Pane Component containing search results-->
     <!-- <transition name="slide-results" mode="out-in"> -->
@@ -412,7 +460,7 @@
     border: none;
     border-radius: 0.5rem;
     width: 90vw;
-    max-width: 56.25;
+    max-width: 56.25rem;
     padding: 0;
     box-shadow: 0 0.3125rem 1rem rgba(0, 0, 0, 0.3);
     color: var(--gcc-black)

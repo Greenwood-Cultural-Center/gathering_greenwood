@@ -18,6 +18,11 @@ function handleDocumentLoad({numPages}) {
 
 function handleDocumentRender() {
   isLoading.value = false;
+  if (showAllPages.value) {
+    page.value = 1;
+  } else {
+    page.value = Math.min(page.value, pageCount.value);
+  }
 }
 
 function handlePasswordRequest() {}

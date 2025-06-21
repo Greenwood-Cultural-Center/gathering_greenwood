@@ -1,7 +1,7 @@
 <script setup>
   import { useTemplateRef } from 'vue';
-  import SearchBar from './SearchBar.vue';
-  import YearSelector from './YearSelector.vue';
+  import SearchBar from '@Search/Search/SearchBar.vue';
+  import YearSelector from '@Search/Year/YearSelector.vue';
 
   const searchBarRef = useTemplateRef('searchBarRef');
 
@@ -55,10 +55,10 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  position:fixed;
+  position:absolute;
   right:0;
-  padding: 1rem;
-  bottom: 0;
+  padding: 3rem;
+  bottom: -2rem;
   border-top-left-radius: 10px;
   background-color: var(--gcc-dk-green);
   z-index: 1000;

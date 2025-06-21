@@ -1,6 +1,6 @@
 import { getCurrentInstance } from 'vue';
 
-export function useMapboxSelfEvents(control, emitMapEvent) {
+export function useWithSelfEvents(control, emitMapEvent) {
   const instance = getCurrentInstance();
 
   /**

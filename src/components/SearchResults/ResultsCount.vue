@@ -1,6 +1,6 @@
 <script setup>
   import { computed } from 'vue';
-  import { Count } from '../utils/ResponseHandler.js';
+  import { Count } from '@utils/ResponseHandler.js';
 
   const props = defineProps({
     count: {
@@ -40,7 +40,7 @@
 
 <style scoped>
   .results-count {
-    margin-bottom: 1rem;
+    margin-bottom: 0;
     font-size: 1.95rem;
     font-weight: bold;
     color: var(--gcc-dk-green);

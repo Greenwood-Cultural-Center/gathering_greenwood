@@ -1,10 +1,10 @@
 <script setup>
   import { ref, computed } from 'vue';
-  import ResultsCount from './ResultsCount.vue';
-  import ResultsList from './ResultsList.vue';
-  import LastSearch from './LastSearch.vue';
-  import { formatRawGeoJson } from '../utils/utils.js';
-  import { ResultsJson, ResultsGeoJson, Status, DetailedResponse, Count } from '../utils/ResponseHandler.js';
+  import ResultsCount from '@Results/ResultsCount.vue';
+  import ResultsList from '@Results/ResultsList.vue';
+  import LastSearch from '@Results/LastSearch.vue';
+  import { formatRawGeoJson } from '@utils/utils.js';
+  import { ResultsJson, ResultsGeoJson, Status, DetailedResponse, Count } from '@utils/ResponseHandler.js';
   import { useToast } from "vue-toastification";
 
   const props = defineProps({
@@ -87,6 +87,7 @@
 
     if (!searchValue) {
       console.error('No search value provided');
+      toast.warning('Please enter a search term.');
       return;
     }
 

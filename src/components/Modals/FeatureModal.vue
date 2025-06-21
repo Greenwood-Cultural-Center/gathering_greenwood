@@ -1,10 +1,10 @@
 <script setup>
   import { ref, computed } from 'vue';
   import { HtmlDialog } from 'vue-html-dialog';
-  import ListItem from './ListItem.vue';
+  import ListItem from '@Utility/ListItem.vue';
   import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-  import utils from '../utils/utils.js';
-  import ScrollbarCss from '../styles/scrollbar.module.css';
+  import utils from '@utils/utils.js';
+  import ScrollbarCss from '@/styles/scrollbar.module.css';
   import 'vue-html-dialog/vue-html-dialog.css';
 
   defineExpose({
@@ -232,12 +232,6 @@
     height: 0.3125rem;
   }
 
-  @media screen and (max-width: 1600px) {
-    .modal-body {
-      height: 80%;
-    }
-  }
-
   .modal-body {
     max-height: 70vh;
     overflow-y: scroll;
@@ -278,19 +272,16 @@
     display: inline;
   }
 
-</style>
-
-<style>
-  .feature-dialog .dialog{
+  .feature-dialog:deep(.dialog){
     anchor-name: --dialog;
     background: var(--gcc-white);
     border-radius: 8px;
     border: none;
     box-shadow: 0 2px 12px #0000004d;
     color: var(--gcc-black);
-    height: 56rem;
+    height: 70rem;
     margin: 1.5rem;
-    max-height: 56.25rem;
+    max-height: 70rem;
     max-width: 90%;
     opacity: 1;
     overflow-y: hidden;
@@ -301,12 +292,12 @@
     width: 61rem;
   }
 
-  .feature-dialog .dialog>div {
+  .feature-dialog:deep(.dialog>div) {
     width: 100%;
     height: 100%;
   }
 
-  .feature-dialog .dialog>div button.close-button {
+  .feature-dialog:deep(.dialog>div button.close-button) {
     font-size: 3.5rem;
     z-index: 1001;
     height: 4rem;
@@ -328,24 +319,63 @@
     transition: border-color 0.25s;
   }
 
-  @media screen and (max-height: 900px) {
-    .feature-dialog .dialog {
+  @media (max-width: 2500px) and (max-height: 1400px) {
+    .feature-dialog:deep(.dialog) {
       transform: translateY(-4rem);
-        height: 40rem;
-        max-height: 50rem;
-        padding: 1.5rem 1.5rem 2.1rem 1.5rem;
+      max-height: 60rem;
     }
   }
 
-  @media screen and (max-width: 1920px) {
-    .feature-dialog .dialog {
+  @media (max-width: 2500px) and (max-height: 1300px) {
+    .feature-dialog:deep(.dialog) {
       transform: translateY(-4rem);
-      height: 29rem;
-      max-height: 31rem;
-      padding: 1.5rem 1.5rem 2.1rem 1.5rem;
+    }
+  }
+
+  @media (max-width: 1600px) and (max-height:900px) {
+    .feature-dialog:deep(.dialog) {
+      transform: translateY(-4rem);
+      height: 38rem;
     }
 
-    .feature-dialog .dialog>div {
+    .modal-body {
+      height: 80%;
+    }
+
+    .modal-body {
+      overflow-y: scroll;
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 1600px) and (max-height:700px) {
+    .feature-dialog:deep(.dialog) {
+      transform: translateY(-4rem);
+      width: 43.75rem;
+      max-height: 29.25rem;
+    }
+
+    .modal-body {
+      height: 93%;
+    }
+  }
+
+  @media (max-width: 1400px) and (max-height: 1300px) {
+    .feature-dialog:deep(.dialog) {
+        transform: translateY(-4rem);
+        max-height: 58rem;
+        height: 58rem;
+    }
+  }
+
+  @media (max-width: 1400px) and (max-height: 1100px) {
+    .feature-dialog:deep(.dialog) {
+        transform: translateY(-4rem);
+        max-height: 51rem;
+        height: 51rem;
+    }
+
+    .feature-dialog:deep(.dialog>div) {
       position-anchor: --dialog;
       height: anchor-size(--dialog height);
       box-sizing: border-box;
@@ -353,4 +383,5 @@
       align-items: center;
     }
   }
+
 </style>

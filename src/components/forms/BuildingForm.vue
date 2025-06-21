@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue';
-import utils from '../../utils/utils.js';
+import utils from '@utils/utils.js';
 
 const props = defineProps({ item: {type: Object, required: true} });
 
