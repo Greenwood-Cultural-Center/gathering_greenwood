@@ -84,6 +84,13 @@ function age(person) {
   }
   return 'N/A';
 };
+
+const rich_description = computed(() => {
+  if (!item || !item.description) {
+    return 'N/A';
+  }
+  return item.description.body.replace(/<i data-poi(?:=\\\"\\\")?><\/i>/g, "") || 'N/A';
+});
 </script>
 
 <template>

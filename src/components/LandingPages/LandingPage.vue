@@ -74,8 +74,12 @@ function openFeedback() {
 </template>
 
 <style scoped>
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Figtree";
+}
+
 .landing-page-root {
-  position: relative;
   width: 100%;
   height: 100%;
 }
@@ -129,14 +133,13 @@ function openFeedback() {
 
 .welcome-text {
   text-align: center;
-  margin-block-start: 16rem;
-  margin-block-end: 10.125rem;
+  margin-block-start: 24rem;
+  margin-block-end: 6.125rem;
 }
 
 .title {
   display: block;
   font-size: 8rem;
-  font-family: 'Figtree';
   font-weight: 900;
   letter-spacing: 2px;
   color: var(--gcc-white);
@@ -153,7 +156,7 @@ function openFeedback() {
 .main-buttons {
   display: flex;
   justify-content: space-evenly;
-  gap: 2rem;
+  gap: 9rem;
 }
 
 .main-buttons button {
@@ -171,8 +174,8 @@ button.project-info {
 
 .bottom-right {
   position: absolute;
-  bottom: calc(var(--sub-button-height) * 2.1);
-  right: calc(((var(--main-button-width) / 2) + 23.25rem) - (var(--sub-button-width) / 2));
+  bottom: calc(var(--sub-button-height) * 1.5);
+  right: calc(((var(--main-button-width) / 2) + 19.65rem) - (var(--sub-button-width) / 2));
 }
 
 .button {
@@ -201,7 +204,7 @@ button.project-info {
   color: var(--gcc-dk-green); /* Dark green */
 }
 
-@media (max-width: 2500px) and (max-height: 1400px) {
+@media (max-width: 2500px) and (max-height: 1400px) and (min-resolution: 0.74dppx) and (resolution: 0.81dppx) {
   .welcome-text {
     margin-block-start: 13.375rem;
     margin-block-end: 10.125rem;
@@ -218,12 +221,12 @@ button.project-info {
   }
 
   .bottom-right {
-    bottom: calc(var(--sub-button-height) * 2.5);
-    right: calc(((var(--main-button-width) / 2) + 21.1rem) - (var(--sub-button-width) / 2));
+    bottom: calc(var(--sub-button-height) * 1.2);
+    right: calc(((var(--main-button-width) / 2) + 17.8rem) - (var(--sub-button-width) / 2));
   }
 }
 
-@media (max-width: 2500px) and (max-height: 1300px) {
+@media (max-width: 2500px) and (max-height: 1300px) and (min-resolution: 0.74dppx) and (resolution: 0.81dppx) {
   .welcome-text {
     margin-block-start: 132px;
     margin-block-end: 123px;
@@ -232,7 +235,7 @@ button.project-info {
   .welcome-script {
     width: 47rem;
     height: 9.1rem;
-    transform: translate(-497px, 69px);
+    transform: translate(-25.625rem, 4.3125rem);
   }
 
   .title {
@@ -240,8 +243,25 @@ button.project-info {
   }
 
   .bottom-right {
-    bottom: calc(var(--sub-button-height) * 2.2);
-    right: calc(((var(--main-button-width) / 2) + 21.4rem) - (var(--sub-button-width) / 2));
+    bottom: calc(var(--sub-button-height) * 0.9);
+    right: calc(((var(--main-button-width) / 2) + 17.7rem) - (var(--sub-button-width) / 2));
+  }
+}
+
+@media (max-width: 1920px) and (max-height: 1080px) {
+  .welcome-text {
+    margin-block-start: 10rem;
+  }
+
+  .bottom-right {
+    bottom: calc(var(--sub-button-height) * 0.4);
+    right: calc(((var(--main-button-width) / 2) + 9.7rem) - (var(--sub-button-width) / 2));
+  }
+
+  .welcome-script {
+    width: 39rem;
+    height: 7.5rem;
+    transform: translate(-28.625rem, 4.3125rem);
   }
 }
 
@@ -291,7 +311,7 @@ button.project-info {
 
 @media (max-width: 1400px) and (max-height: 1300px) {
   .welcome-text {
-    margin-block-start: 13.6875rem;
+    margin-block-start: 14.6875rem;
     margin-block-end: 7.3125rem;
   }
 
@@ -306,8 +326,8 @@ button.project-info {
   }
 
   .bottom-right {
-    bottom: calc(var(--sub-button-height) * 3.20);
-    right: calc(((var(--main-button-width) / 2) + 4.5rem) - (var(--sub-button-width) / 2));
+        bottom: calc(var(--sub-button-height) * 1.2);
+        right: calc(((var(--main-button-width) / 2) + 1rem) - (var(--sub-button-width) / 2));
   }
 }
 
@@ -329,8 +349,67 @@ button.project-info {
   }
 
   .bottom-right {
-    bottom: calc(var(--sub-button-height) * 1.90);
-    right: calc(((var(--main-button-width) / 2) + 4.5rem) - (var(--sub-button-width) / 2));
+    bottom: calc(var(--sub-button-height) * 0.70);
+    right: calc(((var(--main-button-width) / 2) + 0.5rem) - (var(--sub-button-width) / 2));
   }
 }
+
+@media (max-width: 1080px) and (max-height: 800px) {
+  .welcome-text {
+    margin-block-start: 3.6875rem;
+    margin-block-end: 2.3125rem;
+  }
+
+  .welcome-text span {
+    font-size: 4.2rem;
+  }
+
+  .welcome-script {
+    transform: translate(-229px, 45px);
+  }
+
+  .title {
+    font-size: 5.2rem;
+  }
+
+  .main-buttons {
+    gap: 3rem;
+    padding: 0 3rem;
+  }
+
+  .bottom-right {
+    bottom: calc(var(--sub-button-height) * 0.3);
+    right: calc(((var(--main-button-width) / 2) + 1.6rem) - (var(--sub-button-width) / 2));
+  }
+}
+
+@media (max-width: 800px) and (max-height: 1080px) {
+  .welcome-text {
+    margin-block-start: 3.6875rem;
+    margin-block-end: 2.3125rem;
+  }
+
+  .welcome-text span {
+    font-size: 4.2rem;
+  }
+
+  .welcome-script {
+    transform: translate(-229px, 45px);
+  }
+
+  .title {
+    font-size: 5.2rem;
+  }
+
+  .main-buttons {
+    gap: 3rem;
+    padding: 0 3rem;
+  }
+
+  .bottom-right {
+    bottom: calc(var(--sub-button-height) * 0.3);
+    right: calc(((var(--main-button-width) / 2) + 1.6rem) - (var(--sub-button-width) / 2));
+  }
+}
+
 </style>

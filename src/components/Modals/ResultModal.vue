@@ -158,6 +158,14 @@
     }
   }
 
+  @media (max-width: 1920px) and (max-height: 1080px) {
+    .result-modal:deep(.dialog) {
+      transform: translateY(-5rem);
+      height: 50rem;
+      max-height: 50rem;
+    }
+  }
+
   @media (max-width: 1600px) and (max-height:900px) {
     .result-modal:deep(.dialog) {
       transform: translateY(-4rem);

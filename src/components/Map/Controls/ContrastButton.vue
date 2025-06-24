@@ -1,13 +1,21 @@
 <script setup>
-import { onMounted, useTemplateRef} from 'vue';
+import { onMounted, useTemplateRef, ref, inject } from 'vue';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import CustomControl from '@CustomControls/CustomControl.vue';
 
 const control = useTemplateRef('control');
 
+const contrast = ref(false);
+
+const map = inject('map');
+
 function onClick() {
-  // Your control logic here
-  //alert('Custom control clicked!');
+  contrast.value = !contrast.value;
+  if (contrast.value) {
+    map.value.setStyle('https://www.openhistoricalmap.org/map-styles/main/main.json');
+  } else {
+    map.value.setStyle('/historic.json');
+  }
 }
 
 onMounted(() => {

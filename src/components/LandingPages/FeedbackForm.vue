@@ -87,8 +87,7 @@ function handleReturn() {
         <!-- Description -->
         <div class="description">
           <p>Your feedback can help us further improve this resource for the community.
-          Please provide your name and number below, and we'll
-          reach out via text message!</p>
+          Please provide your name and number below, and we'll<br>reach out via text message!</p>
         </div>
 
         <!-- Form -->
@@ -116,7 +115,7 @@ function handleReturn() {
           </div>
 
           <div class="form-group">
-            <label for="cellNumber">Cell Num</label>
+            <label for="cellNumber">Cell Number </label>
             <input
               id="cellNumber"
               v-model="cellNumber"
@@ -129,7 +128,7 @@ function handleReturn() {
 
           <!-- Privacy Notice -->
           <div class="privacy-notice">
-            <p><em>We value your privacy and promise to keep your information secure.
+            <p><em>We value your privacy and promise to keep your information secure.<br/>
             By providing your phone number, you agree to receive SMS messages from Greenwood Cultural Center regarding your feedback.
             Message and data rates may apply</em></p>
           </div>
@@ -284,7 +283,7 @@ function handleReturn() {
 
 .privacy-notice {
   margin: 2rem 0;
-  width: 87.5;
+  width: 87.5rem;
   text-align: left;
 }
 
@@ -359,6 +358,54 @@ function handleReturn() {
     }
     .content {
       padding: 18.25rem;
+    }
+  }
+
+  @media (max-width: 1920px) and (max-height: 1080px) {
+    .script-text {
+        left: 11rem;
+    }
+
+    form > div:nth-child(1) {
+        gap: 2.1rem;
+    }
+
+    form > div:nth-child(2) {
+        gap: 2.4rem;
+    }
+
+    form > div:nth-child(3){
+        gap: 1rem;
+    }
+
+    .header {
+        margin-bottom: 13rem;
+    }
+
+    .description p {
+        text-align: left;
+        font-size: 1.775rem;
+        width: 63.125rem;
+    }
+
+    .privacy-notice p {
+        font-size: 1.4rem;
+    }
+
+    .action-button-container {
+        gap: 2rem;
+    }
+
+    .action-button-container .action-button {
+        width: 24.3125rem;
+    }
+
+    .return-button {
+        width: 19.6875rem;
+        min-width: 15rem;
+        height: 8.5625rem;
+        font-size: 3.5rem;
+        margin-top: 3rem;
     }
   }
 
