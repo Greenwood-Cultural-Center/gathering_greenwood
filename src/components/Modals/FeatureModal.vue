@@ -14,6 +14,8 @@
 
   const dialogRef = ref(HtmlDialog);
 
+  const regex = /(?:<pre>)?(?:&lt;|<)i data-poi(?:=?(?:&quot;&quot;|""|\\\\"\\\\")?)?(?:&gt;|>)(?:&lt;\/|<\/)i(?:&gt;|>)(?:<\/pre>)?/gi;
+
   const buildingSources = ['search-source', 'poi-source']
 
   const props = defineProps({
@@ -75,7 +77,14 @@
     if (!props.feature.properties.rich_description.body) {
       return 'N/A';
     }
-    return props.feature.properties.rich_description.body.replace(/<i data-poi(?:=\\\"\\\")?><\/i>/g, "") || 'N/A';
+    return props.feature.properties.rich_description.body.replace(regex, "") || 'N/A';
+  });
+
+  const description = computed(() => {
+    if (!props.feature || !props.feature.properties || !props.feature.properties.description) {
+      return 'N/A';
+    }
+    return props.feature.properties.description.replace(regex, "") || 'N/A';
   });
 
   const categories = computed(() => {

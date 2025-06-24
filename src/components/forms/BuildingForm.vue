@@ -12,6 +12,8 @@ const people = props.item.properties.census_records || [];
 
 const personRecords = props.item.properties.people || [];
 
+const regex = /(?:<pre>)?(?:&lt;|<)i data-poi(?:=?(?:&quot;&quot;|""|\\\\"\\\\")?)?(?:&gt;|>)(?:&lt;\/|<\/)i(?:&gt;|>)(?:<\/pre>)?/gi;
+
 function getreadablePersonId(notes) {
   const match = notes.match(/ID: P-(\d+)/);
   return match ? match[1] : null;
@@ -89,7 +91,7 @@ const rich_description = computed(() => {
   if (!item || !item.description) {
     return 'N/A';
   }
-  return item.description.body.replace(/<i data-poi(?:=\\\"\\\")?><\/i>/g, "") || 'N/A';
+  return item.description.body.replace(regex, "") || 'N/A';
 });
 </script>
 
