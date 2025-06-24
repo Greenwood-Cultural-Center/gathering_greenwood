@@ -19,6 +19,7 @@ export default defineConfig({
     vueDevTools({
       launchEditor: 'code',
     }),
+    visualizer(),
     devtoolsJson({ uuid: "153818d3-0cf3-4c87-ac98-a49528d8db7a" }),
     AutoZip(zipName,'dist')
     // VitePWA({
@@ -94,7 +95,11 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    include: ['map-promisified'],
+    include: [
+      'map-promisified',
+      '@awesome.me/kit-45e7af7a78/icons/classic/regular',
+      '@awesome.me/kit-45e7af7a78/icons/duotone/regular'
+    ],
   },
   server: {
     port: 5173,

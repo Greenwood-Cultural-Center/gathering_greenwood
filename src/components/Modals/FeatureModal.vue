@@ -114,8 +114,8 @@
       </div>
       <div :class="['modal-body', ScrollbarCss.scrollbar]">
         <div v-if="feature.properties && buildingSources.includes(feature.source)">
-          <p><strong>Name:</strong> {{ feature.properties.title || 'N/A' }}</p>
-          <p><strong>Address:</strong> {{ feature.properties.addresses[0].searchable_text || 'N/A' }}</p>
+          <p><strong>Name:</strong> {{ feature.properties.title.replaceAll("  "," ") || 'N/A' }}</p>
+          <p><strong>Address:</strong> {{ feature.properties.addresses[0].searchable_text.replaceAll("  "," ") || 'N/A' }}</p>
           <!-- <p><strong>Year Built:</strong> {{ feature.properties.year_built || 'N/A' }}</p> -->
           <p><strong>Description:</strong> {{ feature.properties.description || 'N/A' }}</p>
           <p><strong>Full Description:</strong> <span class="rich-description" v-html="rich_description"></span></p>
@@ -132,9 +132,9 @@
                     {{ item.name }}
                 </ListItem>
               </template>
-              <template v-else>
+              <template v-else-if="category.title === 'photos'">
                 <ListItem v-for="item in category.list" :key="item.id" :icon="category.icon">
-                  <a :href="item.url" target="_blank">{{ item.name || item.description || item.caption }}</a><FontAwesomeIcon class="link" nonce="ajJERjdDc1g5MlFadlZfdGdFIWI4dVchQ3o4Q3ZRYlQ=" icon="link"></FontAwesomeIcon>
+                  <a :href="item.url" target="_blank">{{ item.name || item.description || item.caption }} <FontAwesomeIcon class="link" nonce="ajJERjdDc1g5MlFadlZfdGdFIWI4dVchQ3o4Q3ZRYlQ=" icon="link"></FontAwesomeIcon></a>
                 </ListItem>
               </template>
             </ul>
@@ -208,7 +208,8 @@
   }
 
   .link {
-    color:#646cff; margin-left:0.3125rem;
+    color: #646cff;
+    margin-left:0.3125rem;
   }
 
   h4, h5 {

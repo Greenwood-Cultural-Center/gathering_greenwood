@@ -113,6 +113,7 @@
     height: 70rem;
     width: 75rem;
     max-height: 70rem;
+    cursor: initial;
   }
 
   .result-modal:deep(.dialog>div) {

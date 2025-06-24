@@ -4,13 +4,35 @@ import utils from '@utils/utils.js';
 
 const props = defineProps({ item: {type: Object, required: true} });
 
-function formatLocation(location) {
-  return location ? location.join(",") : 'Unknown';
-}
+const formatLocation = (location) => {return location && location.every((coord) => coord) ? location.join(",") : 'Unknown'};
 
-const people = props.item.properties.census_records || [];
 
-const personRecords = props.item.properties.people || [];
+const people = props.item.properties?.people.sort((a,b) => {
+    const nameA = a.sortable_name.toUpperCase();
+    const nameB = b.sortable_name.toUpperCase();
+    if (nameA < nameB) {
+        return -1;
+    }
+    if (nameA > nameB) {
+        return 1;
+    }
+    return 0;
+}) || [];
+
+const census_records = () => {
+  let people_census_ids = people.flatMap(person => person.properties.census_records.flatMap(record => record.id));
+  return props.item.properties?.census_records.filter(record => !people_census_ids.includes(record.id)).sort((a,b) => {
+    const nameA = a.sortable_name.toUpperCase();
+    const nameB = b.sortable_name.toUpperCase();
+    if (nameA < nameB) {
+        return -1;
+    }
+    if (nameA > nameB) {
+        return 1;
+    }
+    return 0;
+}) || [];
+};
 
 const regex = /(?:<pre>)?(?:&lt;|<)i data-poi(?:=?(?:&quot;&quot;|""|\\\\"\\\\")?)?(?:&gt;|>)(?:&lt;\/|<\/)i(?:&gt;|>)(?:<\/pre>)?/gi;
 
@@ -42,6 +64,7 @@ function getGender(genderCode) {
     'F': 'Female',
     'O': 'Other'
   };
+  return genderMap[genderCode] || 'Unknown';
 };
 
 const searchableName = (person) => {
@@ -50,7 +73,7 @@ const searchableName = (person) => {
   }
   else if (person)
   {
-    return `${ person?.first_name || persson?.First_Name } ${person?.middle_name || person?.Middle_Name} ${ person?.last_name || person?.Last_Name } `;
+    return `${ (person?.first_name || persson?.First_Name) || '' } ${ (person?.middle_name || person?.Middle_Name) || '' } ${ (person?.last_name || person?.Last_Name) || '' } `;
   }
   else {
     return 'Unknown';
@@ -88,23 +111,24 @@ function age(person) {
 };
 
 const rich_description = computed(() => {
-  if (!item || !item.description) {
+  if (!props.item || !props.item.description) {
     return 'N/A';
   }
-  return item.description.body.replace(regex, "") || 'N/A';
+  return props.item.description.body.replace(regex, "") || 'N/A';
 });
 </script>
 
 <template>
   <div>
     <h2>Building Details</h2>
-    <p><strong>Name:</strong> {{ item.name }}</p>
-    <p><strong>{{utils.titleCase(item.description.name)}}:</strong><span v-html="item.description.body"></span></p>
-    <p><strong>Address:</strong> {{ item.address }} </p>
+    <p><strong>Name:</strong> {{ item.name || item.address.replaceAll("  "," ") }}</p>
+    <p><strong>{{utils.titleCase(item.description.name)}}:</strong><span v-html="rich_description"></span></p>
+    <p><strong>Address:</strong> {{ item.address.replaceAll("  "," ") }} </p>
     <p><strong>Location:</strong> {{ formatLocation(item.location) }}</p>
-    <div v-if="personRecords">
-      <details v-for="(person,index) in personRecords" :key="person?.id">
-        <summary><h5>{{ searchableName(person) + '(' + person?.age || '' + ')'}}</h5></summary>
+    <div v-if="people.length">
+      <h3>Associated People</h3>
+      <details v-for="(person,index) in people" :key="getPersonID(person?.notes) || person?.id">
+        <summary><h4>{{ searchableName(person) + '(' + (person?.age || '') + ')'}}</h4></summary>
         <p><strong>Name:</strong> {{ person?.name }}</p>
         <p><strong>Description:</strong> {{ person?.description }}</p>
         <p><strong>Race:</strong> {{ getRace(person?.race) }}</p>
@@ -117,41 +141,80 @@ const rich_description = computed(() => {
         <p><strong>Name:</strong> {{ person?.name }}</p>
         <p><strong>Notes:</strong> {{ person?.notes }}</p>
         <p><strong>Description:</strong> {{ person?.description }}</p>
+        <div v-if="person.census_records && person.census_records.length">
+        <hr/>
+          <details>
+            <summary><h5>Census Records</h5></summary>
+            <details v-for="(record,index) in census_records" :key="getPersonID">
+              <summary><h6>{{ searchableName(record) + '(' + (record?.age || '') + ')'}}</h6></summary>
+              <p><strong>Age:</strong> {{ age(record) }}</p>
+              <p><strong>Gender:</strong> {{ getGender(record?.sex) }}</p>
+              <p><strong>Race:</strong> {{ getRace(record?.race) }}</p>
+              <p><strong>Primary Language Spoken:</strong> {{ record?.mother_tongue || 'N/A' }}</p>
+              <p><strong>Marital Status:</strong> {{ record?.marital_status || 'N/A' }}</p>
+              <p><strong>Foreign Born:</strong> {{ record?.foreign_born || 'N/A' }}</p>
+              <p><strong>Naturalized:</strong> {{ record?.naturalized_alien || 'N/A' }}</p>
+              <p><strong>Year Immigrated:</strong> {{ record?.year_immigrated || 'N/A' }}</p>
+              <p><strong>Birthplace:</strong> {{ record?.pob || 'N/A' }}</p>
+              <p><strong>Education:</strong> {{ record?.education || 'N/A' }}</p>
+              <p><strong>Attended School:</strong> {{ record?.attended_school || 'N/A' }}</p>
+              <p><strong>Can Read:</strong> {{ record?.can_read || 'N/A' }}</p>
+              <p><strong>Can Write:</strong> {{ record?.can_write || 'N/A' }}</p>
+              <p><strong>Can Speak English:</strong> {{ record?.can_speak_english || 'N/A' }}</p>
+              <p><strong>Employment:</strong> {{ record?.employment || 'N/A' }}</p>
+              <p><strong>Occupation:</strong> {{ record?.occupation || 'N/A' }}</p>
+              <p><strong>Industry:</strong> {{ record?.industry || 'N/A' }}</p>
+              <p><strong>Institution:</strong> {{ record?.institution || 'N/A' }}</p>
+              <p><strong>Relationship To Head of Household:</strong> {{ record?.relation_to_Head || 'N/A' }}</p>
+              <p><strong>Home Owned or Rented:</strong> {{ record?.home_owned_rented || 'N/A' }}</p>
+              <p><strong>Farm Schedule No.:</strong> {{ record?.farm_schedule_no_ || 'N/A' }}</p>
+              <p><strong>Mortgage:</strong> {{ record?.mortgage || 'N/A' }}</p>
+              <p><strong>Father's Birthplace:</strong> {{ record?.pob_Father || 'N/A' }}</p>
+              <p><strong>Father's Language:</strong> {{ record?.mother_tongue_father || 'N/A' }}</p>
+              <p><strong>Mother's Birthplace:</strong> {{ record?.pob_mother || 'N/A' }}</p>
+              <p><strong>Mother's Language:</strong> {{ record?.mother_tongue_mother || 'N/A' }}</p>
+              <p><strong>Page #:</strong> {{ record?.page_number || 'N/A' }}</p>
+              <p><strong>Side:</strong> {{ record?.page_side || 'N/A' }}</p>
+              <p><strong>Line #:</strong> {{ record?.line_number || 'N/A' }}</p>
+            </details>
+          </details>
+        </div>
       </details>
     </div>
-    <hr/>
-    <div v-if="people">
-      <details v-for="(person,index) in people" :key="getPersonID">
-        <summary><h5>{{ searchableName(person) + '(' + person?.age || '' + ')'}}</h5></summary>
-        <p><strong>Age:</strong> {{ age(person) }}</p>
-        <p><strong>Gender:</strong> {{ person?.sex || 'N/A' }}</p>
-        <p><strong>Race:</strong> {{ person?.race || 'N/A' }}</p>
-        <p><strong>Primary Language Spoken:</strong> {{ person?.mother_tongue || 'N/A' }}</p>
-        <p><strong>Marital Status:</strong> {{ person?.marital_status || 'N/A' }}</p>
-        <p><strong>Foreign Born:</strong> {{ person?.foreign_born || 'N/A' }}</p>
-        <p><strong>Naturalized:</strong> {{ person?.naturalized_alien || 'N/A' }}</p>
-        <p><strong>Year Immigrated:</strong> {{ person?.year_immigrated || 'N/A' }}</p>
-        <p><strong>Birthplace:</strong> {{ person?.pob || 'N/A' }}</p>
-        <p><strong>Education:</strong> {{ person?.education || 'N/A' }}</p>
-        <p><strong>Attended School:</strong> {{ person?.attended_school || 'N/A' }}</p>
-        <p><strong>Can Read:</strong> {{ person?.can_read || 'N/A' }}</p>
-        <p><strong>Can Write:</strong> {{ person?.can_write || 'N/A' }}</p>
-        <p><strong>Can Speak English:</strong> {{ person?.can_speak_english || 'N/A' }}</p>
-        <p><strong>Employment:</strong> {{ person?.employment || 'N/A' }}</p>
-        <p><strong>Occupation:</strong> {{ person?.occupation || 'N/A' }}</p>
-        <p><strong>Industry:</strong> {{ person?.industry || 'N/A' }}</p>
-        <p><strong>Institution:</strong> {{ person?.institution || 'N/A' }}</p>
-        <p><strong>Relationship To Head of Household:</strong> {{ person?.relation_to_Head || 'N/A' }}</p>
-        <p><strong>Home Owned or Rented:</strong> {{ person?.home_owned_rented || 'N/A' }}</p>
-        <p><strong>Farm Schedule No.:</strong> {{ person?.farm_schedule_no_ || 'N/A' }}</p>
-        <p><strong>Mortgage:</strong> {{ person?.mortgage || 'N/A' }}</p>
-        <p><strong>Father's Birthplace:</strong> {{ person?.pob_Father || 'N/A' }}</p>
-        <p><strong>Father's Language:</strong> {{ person?.mother_tongue_father || 'N/A' }}</p>
-        <p><strong>Mother's Birthplace:</strong> {{ person?.pob_mother || 'N/A' }}</p>
-        <p><strong>Mother's Language:</strong> {{ person?.mother_tongue_mother || 'N/A' }}</p>
-        <p><strong>Page #:</strong> {{ person?.page_number || 'N/A' }}</p>
-        <p><strong>Side:</strong> {{ person?.page_side || 'N/A' }}</p>
-        <p><strong>Line #:</strong> {{ person?.line_number || 'N/A' }}</p>
+    <div v-if="census_records.length">
+      <hr/>
+      <h3>Census Records Without Associated People</h3>
+      <details v-for="(record,index) in census_records" :key="getPersonID">
+        <summary><h4>{{ searchableName(record) + '(' + (record?.age || '') + ')'}}</h4></summary>
+        <p><strong>Age:</strong> {{ age(record) }}</p>
+        <p><strong>Gender:</strong> {{ record?.sex || 'N/A' }}</p>
+        <p><strong>Race:</strong> {{ record?.race || 'N/A' }}</p>
+        <p><strong>Primary Language Spoken:</strong> {{ record?.mother_tongue || 'N/A' }}</p>
+        <p><strong>Marital Status:</strong> {{ record?.marital_status || 'N/A' }}</p>
+        <p><strong>Foreign Born:</strong> {{ record?.foreign_born || 'N/A' }}</p>
+        <p><strong>Naturalized:</strong> {{ record?.naturalized_alien || 'N/A' }}</p>
+        <p><strong>Year Immigrated:</strong> {{ record?.year_immigrated || 'N/A' }}</p>
+        <p><strong>Birthplace:</strong> {{ record?.pob || 'N/A' }}</p>
+        <p><strong>Education:</strong> {{ record?.education || 'N/A' }}</p>
+        <p><strong>Attended School:</strong> {{ record?.attended_school || 'N/A' }}</p>
+        <p><strong>Can Read:</strong> {{ record?.can_read || 'N/A' }}</p>
+        <p><strong>Can Write:</strong> {{ record?.can_write || 'N/A' }}</p>
+        <p><strong>Can Speak English:</strong> {{ record?.can_speak_english || 'N/A' }}</p>
+        <p><strong>Employment:</strong> {{ record?.employment || 'N/A' }}</p>
+        <p><strong>Occupation:</strong> {{ record?.occupation || 'N/A' }}</p>
+        <p><strong>Industry:</strong> {{ record?.industry || 'N/A' }}</p>
+        <p><strong>Institution:</strong> {{ record?.institution || 'N/A' }}</p>
+        <p><strong>Relationship To Head of Household:</strong> {{ record?.relation_to_Head || 'N/A' }}</p>
+        <p><strong>Home Owned or Rented:</strong> {{ record?.home_owned_rented || 'N/A' }}</p>
+        <p><strong>Farm Schedule No.:</strong> {{ record?.farm_schedule_no_ || 'N/A' }}</p>
+        <p><strong>Mortgage:</strong> {{ record?.mortgage || 'N/A' }}</p>
+        <p><strong>Father's Birthplace:</strong> {{ record?.pob_Father || 'N/A' }}</p>
+        <p><strong>Father's Language:</strong> {{ record?.mother_tongue_father || 'N/A' }}</p>
+        <p><strong>Mother's Birthplace:</strong> {{ record?.pob_mother || 'N/A' }}</p>
+        <p><strong>Mother's Language:</strong> {{ record?.mother_tongue_mother || 'N/A' }}</p>
+        <p><strong>Page #:</strong> {{ record?.page_number || 'N/A' }}</p>
+        <p><strong>Side:</strong> {{ record?.page_side || 'N/A' }}</p>
+        <p><strong>Line #:</strong> {{ record?.line_number || 'N/A' }}</p>
       </details>
     </div>
   </div>
@@ -167,7 +230,7 @@ const rich_description = computed(() => {
     height: 0.3125rem;
   }
 
-  h4, h5 {
+  summary h3, h4, h5 {
     display: inline;
   }
 </style>
