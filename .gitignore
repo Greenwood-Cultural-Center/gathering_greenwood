@@ -156,3 +156,5 @@ public/GCC-Kiosk-April-2025.mp4
 .env.test
 /src/components/LastSearch.vue
 future-files/
+
+.devtools-overrides/
