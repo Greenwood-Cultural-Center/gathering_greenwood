@@ -1,6 +1,6 @@
 <script setup>
-  import { ref, onBeforeMount, onMounted, watch, h, render, nextTick, inject, provide } from 'vue';
-  import { MglMap, MglNavigationControl, MglGeojsonLayer, $helpers } from "vue-mapbox3";
+  import { ref, onBeforeMount, onMounted, onUnmounted, watch, nextTick, inject } from 'vue';
+  import { MglMap, MglNavigationControl } from "vue-mapbox3";
   import Mapbox from "mapbox-gl";
   import ContrastButton from '@MapControls/ContrastButton.vue';
   import Legend from '@MapControls/Legend.vue';
@@ -73,6 +73,12 @@
   const layers = [];
   const ctrl = ref({});
 
+  const handleResize = () => {
+    if (mapboxMap.value) {
+      mapboxMap.value.resize();
+    }
+  };
+
   async function changeYear (map, newYear) {
       const match = DateOption.options.find(o => o.year === newYear);
       if (match) {
@@ -119,6 +125,12 @@
     layers.forEach(layer => {
       loadGeoJson(layer.url, layer.id);
     });
+
+    window.addEventListener('resize', handleResize);
+  });
+
+  onUnmounted(() => { // Clean up event listener
+    window.removeEventListener('resize', handleResize);
   });
 
   function onSourceUpdated(event) {
@@ -165,7 +177,6 @@
       // }
     };
   };
-  provide('map', mapboxMap.value);
 </script>
 
 <template>
@@ -300,7 +311,7 @@
 
   @media (max-width: 2500px) and (max-height: 1400px) {
     .mapboxgl-ctrl-bottom-right {
-      bottom: 8.5rem;
+      bottom: 9.7rem;
       right: 0;
     }
   }

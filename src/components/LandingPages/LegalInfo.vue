@@ -29,13 +29,12 @@ function handleReturn() {
           <!-- Legal Text -->
           <div class="legal-text">
             <p>This project was supported by Grant No.15BJA-22-GG-01763-EMME awarded by the Bureau of Justice Assistance. The Bureau of Justice Assistance is a component of the Department of Justice's Office of Justice Programs, which also includes the Bureau of Justice Statistics, the National Institute of Justice, the Office of Juvenile Justice and Delinquency Prevention, the Office for Victims of Crime, and the SMART Office. Points of view or opinions in this document are those of the author and do not necessarily represent the official position or policies of the U.S. Department of Justice.</p>
-            <p class="map-credit">Map data courtesy of the OpenHistoricalMap project, in the public domain unless otherwise noted.</p>
+            <p class="map-credit">Map data courtesy of the OpenHistoricalMap project,<br/>in the public domain unless otherwise noted.</p>
+            <!-- Return Button -->
+            <button @click="handleReturn" class="return-button">
+              Return
+            </button>
           </div>
-
-        <!-- Return Button -->
-          <button @click="handleReturn" class="return-button">
-            Return
-          </button>
         </div>
       </div>
     </div>
@@ -89,7 +88,6 @@ function handleReturn() {
   display: flex;
   gap: 17rem;
   flex-direction: row;
-  align-items: center;
 }
 
 .logos-section {
@@ -145,6 +143,7 @@ p.map-credit {
   text-align: center;
   font-weight: 700;
   align-self: center;
+  flex-grow: 0;
   width: 57rem;
   padding-right: 21.5rem;
 }
@@ -164,7 +163,8 @@ p.map-credit {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  width: 80remrem;
+  width: 80rem;
+  text-align: left;
 }
 
 .button-container {
@@ -185,7 +185,8 @@ p.map-credit {
   cursor: pointer;
   transition: transform 0.2s;
   margin: 4rem 0 0rem auto;
-  padding: 2rem 2rem 2rem 2rem;background-color: #1B3B22;
+  padding: 2rem 2rem 2rem 2rem;
+  background-color: #1B3B22;
 }
 
 .return-button:active {
@@ -219,7 +220,6 @@ p.map-credit {
     flex-direction: column;
     font-size: 2.2rem;
     font-weight: 700;
-    flex: 1;
     line-height: 1.6;
     width: 82rem;
   }
@@ -268,7 +268,6 @@ p.map-credit {
     flex-direction: column;
     font-size: 2.2rem;
     font-weight: 700;
-    flex: 1;
     line-height: 1.6;
     width: 82rem;
   }
@@ -288,6 +287,58 @@ p.map-credit {
     height: 8.625rem;
     margin: 0 0 0 auto;
     padding: 2rem 2rem;
+  }
+}
+
+@media (max-width: 1920px) and (max-height: 1080px) {
+  .content {
+      gap: 10rem;
+      margin-top: 10rem;
+  }
+
+  .main-title {
+      font-size: 8rem;
+      font-weight: 700;
+      width: 43.75rem;
+      margin: 0rem 0 0;
+  }
+
+  .text-content {
+      text-align: left;
+  }
+
+  .logos-section {
+      margin-left: 10rem;
+      gap: 6rem;
+      padding-top: 6rem;
+  }
+
+  .legal-text p {
+      display: flex;
+      flex-direction: column;
+      font-size: 1.9rem;
+      font-weight: 500;
+      flex-grow: 0;
+      line-height: 1.1;
+      width: 69rem;
+      margin-top: 3rem;
+  }
+
+  .legal-text {
+      width: 73rem;
+  }
+
+  p.map-credit {
+      width: 47.7rem;
+      padding-right: 5rem;
+      padding-bottom: 0rem;
+  }
+
+  .return-button {
+      width: 19.75rem;
+      height: 8.625rem;
+      margin: 4.5rem 4.5rem 0 auto;
+      padding: 2rem;
   }
 }
 

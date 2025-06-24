@@ -58,7 +58,7 @@
 
 <template>
   <HtmlDialog ref="dialogRef" class="help-video-dialog" @open="onOpen" @close="onClose">
-    <video nonce="ajJERjdDc1g5MlFadlZfdGdFIWI4dVchQ3o4Q3ZRYlQ=" class="video" controls style="width: 98%; height: 98%;">
+    <video nonce="ajJERjdDc1g5MlFadlZfdGdFIWI4dVchQ3o4Q3ZRYlQ=" class="video" controls>
       <source nonce="ajJERjdDc1g5MlFadlZfdGdFIWI4dVchQ3o4Q3ZRYlQ=" :src="props.url" type="video/mp4">
       Your browser does not support the video tag.
     </video>
@@ -73,6 +73,11 @@
     margin: 0;
     max-width: 100vw;
     max-height: 100vh;
+  }
+
+  .video {
+    width: 100%;
+    height: 100%;
   }
 
   .help-video-dialog:deep(.close-button) {

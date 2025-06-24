@@ -1,5 +1,5 @@
 <script setup>
-  import { ref, computed } from 'vue';
+  import { ref, computed, onMounted } from 'vue';
   import { HtmlDialog } from 'vue-html-dialog';
   import ListItem from '@Utility/ListItem.vue';
   import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
@@ -13,6 +13,8 @@
   })
 
   const dialogRef = ref(HtmlDialog);
+
+  const buildingSources = ['search-source', 'poi-source']
 
   const props = defineProps({
     feature: {
@@ -70,7 +72,10 @@
     if (!props.feature || !props.feature.properties || !props.feature.properties.rich_description) {
       return 'N/A';
     }
-    return props.feature.properties.rich_description.body || 'N/A';
+    if (!props.feature.properties.rich_description.body) {
+      return 'N/A';
+    }
+    return props.feature.properties.rich_description.body.replace(/<i data-poi(?:=\\\"\\\")?><\/i>/g, "") || 'N/A';
   });
 
   const categories = computed(() => {
@@ -83,6 +88,11 @@
       { title: 'stories', list: props.feature.properties.narratives, icon: 'book' }
     ];
   });
+
+  onMounted(() => {
+    console.log(props.feature);
+  });
+
 </script>
 
 <!-- TODO: Make this more generic -->
@@ -94,7 +104,7 @@
         <h5 class="modal-title">Building Details</h5>
       </div>
       <div :class="['modal-body', ScrollbarCss.scrollbar]">
-        <div v-if="feature.properties && feature.source === 'search-source'">
+        <div v-if="feature.properties && buildingSources.includes(feature.source)">
           <p><strong>Name:</strong> {{ feature.properties.title || 'N/A' }}</p>
           <p><strong>Address:</strong> {{ feature.properties.addresses[0].searchable_text || 'N/A' }}</p>
           <!-- <p><strong>Year Built:</strong> {{ feature.properties.year_built || 'N/A' }}</p> -->
@@ -329,6 +339,14 @@
   @media (max-width: 2500px) and (max-height: 1300px) {
     .feature-dialog:deep(.dialog) {
       transform: translateY(-4rem);
+    }
+  }
+
+  @media (max-width: 1920px) and (max-height: 1080px) {
+    .feature-dialog:deep(.dialog) {
+      transform: translateY(-5rem);
+      max-height: 50rem;
+      height: 50rem;
     }
   }
 

@@ -3,6 +3,7 @@ import { defineConfig } from 'vite';
 import vueDevTools from 'vite-plugin-vue-devtools';
 import vue from '@vitejs/plugin-vue';
 import AutoZip from 'vite-plugin-auto-zip';
+import devtoolsJson from 'vite-plugin-devtools-json';
 //import { VitePWA } from 'vite-plugin-pwa';
 
 const __APP_VERSION__ = process.env.npm_package_version;
@@ -18,6 +19,7 @@ export default defineConfig({
     vueDevTools({
       launchEditor: 'code',
     }),
+    devtoolsJson({ uuid: "153818d3-0cf3-4c87-ac98-a49528d8db7a" }),
     AutoZip(zipName,'dist')
     // VitePWA({
     //   // generates 'manifest.webmanifest' file on build

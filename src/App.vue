@@ -12,8 +12,6 @@
 
   const { fontAwesomeCharacterCode } = useFaMapService();
   const emptyGeoJson = {type:'geojson',data:{id: 'search-source', type: 'FeatureCollection', features: []}};
-
-  const map = ref(null);
   const mbMap = ref({});
 
   // State
@@ -162,8 +160,8 @@
       yearSearchBarRef.value.clearSearch();
     }
 
-    if (map.value?.getLayer('search-layer')) {
-      map.value.setLayoutProperty('search-layer', 'visibility', 'none')
+    if (mbMap.value?.getLayer('search-layer')) {
+      mbMap.value.setLayoutProperty('search-layer', 'visibility', 'none')
     }
   }
 
@@ -242,6 +240,9 @@
   const handleMapCreated = async (mapbMap) => {
     mbMap.value = mapbMap;
     getPOIs();
+    // utils.delayedAction(
+    //       mbMap.value.resize(),
+    //       300);
     // census1920GeoJson.value = await fetchGeoJson(census1920Url)
     //   .then(response =>
     //     formatRawGeoJson(response.json(), '1920-census-source'));
@@ -255,7 +256,7 @@
 
   function formatFeature(feature) {
     return {
-      id: feature.id,
+      id: feature.id || feature.properties.id || feature.properties.location_id,
       source: feature.source,
       layer: feature.layer,
       type: feature.type,
@@ -309,7 +310,7 @@
       document.getElementById('search-input').focus();
     }
     if (mglMapRef.value) {
-      map.value = mglMapRef.value.map;
+      mbMap.value = mglMapRef.value.map;
     }
   });
 
@@ -355,10 +356,10 @@
     <LandingPage
       ref="landingPageRef"
       v-if="showLanding"
+      class="landing-overlay-absolute"
       @close="closeLandingPage">
     </LandingPage>
   </transition>
-  <template v-if="!showLanding">
     <!-- FAB Component to create menu with dynamic buttons-->
     <FABMain nonce="ajJERjdDc1g5MlFadlZfdGdFIWI4dVchQ3o4Q3ZRYlQ=" @click="openLandingPage">
     </FABMain>
@@ -368,7 +369,7 @@
 
     <!-- Map Component with layer containing dynamic GeoJSON search results-->
     <!-- <MglMap nonce="ajJERjdDc1g5MlFadlZfdGdFIWI4dVchQ3o4Q3ZRYlQ=" :class="['map-area', { 'map-area-shrunk' : showResults }]" :year="appYear" ref="mglMapRef" @created="handleMapCreated" :dynamicGeoJsonIds="{'dynamicLayers': dynamicLayers, 'dynamicSources': dynamicSources}"> -->
-    <MglMap nonce="ajJERjdDc1g5MlFadlZfdGdFIWI4dVchQ3o4Q3ZRYlQ=" class='map-area' :year="appYear" ref="mglMapRef" @created="handleMapCreated" :dynamicGeoJsonIds="{'dynamicLayers': dynamicLayers, 'dynamicSources': dynamicSources}" :paintOptions="markerPaintOptions">
+    <MglMap :year="appYear" ref="mglMapRef" @created="handleMapCreated" :dynamicGeoJsonIds="{'dynamicLayers': dynamicLayers, 'dynamicSources': dynamicSources}" :paintOptions="markerPaintOptions">
       <DynamicGeoJsonLayer
         v-if="geoJson && geoJson.data && geoJson.data.features && geoJson.data.features.length > 0"
         :geojson="geoJson"
@@ -419,22 +420,22 @@
         @update:geojson="handleGeojson">
       </ResultsPane>
     <!-- </transition> -->
-  </template>
 </template>
 
-<style scoped>
-  .map-area {
-    /* width: 100vw; */
-    width: var(--map-width);
-    height: var(--map-height);
-    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  /* .map-area-shrunk {
-    width: var(--map-width);
-  } */
-</style>
-
 <style>
+  .landing-overlay-absolute {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 10000;
+  }
+
+  .mgl-map-wrapper {
+    height: var(--map-height);
+    width: var(--map-width);
+  }
   .slide-enter-active, .slide-leave-active {
     transition: all 0.7s cubic-bezier(0.215, 0.610, 0.355, 1.000);
   }
@@ -451,10 +452,10 @@
     transform: translateX(100%);
   }
 
-  .mgl-map-wrapper {
+  /* .mgl-map-wrapper {
     height: var(--map-height);
     width: var(--map-width);
-  }
+  } */
 
   .dialog {
     border: none;
@@ -473,9 +474,5 @@
     cursor: pointer;
     padding: 0;
     color: var(--gcc-lt-green);
-  }
-
-  .fabInnerButton[title="Contrast"] {
-    background-image: linear-gradient(to right, var(--gcc-dk-green) 50%, var(--gcc-white) 50%);
   }
 </style>
