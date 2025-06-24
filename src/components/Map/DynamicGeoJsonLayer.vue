@@ -1,5 +1,5 @@
 <script setup>
-  import { computed, onMounted, onUnmounted, ref } from 'vue';
+  import { computed, onMounted, onUnmounted, ref, inject } from 'vue';
   import { MglGeojsonLayer, MglPopup } from 'vue-mapbox3';
   import FeatureModal from '@Modals/FeatureModal.vue';
   import utils from '@utils/utils.js';
@@ -61,21 +61,52 @@
     }
   })
 
+  const mapboxgl = inject('mapboxgl');
+
+  defineExpose({
+    fitMapToMarkers,
+  });
+
+  function fitMapToMarkers() {
+    const bounds = new mapboxgl.LngLatBounds();
+
+    // Get the features from the source
+    const features = props.map.querySourceFeatures(props.geojson.data.id, {
+      sourceLayer: props.layerId // If using vector tiles, specify the source layer
+    });
+
+    // Extend the bounds for each feature
+    for (const feature of features) {
+      if (feature.geometry.type === 'Point') {
+        bounds.extend(feature.geometry.coordinates);
+      }
+    }
+
+    // Fit the map to the calculated bounds
+    props.map.fitBounds(bounds);
+  }
+
   const clickedfeature = ref({id:0, properties: {}, geometry: { type: 'Point', coordinates: [0, 0] } });
 
   const dialogRef = ref(null);
 
   // Conditionally apply filter based on string year
   const layerDefinition = computed(() => {
-    const filter = !props.filterYear || !utils.isYear(props.filterYear)
-    ? !props.searchTerm
-      ? ['all'] // equivalent to "match all"
-      : ['all', ['in', props.searchTerm.toLowerCase(), ['get', 'searchable_text']]]
-    : !props.searchTerm
-      ? ['all', ['==', ['get', 'year'], props.filterYear]]
-      : ['all', ['==', ['get', 'year'], props.filterYear],
-        ['in', props.searchTerm.toLowerCase(),
-        ['get', 'searchable_text']]];
+    const includeSearch = props.layerId.includes("search");
+    const hasYear = props.filterYear && utils.isYear(props.filterYear);
+    const hasSearchTerm = !!props.searchTerm && includeSearch;
+
+    const filterParts = ['all'];
+
+    if (hasYear) {
+      filterParts.push(['==', ['get', 'year'], props.filterYear]);
+    }
+
+    if (hasSearchTerm) {
+      filterParts.push(['in', props.searchTerm.toLowerCase(), ['get', 'searchable_text']]);
+    }
+
+    const filter = filterParts;
 
     return {
       id: props.layerId,
@@ -133,7 +164,7 @@ const popupProps = ref(null);
       curve: 1.5,
       easing: (t) => t
     });
-
+    console.log(clickedfeature)
     var open = dialogRef.value?.openDialog;
      // new MglPopup({
     //   closeButton: true,

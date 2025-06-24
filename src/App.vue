@@ -117,6 +117,7 @@
   const resultsPaneRef = useTemplateRef('resultsPaneRef');
   const yearSearchBarRef = useTemplateRef('yearSearchBarRef');
   const census1920LayerRef = useTemplateRef('census1920LayerRef');
+  const poiLayerRef = useTemplateRef('POILayerRef');
   const videoModalRef = useTemplateRef('videoModalRef');
   const census1920GeoJson = ref(emptyGeoJson);
   const backendHost = import.meta.env.VITE_BACKEND_HOST;
@@ -239,10 +240,8 @@
 
   const handleMapCreated = async (mapbMap) => {
     mbMap.value = mapbMap;
-    getPOIs();
-    // utils.delayedAction(
-    //       mbMap.value.resize(),
-    //       300);
+    await getPOIs();
+    //poiLayerRef.value.fitMapToMarkers();
     // census1920GeoJson.value = await fetchGeoJson(census1920Url)
     //   .then(response =>
     //     formatRawGeoJson(response.json(), '1920-census-source'));
@@ -337,6 +336,11 @@
       let features = utils.dedupeByCustomKey(data.features, feature => feature.properties.location_id);
       poiGeoJSONTemplate.data.features = features;
       poiGeoJSON.value = poiGeoJSONTemplate;
+    })
+    .then(() => {
+      utils.delayedAction(
+          poiLayerRef.value.fitMapToMarkers,
+          1000);
     })
   };
 

@@ -3,7 +3,7 @@ const props = defineProps({ item: {type: Object, required: true} });
 
 
 const photo = props.item;
-const thumbnail = photo?.properties?.[0]?.thumbnail;
+const thumbnail = photo?.data_uri || photo?.URL;
 </script>
 
 <template>
