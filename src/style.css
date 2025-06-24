@@ -145,8 +145,7 @@
 
 @font-face {
     font-family: 'Figtree';
-    src: url('/fonts/Figtree-Black.woff2') format('woff2'),
-        url('/fonts/Figtree-Black.woff') format('woff');
+    src: url('/fonts/Figtree-Black.woff2') format('woff2');
     font-weight: 900;
     font-style: normal;
     font-display: swap;
@@ -154,8 +153,7 @@
 
 @font-face {
     font-family: 'Figtree';
-    src: url('/fonts/Figtree-BoldItalic.woff2') format('woff2'),
-        url('/fonts/Figtree-BoldItalic.woff') format('woff');
+    src: url('/fonts/Figtree-BoldItalic.woff2') format('woff2');
     font-weight: bold;
     font-style: italic;
     font-display: swap;
@@ -163,8 +161,7 @@
 
 @font-face {
     font-family: 'Figtree';
-    src: url('/fonts/Figtree-Bold.woff2') format('woff2'),
-        url('/fonts/Figtree-Bold.woff') format('woff');
+    src: url('/fonts/Figtree-Bold.woff2') format('woff2');
     font-weight: bold;
     font-style: normal;
     font-display: swap;
@@ -172,8 +169,7 @@
 
 @font-face {
     font-family: 'Figtree';
-    src: url('/fonts/Figtree-BlackItalic.woff2') format('woff2'),
-        url('/fonts/Figtree-BlackItalic.woff') format('woff');
+    src: url('/fonts/Figtree-BlackItalic.woff2') format('woff2');
     font-weight: 900;
     font-style: italic;
     font-display: swap;
@@ -181,8 +177,7 @@
 
 @font-face {
     font-family: 'Figtree';
-    src: url('/fonts/Figtree-LightItalic.woff2') format('woff2'),
-        url('/fonts/Figtree-LightItalic.woff') format('woff');
+    src: url('/fonts/Figtree-LightItalic.woff2') format('woff2');
     font-weight: 300;
     font-style: italic;
     font-display: swap;
@@ -190,8 +185,7 @@
 
 @font-face {
     font-family: 'Figtree';
-    src: url('/fonts/Figtree-Regular.woff2') format('woff2'),
-        url('/fonts/Figtree-Regular.woff') format('woff');
+    src: url('/fonts/Figtree-Regular.woff2') format('woff2');
     font-weight: normal;
     font-style: normal;
     font-display: swap;
@@ -199,8 +193,7 @@
 
 @font-face {
     font-family: 'Figtree';
-    src: url('/fonts/Figtree-ExtraBold.woff2') format('woff2'),
-        url('/fonts/Figtree-ExtraBold.woff') format('woff');
+    src: url('/fonts/Figtree-ExtraBold.woff2') format('woff2');
     font-weight: bold;
     font-style: normal;
     font-display: swap;
@@ -208,8 +201,7 @@
 
 @font-face {
     font-family: 'Figtree';
-    src: url('/fonts/Figtree-SemiBold.woff2') format('woff2'),
-        url('/fonts/Figtree-SemiBold.woff') format('woff');
+    src: url('/fonts/Figtree-SemiBold.woff2') format('woff2');
     font-weight: 600;
     font-style: normal;
     font-display: swap;
@@ -217,8 +209,7 @@
 
 @font-face {
     font-family: 'Figtree';
-    src: url('/fonts/Figtree-Light.woff2') format('woff2'),
-        url('/fonts/Figtree-Light.woff') format('woff');
+    src: url('/fonts/Figtree-Light.woff2') format('woff2');
     font-weight: 300;
     font-style: normal;
     font-display: swap;
@@ -226,8 +217,7 @@
 
 @font-face {
     font-family: 'Figtree';
-    src: url('/fonts/Figtree-SemiBoldItalic.woff2') format('woff2'),
-        url('/fonts/Figtree-SemiBoldItalic.woff') format('woff');
+    src: url('/fonts/Figtree-SemiBoldItalic.woff2') format('woff2');
     font-weight: 600;
     font-style: italic;
     font-display: swap;
@@ -235,8 +225,7 @@
 
 @font-face {
     font-family: 'Figtree';
-    src: url('/fonts/Figtree-Italic.woff2') format('woff2'),
-        url('/fonts/Figtree-Italic.woff') format('woff');
+    src: url('/fonts/Figtree-Italic.woff2') format('woff2');
     font-weight: normal;
     font-style: italic;
     font-display: swap;
@@ -244,8 +233,7 @@
 
 @font-face {
     font-family: 'Figtree';
-    src: url('/fonts/Figtree-Medium.woff2') format('woff2'),
-        url('/fonts/Figtree-Medium.woff') format('woff');
+    src: url('/fonts/Figtree-Medium.woff2') format('woff2');
     font-weight: 500;
     font-style: normal;
     font-display: swap;
@@ -253,8 +241,7 @@
 
 @font-face {
     font-family: 'Figtree';
-    src: url('/fonts/Figtree-ExtraBoldItalic.woff2') format('woff2'),
-        url('/fonts/Figtree-ExtraBoldItalic.woff') format('woff');
+    src: url('/fonts/Figtree-ExtraBoldItalic.woff2') format('woff2');
     font-weight: bold;
     font-style: italic;
     font-display: swap;
@@ -262,8 +249,7 @@
 
 @font-face {
     font-family: 'Figtree';
-    src: url('/fonts/Figtree-MediumItalic.woff2') format('woff2'),
-        url('/fonts/Figtree-MediumItalic.woff') format('woff');
+    src: url('/fonts/Figtree-MediumItalic.woff2') format('woff2');
     font-weight: 500;
     font-style: italic;
     font-display: swap;
