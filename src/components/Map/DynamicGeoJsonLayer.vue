@@ -83,7 +83,9 @@
     }
 
     // Fit the map to the calculated bounds
-    props.map.fitBounds(bounds);
+    props.map.fitBounds(bounds, {
+      padding: 20
+    });
   }
 
   const clickedfeature = ref({id:0, properties: {}, geometry: { type: 'Point', coordinates: [0, 0] } });

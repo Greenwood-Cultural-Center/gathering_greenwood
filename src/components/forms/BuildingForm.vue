@@ -7,9 +7,9 @@ const props = defineProps({ item: {type: Object, required: true} });
 const formatLocation = (location) => {return location && location.every((coord) => coord) ? location.join(",") : 'Unknown'};
 
 
-const people = props.item.properties?.people.sort((a,b) => {
-    const nameA = a.sortable_name.toUpperCase();
-    const nameB = b.sortable_name.toUpperCase();
+const people = props.item.properties?.people?.sort((a,b) => {
+    const nameA = a?.sortable_name?.toUpperCase();
+    const nameB = b?.sortable_name?.toUpperCase();
     if (nameA < nameB) {
         return -1;
     }
@@ -20,10 +20,10 @@ const people = props.item.properties?.people.sort((a,b) => {
 }) || [];
 
 const census_records = () => {
-  let people_census_ids = people.flatMap(person => person.properties.census_records.flatMap(record => record.id));
-  return props.item.properties?.census_records.filter(record => !people_census_ids.includes(record.id)).sort((a,b) => {
-    const nameA = a.sortable_name.toUpperCase();
-    const nameB = b.sortable_name.toUpperCase();
+  let people_census_ids = people.flatMap(person => person.properties?.census_records?.flatMap(record => record.id));
+  return props.item.properties?.census_records?.filter(record => !people_census_ids?.includes(record.id))?.sort((a,b) => {
+    const nameA = a?.sortable_name?.toUpperCase();
+    const nameB = b?.sortable_name?.toUpperCase();
     if (nameA < nameB) {
         return -1;
     }
@@ -73,7 +73,7 @@ const searchableName = (person) => {
   }
   else if (person)
   {
-    return `${ (person?.first_name || persson?.First_Name) || '' } ${ (person?.middle_name || person?.Middle_Name) || '' } ${ (person?.last_name || person?.Last_Name) || '' } `;
+    return `${ (person?.first_name || person?.First_Name) || '' } ${ (person?.middle_name || person?.Middle_Name) || '' } ${ (person?.last_name || person?.Last_Name) || '' } `;
   }
   else {
     return 'Unknown';
@@ -111,10 +111,10 @@ function age(person) {
 };
 
 const rich_description = computed(() => {
-  if (!props.item || !props.item.description) {
+  if (!props.item || !props.item?.description) {
     return 'N/A';
   }
-  return props.item.description.body.replace(regex, "") || 'N/A';
+  return props.item?.description?.body?.replace(regex, "") || 'N/A';
 });
 </script>
 
@@ -137,10 +137,7 @@ const rich_description = computed(() => {
         <p><strong>Place of Birth:</strong> {{ person?.place_of_birth }}</p>
         <p><strong>Birth Year:</strong> {{ person?.birth_year }}</p>
         <p><strong>Census Year:</strong> {{ person?.year }}</p>
-        <p><strong>Description:</strong> {{ person?.description }}</p>
-        <p><strong>Name:</strong> {{ person?.name }}</p>
         <p><strong>Notes:</strong> {{ person?.notes }}</p>
-        <p><strong>Description:</strong> {{ person?.description }}</p>
         <div v-if="person.census_records && person.census_records.length">
         <hr/>
           <details>
