@@ -214,6 +214,29 @@ export function objectMapToArray(obj, fn) {
   return array;
 }
 
+export function convertToE164(phoneNumber, countryCode) {
+  // 1. Remove non-numeric characters
+  let cleanedNumber = phoneNumber.replace(/\D/g, '');
+
+  // 2. Handle leading zeros for local numbers (if applicable)
+  // This step depends on the specific country's numbering plan.
+  // For example, in some countries, leading zeros are removed before adding the country code.
+  // This example assumes a simple case where leading zeros in the subscriber number are not present
+  // or are already handled by the input.
+
+  // 3. Prepend the country code if it's not already present
+  if (!cleanedNumber.startsWith(countryCode)) {
+    cleanedNumber = countryCode + cleanedNumber;
+  }
+
+  // 4. Prepend the '+' sign if it's not already present
+  if (!cleanedNumber.startsWith('+')) {
+    cleanedNumber = '+' + cleanedNumber;
+  }
+
+  return cleanedNumber;
+}
+
 const utils = {
   findObjectByKey,
   isYear,
@@ -233,7 +256,8 @@ const utils = {
   isValidNamedColor,
   extractValuesFromRGB,
   objectMap,
-  objectMapToArray
+  objectMapToArray,
+  convertToE164
 };
 
 export default utils;
