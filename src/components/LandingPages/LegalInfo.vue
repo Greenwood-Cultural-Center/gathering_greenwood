@@ -290,7 +290,7 @@ p.map-credit {
   }
 }
 
-@media (max-width: 1920px) and (max-height: 1080px) {
+@media (max-width: 1930px) and (max-height: 109s0px) {
   .content {
       gap: 10rem;
       margin-top: 10rem;

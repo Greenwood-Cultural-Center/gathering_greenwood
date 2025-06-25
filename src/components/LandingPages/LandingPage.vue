@@ -248,7 +248,7 @@ button.project-info {
   }
 }
 
-@media (max-width: 1920px) and (max-height: 1080px) {
+@media (max-width(max-width: : 1930px) and (max-height: 1090px) px) and (max-height: 1080px) {
   .welcome-text {
     margin-block-start: 10rem;
   }

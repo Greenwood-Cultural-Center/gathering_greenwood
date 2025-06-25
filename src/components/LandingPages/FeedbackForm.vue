@@ -387,7 +387,7 @@ input.form-input:disabled {
     }
   }
 
-  @media (max-width: 1920px) and (max-height: 1080px) {
+  @media (max-width: 1930px) and (max-height: 1090px) {
     .script-text {
         left: 11rem;
     }
