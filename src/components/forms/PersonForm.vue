@@ -103,10 +103,7 @@ function age(person) {
     <p><strong>Place of Birth:</strong> {{ item.place_of_birth }}</p>
     <p><strong>Birth Year:</strong> {{ item.birth_year }}</p>
     <p><strong>Census Year:</strong> {{ item.year }}</p>
-    <p><strong>Description:</strong> {{ item.description }}</p>
-    <p><strong>Name:</strong> {{ item.name }}</p>
     <p><strong>Notes:</strong> {{ item.notes }}</p>
-    <p><strong>Description:</strong> {{ item.description }}</p>
     <div v-if="census_records && census_records.length">
       <hr/>
       <details>
