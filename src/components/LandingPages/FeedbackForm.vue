@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useToast } from "vue-toastification";
+import utils from '@utils/utils.js'
 
 const emit = defineEmits(['close']);
 const toast = useToast();
@@ -35,7 +36,7 @@ async function submitForm() {
     const params = new URLSearchParams();
     params.append('firstName', firstName.value);
     params.append('lastName', lastName.value);
-    params.append('cellNumber', cellNumber.value);
+    params.append('cellNumber', utils.convertToE164(cellNumber.value, 1));
     params.append('timestamp', new Date().toISOString());
 
 
@@ -100,6 +101,7 @@ function handleReturn() {
               type="text"
               required
               class="form-input"
+              :disabled="isSubmitting"
             />
           </div>
 
@@ -111,6 +113,7 @@ function handleReturn() {
               type="text"
               required
               class="form-input"
+              :disabled="isSubmitting"
             />
           </div>
 
@@ -123,6 +126,7 @@ function handleReturn() {
               required
               class="form-input phone-input"
               placeholder="(555) 123-4567"
+              :disabled="isSubmitting"
             />
           </div>
 
@@ -136,15 +140,15 @@ function handleReturn() {
           <!-- Buttons -->
           <div class="button-container">
             <div class="action-button-container">
-              <button type="button" @click="clearForm" class="action-button clear-button">
+              <button type="button" @click="clearForm" class="action-button clear-button" :disabled="isSubmitting">
                 Clear
               </button>
-              <button type="submit" class="action-button submit-button">
+              <button type="submit" class="action-button submit-button" :disabled="isSubmitting">
                 Submit
               </button>
             </div>
             <div class="return-button-container">
-              <button type="button" @click="handleReturn" class="action-button return-button">
+              <button type="button" @click="handleReturn" class="action-button return-button" :disabled="isSubmitting">
                 Return
               </button>
             </div>
@@ -322,6 +326,28 @@ function handleReturn() {
   cursor: pointer;
   transition: transform 0.2s, background-color 0.2s;
   min-width: 19rem;
+}
+
+button.action-button.clear-button:disabled,
+button.action-button.return-button:disabled,
+button.action-button.submit-button:disabled {
+  background-color: #1b3b224d;
+  color: #1010104d;
+  border-color: #7676764d;
+  transition: none;
+  cursor: not-allowed;
+}
+
+button.action-button.clear-button:disabled:hover,
+button.action-button.return-button:disabled:hover,
+button.action-button.submit-button:disabled:hover {
+  transform: none;
+}
+
+input.form-input:disabled {
+  background-color: #c6c6c6;
+  border-color: #1b3b224d;
+  cursor: not-allowed;
 }
 
 .return-button {
