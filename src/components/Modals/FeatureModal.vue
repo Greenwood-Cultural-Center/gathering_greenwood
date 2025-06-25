@@ -65,10 +65,27 @@
       if (person.Age < 0 && person.age_months > 0) {
         return `${ person.age_months } months`;
       }
+      if ((!person.age) && person.birth_year) {
+        return props.feature.properties.year - person.birth_year;
+      }
       return `N/A`;
     }};
     return '';
   };
+
+  function sort(arr) {
+    return arr.sort((a,b) => {
+      const nameA = a?.sortable_name?.toUpperCase();
+      const nameB = b?.sortable_name?.toUpperCase();
+      if (nameA < nameB) {
+          return -1;
+      }
+      if (nameA > nameB) {
+          return 1;
+      }
+      return 0;
+    })
+  }
 
   const rich_description = computed(() => {
     if (!props.feature || !props.feature.properties || !props.feature.properties.rich_description) {
@@ -117,13 +134,13 @@
           <p><strong>Name:</strong> {{ feature.properties.title.replaceAll("  "," ") || 'N/A' }}</p>
           <p><strong>Address:</strong> {{ feature.properties.addresses[0].searchable_text.replaceAll("  "," ") || 'N/A' }}</p>
           <!-- <p><strong>Year Built:</strong> {{ feature.properties.year_built || 'N/A' }}</p> -->
-          <p><strong>Description:</strong> {{ feature.properties.description || 'N/A' }}</p>
+          <p><strong>Description:</strong> {{ description || 'N/A' }}</p>
           <p><strong>Full Description:</strong> <span class="rich-description" v-html="rich_description"></span></p>
           <template v-for="category in categories">
             <h3 class="category-title">{{ utils.titleCase(category.title) }}</h3>
             <ul class="fa-ul" role="group">
               <template v-if="category.title === 'people'">
-                <ListItem v-for="item in category.list" :key="item.id" :icon="category.icon">
+                <ListItem v-for="item in sort(category.list)" :key="item.id" :icon="category.icon">
                     {{ item.searchable_name }}: {{ item.age }}
                 </ListItem>
               </template>
