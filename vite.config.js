@@ -20,7 +20,16 @@ export default defineConfig({
     vueDevTools({
       launchEditor: 'code',
     }),
-    visualizer(),
+    visualizer({
+      open: true, // Automatically opens the visualizer in your browser
+      filename: 'stats.html', // Output filename
+      template: 'network', // Use treemap template
+    }),
+     visualizer({
+      open: false,
+      filename: 'stats_sunburst.html',
+      template: 'sunburst',
+    }),
     devtoolsJson({ uuid: "153818d3-0cf3-4c87-ac98-a49528d8db7a" }),
     AutoZip(zipName,'dist')
     // VitePWA({

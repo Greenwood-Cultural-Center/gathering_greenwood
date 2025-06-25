@@ -1,7 +1,6 @@
 <script setup>
   import { ref, onBeforeMount, onMounted, onUnmounted, watch, nextTick, inject } from 'vue';
   import { MglMap, MglNavigationControl } from "vue-mapbox3";
-  import Mapbox from "mapbox-gl";
   import ContrastButton from '@MapControls/ContrastButton.vue';
   import Legend from '@MapControls/Legend.vue';
   import { filterByDate } from '@openhistoricalmap/maplibre-gl-dates';

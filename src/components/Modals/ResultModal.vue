@@ -159,7 +159,7 @@
     }
   }
 
-  @media (max-width: 1920px) and (max-height: 1080px) {
+  @media (max-width: 1930px) and (max-height: 1090px) {
     .result-modal:deep(.dialog) {
       transform: translateY(-5rem);
       height: 50rem;
