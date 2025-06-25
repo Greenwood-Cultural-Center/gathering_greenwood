@@ -290,7 +290,7 @@ p.map-credit {
   }
 }
 
-@media (max-width: 1930px) and (max-height: 109s0px) {
+@media screen and (max-width: 1930px) and (max-height: 1090px) {
   .content {
       gap: 10rem;
       margin-top: 10rem;
@@ -341,7 +341,7 @@ p.map-credit {
       padding: 2rem;
   }
 }
-
+/* 
 @media (max-width: 1600px) and (max-height:900px) {
   .content {
     padding: 3rem 3rem 3rem 0rem;
@@ -413,5 +413,5 @@ p.map-credit {
   .return-button {
     margin: 6rem 0 0 auto;
   }
-}
+} */
 </style>

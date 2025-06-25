@@ -68,7 +68,7 @@
     padding-bottom: 0.25rem;
   }
 
-  @media screen and (max-width: 1930px) and (max-width: 1090) {
+  @media screen and (max-width: 1930px) and (max-height: 1090px) {
     .category-title {
       font-size: 1.7rem;
       margin-bottom: 0.1rem;
@@ -78,7 +78,7 @@
       height: 72%;
     }
   }
-
+/* 
   @media screen and (max-height: 700px) {
     .category-title {
       font-size: 1.7rem;
@@ -88,5 +88,5 @@
     .results-list {
       height: 68%;
     }
-  }
+  } */
 </style>

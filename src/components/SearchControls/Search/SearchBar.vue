@@ -129,7 +129,7 @@
       cursor: pointer;
     }
 
-    @media screen and (max-width: 1600px) {
+    @media screen and (max-width: 1930px) and (max-height: 1090px) {
       input {
         width: 20rem;
       }

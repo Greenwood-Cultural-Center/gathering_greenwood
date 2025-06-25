@@ -37,12 +37,12 @@ const census_records = () => {
 const regex = /(?:<pre>)?(?:&lt;|<)i data-poi(?:=?(?:&quot;&quot;|""|\\\\"\\\\")?)?(?:&gt;|>)(?:&lt;\/|<\/)i(?:&gt;|>)(?:<\/pre>)?/gi;
 
 function getreadablePersonId(notes) {
-  const match = notes.match(/ID: P-(\d+)/);
+  const match = notes?.match(/ID: P-(\d+)/);
   return match ? match[1] : null;
 }
 
 function getPersonID(notes) {
-  const match = notes.match(/ID: P-(\d+)/);
+  const match = notes?.match(/ID: P-(\d+)/);
   return match ? `P-${match[1]}` : null;
 }
 

@@ -19,7 +19,7 @@
   const geoJson = ref(emptyGeoJson);
   const searchTerm = ref('');
   const landingPageRef = useTemplateRef('landingPageRef');
-  // const showResults = ref(false);
+  const showResults = ref(false);
 
   const showLanding = ref(true);
 
@@ -151,9 +151,9 @@
     "1920-census-source"
   ];
 
-  function clearResults() {
+  async function clearResults() {
     searchTerm.value = '';
-    // showResults.value = false;
+    showResults.value = false;
     if (resultsPaneRef && resultsPaneRef.value) {
       resultsPaneRef.value.resetState();
     }
@@ -162,8 +162,15 @@
     }
 
     if (mbMap.value?.getLayer('search-layer')) {
-      mbMap.value.setLayoutProperty('search-layer', 'visibility', 'none')
+      mbMap.value.setLayoutProperty('search-layer', 'visibility', 'none');
     }
+    await nextTick(async() => {
+      setTimeout(() => {
+        if (mglMapRef.value && mbMap.value) {
+          mbMap.value.resize();
+        }
+      }, 300);
+    });
   }
 
   function resetMap() {
@@ -200,7 +207,7 @@
   }
 
   async function handleSearch(searchValue) {
-    // showResults.value = true;
+    showResults.value = true;
     await nextTick(async() => {
       setTimeout(() => {
         if (mglMapRef.value && mbMap.value) {
@@ -372,8 +379,8 @@
     <YearSearchBar ref="yearSearchBarRef" @clear="clearResults" :onSearch="handleSearch" :onYearChange="updateYear" :years="years"></YearSearchBar>
 
     <!-- Map Component with layer containing dynamic GeoJSON search results-->
-    <!-- <MglMap nonce="ajJERjdDc1g5MlFadlZfdGdFIWI4dVchQ3o4Q3ZRYlQ=" :class="['map-area', { 'map-area-shrunk' : showResults }]" :year="appYear" ref="mglMapRef" @created="handleMapCreated" :dynamicGeoJsonIds="{'dynamicLayers': dynamicLayers, 'dynamicSources': dynamicSources}"> -->
-    <MglMap :year="appYear" ref="mglMapRef" @created="handleMapCreated" :dynamicGeoJsonIds="{'dynamicLayers': dynamicLayers, 'dynamicSources': dynamicSources}" :paintOptions="markerPaintOptions">
+    <MglMap nonce="ajJERjdDc1g5MlFadlZfdGdFIWI4dVchQ3o4Q3ZRYlQ=" :class="['map-area', { 'map-area-shrunk' : showResults }]" :year="appYear" ref="mglMapRef" @created="handleMapCreated" :dynamicGeoJsonIds="{'dynamicLayers': dynamicLayers, 'dynamicSources': dynamicSources}">
+    <!-- <MglMap :year="appYear" ref="mglMapRef" @created="handleMapCreated" :dynamicGeoJsonIds="{'dynamicLayers': dynamicLayers, 'dynamicSources': dynamicSources}" :paintOptions="markerPaintOptions"> -->
       <DynamicGeoJsonLayer
         v-if="geoJson && geoJson.data && geoJson.data.features && geoJson.data.features.length > 0"
         :geojson="geoJson"
@@ -414,19 +421,32 @@
       </DynamicGeoJsonLayer> -->
     </MglMap>
     <!-- Results Pane Component containing search results-->
-    <!-- <transition name="slide-results" mode="out-in"> -->
-      <!-- <ResultsPane v-if="showResults" -->
-      <ResultsPane
+    <transition name="slide-results" mode="out-in">
+      <!-- <ResultsPane -->
+      <ResultsPane v-if="showResults"
         ref="resultsPaneRef"
         class="results-pane"
         :years="years"
         :year="appYear"
         @update:geojson="handleGeojson">
       </ResultsPane>
-    <!-- </transition> -->
+    </transition>
 </template>
 
+<style scoped>
+  .map-area {
+    width: 100vw;
+    height: var(--map-height);
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .map-area-shrunk {
+    width: var(--map-width);
+  }
+</style>
+
 <style>
+
   .landing-overlay-absolute {
     position: absolute;
     top: 0;
@@ -435,11 +455,11 @@
     height: 100vh;
     z-index: 10000;
   }
-
+/* 
   .mgl-map-wrapper {
     height: var(--map-height);
     width: var(--map-width);
-  }
+  } */
   .slide-enter-active, .slide-leave-active {
     transition: all 0.7s cubic-bezier(0.215, 0.610, 0.355, 1.000);
   }
@@ -455,11 +475,6 @@
   .slide-results-enter-from, .slide-results-leave-to {
     transform: translateX(100%);
   }
-
-  /* .mgl-map-wrapper {
-    height: var(--map-height);
-    width: var(--map-width);
-  } */
 
   .dialog {
     border: none;
