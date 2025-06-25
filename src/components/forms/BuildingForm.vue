@@ -138,11 +138,11 @@ const rich_description = computed(() => {
         <p><strong>Birth Year:</strong> {{ person?.birth_year }}</p>
         <p><strong>Census Year:</strong> {{ person?.year }}</p>
         <p><strong>Notes:</strong> {{ person?.notes }}</p>
-        <div v-if="person.census_records && person.census_records.length">
+        <div v-if="person.properties.census_records && person.properties.census_records.length">
         <hr/>
           <details>
             <summary><h5>Census Records</h5></summary>
-            <details v-for="(record,index) in census_records" :key="getPersonID">
+            <details v-for="(record,index) in person.properties.census_records" :key="getPersonID">
               <summary><h6>{{ searchableName(record) + '(' + (record?.age || '') + ')'}}</h6></summary>
               <p><strong>Age:</strong> {{ age(record) }}</p>
               <p><strong>Gender:</strong> {{ getGender(record?.sex) }}</p>
@@ -227,7 +227,7 @@ const rich_description = computed(() => {
     height: 0.3125rem;
   }
 
-  summary h3, h4, h5 {
+  summary h3, h4, h5, h6 {
     display: inline;
   }
 </style>

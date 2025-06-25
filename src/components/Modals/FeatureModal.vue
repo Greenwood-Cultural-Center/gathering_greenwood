@@ -212,7 +212,7 @@
     margin-left:0.3125rem;
   }
 
-  h4, h5 {
+  summary h3, h4, h5, h6 {
     display: inline;
   }
 
