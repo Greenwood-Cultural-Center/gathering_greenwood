@@ -352,14 +352,14 @@
     }
   }
 
-  @media (max-width: 1930px) and (max-height: 1090px) {
+  @media screen and (max-width: 1930px) and (max-height: 1090px) {
     .feature-dialog:deep(.dialog) {
       transform: translateY(-5rem);
       max-height: 50rem;
       height: 50rem;
     }
   }
-
+/* 
   @media (max-width: 1600px) and (max-height:900px) {
     .feature-dialog:deep(.dialog) {
       transform: translateY(-4rem);
@@ -410,6 +410,6 @@
       width: 100%;
       align-items: center;
     }
-  }
+  } */
 
 </style>

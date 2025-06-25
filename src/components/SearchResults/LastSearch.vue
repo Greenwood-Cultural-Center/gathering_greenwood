@@ -29,7 +29,7 @@ defineProps({
       letter-spacing: 0.5px;
     }
 
-    @media screen and (max-width: 1600px) {
+    @media screen and (max-width: 1930px) and (max-height: 1090px) {
       .search-label {
         font-size: 1.5rem;
       }

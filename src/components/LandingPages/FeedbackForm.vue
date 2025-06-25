@@ -387,7 +387,7 @@ input.form-input:disabled {
     }
   }
 
-  @media (max-width: 1930px) and (max-height: 1090px) {
+  @media screen and (max-width: 1930px) and (max-height: 1090px) {
     .script-text {
         left: 11rem;
     }
@@ -434,7 +434,7 @@ input.form-input:disabled {
         margin-top: 3rem;
     }
   }
-
+/* 
   @media (max-width: 1600px) and (max-height:900px) {
     .script-text {
       left: 4rem;
@@ -570,5 +570,5 @@ input.form-input:disabled {
       padding: 25rem 18.25rem 18.25rem 10rem;
     }
 
-  }
+  } */
 </style>

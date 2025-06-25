@@ -132,7 +132,7 @@
       if (props.year !== '') {
         filteredJson.value = (JsonResponse.value.results).filterByYear(props.year);
         results.value = filteredJson.value;
-        count.value = filteredJson.value.count.filter((count)=> count.year === year)[0];
+        count.value = filteredJson.value.count.filter((count)=> count.year === props.year)[0];
       } else {
         results.value = JsonResponse.value.results;
         count.value = JsonResponse.value.results.TotalCount();
@@ -144,6 +144,7 @@
       emit('update:geojson', geojson.value);
       emit('update:results', results.value);
     } catch (err) {
+      console.error(err);
       toast.error(`There was an error fetching results: Server is not responding. Please notify Administrator.`);
     } finally {
       loading.value = false;

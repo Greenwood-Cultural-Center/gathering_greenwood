@@ -248,7 +248,7 @@ button.project-info {
   }
 }
 
-@media (max-width(max-width: : 1930px) and (max-height: 1090px) px) and (max-height: 1080px) {
+@media screen and (max-width: 1930px) and (max-height: 1090px) {
   .welcome-text {
     margin-block-start: 10rem;
   }
@@ -265,7 +265,7 @@ button.project-info {
   }
 }
 
-@media (max-width: 1600px) and (max-height:900px) {
+/* @media (max-width: 1600px) and (max-height:900px) {
   .welcome-text {
     margin-block-start: 90px;
     margin-block-end: 80px;
@@ -410,6 +410,6 @@ button.project-info {
     bottom: calc(var(--sub-button-height) * 0.3);
     right: calc(((var(--main-button-width) / 2) + 1.6rem) - (var(--sub-button-width) / 2));
   }
-}
+} */
 
 </style>

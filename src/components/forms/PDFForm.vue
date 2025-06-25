@@ -7,7 +7,7 @@ import 'vue-pdf-embed/dist/styles/textLayer.css'
 const props = defineProps({ item: {type: Object, required: true} });
 
 const isLoading = ref(true);
-const page = ref(0);
+const page = ref(1);
 const pageCount = ref(0);
 const pdfSource = ref(props.item.data_uri);
 const showAllPages = ref(false);
@@ -53,7 +53,7 @@ watch(
       </span>
 
       <label>
-        <input v-model="showAllPages" type="checkbox">
+        <input id="showAllPages" v-model="showAllPages" type="checkbox">
         <span>Show all pages</span>
       </label>
     </template>
