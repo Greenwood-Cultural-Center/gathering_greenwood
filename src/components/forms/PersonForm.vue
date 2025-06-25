@@ -147,7 +147,7 @@ function age(person) {
 </template>
 
 <style scoped>
-  summary h3, h4, h5 {
+  summary h3, h4, h5, h6 {
     display: inline;
   }
 </style>
