@@ -32,7 +32,7 @@
     }
     else if (person)
     {
-      return `${ person?.first_name || persson?.First_Name } ${person?.middle_name || person?.Middle_Name} ${ person?.last_name || person?.Last_Name } `;
+      return `${ person?.first_name || person?.First_Name } ${person?.middle_name || person?.Middle_Name} ${ person?.last_name || person?.Last_Name } `;
     }
     else {
       return 'Unknown';
