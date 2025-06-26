@@ -84,7 +84,7 @@
 
     // Fit the map to the calculated bounds
     props.map.fitBounds(bounds, {
-      padding: 20
+      padding: 200
     });
   }
 

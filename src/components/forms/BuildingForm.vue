@@ -127,22 +127,21 @@ const rich_description = computed(() => {
     <p><strong>Location:</strong> {{ formatLocation(item.location) }}</p>
     <div v-if="people.length">
       <h3>Associated People</h3>
-      <details v-for="(person,index) in people" :key="getPersonID(person?.notes) || person?.id">
-        <summary><h4>{{ searchableName(person) + '(' + (person?.age || '') + ')'}}</h4></summary>
-        <p><strong>Name:</strong> {{ person?.name }}</p>
-        <p><strong>Description:</strong> {{ person?.description }}</p>
-        <p><strong>Race:</strong> {{ getRace(person?.race) }}</p>
-        <p><strong>Gender:</strong> {{ getGender(person?.gender) }}</p>
-        <p><strong>Age:</strong> {{ person?.age }}</p>
-        <p><strong>Place of Birth:</strong> {{ person?.place_of_birth }}</p>
-        <p><strong>Birth Year:</strong> {{ person?.birth_year }}</p>
-        <p><strong>Census Year:</strong> {{ person?.year }}</p>
-        <p><strong>Notes:</strong> {{ person?.notes }}</p>
-        <div v-if="person.properties.census_records && person.properties.census_records.length">
-        <hr/>
-          <details>
-            <summary><h5>Census Records</h5></summary>
-            <details v-for="(record,index) in person.properties.census_records" :key="getPersonID">
+      <div v-for="(person,index) in people" name="person" :key="getPersonID(person?.notes) || person?.id">
+        <details>
+          <summary><h4>{{ searchableName(person) + '(' + (person?.age || '') + ')' }} </h4></summary>
+          <p><strong>Name:</strong> {{ person?.name }}</p>
+          <p><strong>Description:</strong> {{ person?.description }}</p>
+          <p><strong>Race:</strong> {{ getRace(person?.race) }}</p>
+          <p><strong>Gender:</strong> {{ getGender(person?.gender) }}</p>
+          <p><strong>Age:</strong> {{ person?.age }}</p>
+          <p><strong>Place of Birth:</strong> {{ person?.place_of_birth }}</p>
+          <p><strong>Birth Year:</strong> {{ person?.birth_year }}</p>
+          <p><strong>Census Year:</strong> {{ person?.year }}</p>
+          <p><strong>Notes:</strong> {{ person?.notes }}</p>
+          <div v-if="person.properties.census_records && person.properties.census_records.length">
+            <h4>Census Records:</h4>
+            <details v-for="(record,index) in person.properties.census_records.filter((cr => cr.person_id === person.id))" name="people_census" :key="record.id">
               <summary><h6>{{ searchableName(record) + '(' + (record?.age || '') + ')'}}</h6></summary>
               <p><strong>Age:</strong> {{ age(record) }}</p>
               <p><strong>Gender:</strong> {{ getGender(record?.sex) }}</p>
@@ -174,14 +173,15 @@ const rich_description = computed(() => {
               <p><strong>Side:</strong> {{ record?.page_side || 'N/A' }}</p>
               <p><strong>Line #:</strong> {{ record?.line_number || 'N/A' }}</p>
             </details>
-          </details>
-        </div>
-      </details>
+          </div>
+        </details>
+        <hr class="section"/>
+      </div>
     </div>
+    <hr/>
     <div v-if="census_records.length">
-      <hr/>
       <h3>Census Records Without Associated People</h3>
-      <details v-for="(record,index) in census_records" :key="getPersonID">
+      <details v-for="(record,index) in census_records" name="census" :key="getPersonID">
         <summary><h4>{{ searchableName(record) + '(' + (record?.age || '') + ')'}}</h4></summary>
         <p><strong>Age:</strong> {{ age(record) }}</p>
         <p><strong>Gender:</strong> {{ record?.sex || 'N/A' }}</p>
