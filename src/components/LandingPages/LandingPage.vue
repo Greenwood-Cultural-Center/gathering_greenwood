@@ -169,7 +169,7 @@ button.project-info {
   height: var(--sub-button-height);
   font-size: 3rem;
   padding: 0 0;
-  line-height: 2.75rem;
+  line-height: 3rem;
 }
 
 .bottom-right {
@@ -194,12 +194,13 @@ button.project-info {
   transform: scale(0.95);
 }
 
-.how-to {
+.explore {
   background-color: var(--gcc-orange); /* Gold/brown color */
   color: var(--gcc-white);
+  line-height: 3rem;
 }
 
-.explore, .feedback, .project-info {
+.how-to, .feedback, .project-info {
   background-color: var(--gcc-white);
   color: var(--gcc-dk-green); /* Dark green */
 }

@@ -38,10 +38,12 @@
       return 'Unknown';
   }};
 
-  const age = () => {
+  const age = (person) => {
     if (person) {
-      (person) => {
-      if (!person || !person.Age || person.age_months == null) {
+      if ((!person.age) && person.birth_year) {
+        return props.feature.properties.year - person.birth_year;
+      }
+      if (!person.Age && !person.age_months) {
         return 'N/A';
       }
       if (person.Age === 0 && person.age_months === 0) {
@@ -69,7 +71,7 @@
         return props.feature.properties.year - person.birth_year;
       }
       return `N/A`;
-    }};
+    };
     return '';
   };
 
@@ -111,7 +113,7 @@
       { title: 'photos', list: props.feature.properties.photos, icon: 'image' },
       { title: 'videos', list: props.feature.properties.videos, icon: 'video' },
       { title: 'audios', list: props.feature.properties.audios, icon: 'volume-high' },
-      { title: 'stories', list: props.feature.properties.narratives, icon: 'book' }
+      { title: 'stories', list: props.feature.properties.stories, icon: 'book' }
     ];
   });
 
@@ -137,24 +139,35 @@
           <p><strong>Description:</strong> {{ description || 'N/A' }}</p>
           <p><strong>Full Description:</strong> <span class="rich-description" v-html="rich_description"></span></p>
           <template v-for="category in categories">
-            <h3 class="category-title">{{ utils.titleCase(category.title) }}</h3>
-            <ul class="fa-ul" role="group">
+            <h3 v-if="category.list && category.list.length" class="category-title">{{ utils.titleCase(category.title) }}</h3>
               <template v-if="category.title === 'people'">
-                <ListItem v-for="item in sort(category.list)" :key="item.id" :icon="category.icon">
-                    {{ item.searchable_name }}: {{ item.age }}
-                </ListItem>
+                <details v-for="(item, index) in sort(category.list)" name="person" :key="index">
+                  <summary><FontAwesomeIcon :icon="['far', category.icon]" /> {{ item.searchable_name }}: {{ age(item) }}</summary>
+                      <p><strong>Name:</strong> {{ item?.searchable_name || 'N/A' }}</p>
+                      <p><strong>Description:</strong> {{ item?.description || 'N/A' }}</p>
+                      <p><strong>Race:</strong> {{ item?.race || 'N/A' }}</p>
+                      <p><strong>Gender:</strong> {{ item?.sex || 'N/A' }}</p>
+                      <p><strong>Age:</strong> {{ age(item) }}</p>
+                      <p><strong>Place of Birth:</strong> {{ item?.pob || 'N/A' }}</p>
+                      <p><strong>Birth Year:</strong> {{ item?.birth_year || 'N/A' }}</p>
+                      <p><strong>Census Year:</strong> {{ feature?.year || 'N/A' }}</p>
+                      <p><strong>Notes:</strong> {{ item?.notes || 'N/A' }}</p>
+                </details>
               </template>
               <template v-else-if="category.title === 'stories'">
-                <ListItem v-for="item in category.list" :key="item.id" :icon="category.icon">
-                    {{ item.name }}
-                </ListItem>
+                <details v-for="item in category.list" :key="item.story.id" name="story"  :icon="category.icon">
+                  <summary><FontAwesomeIcon :icon="['far', category.icon]" /> {{ item.story.name }}</summary>
+                  <span v-html="item.story.body"></span>
+                  <p><strong>Source:</strong><span v-html="item.sources.body"></span></p>
+                </details>
               </template>
               <template v-else-if="category.title === 'photos'">
-                <ListItem v-for="item in category.list" :key="item.id" :icon="category.icon">
-                  <a :href="item.url" target="_blank">{{ item.name || item.description || item.caption }} <FontAwesomeIcon class="link" nonce="ajJERjdDc1g5MlFadlZfdGdFIWI4dVchQ3o4Q3ZRYlQ=" icon="link"></FontAwesomeIcon></a>
-                </ListItem>
+                <div class="photo-grid">
+                  <div v-for="item in category.list" :key="item.id" class="photo-item">
+                    <img :src="item.data_uri" :alt="item.caption || item.description"/>
+                  </div>
+                </div>
               </template>
-            </ul>
           </template>
         </div>
         <div v-else-if="feature.properties && feature.source === '1920-census-source'">
@@ -224,9 +237,13 @@
     width: 100%;
   }
 
+  details > summary {
+    list-style: none;
+  }
+
   .link {
     color: #646cff;
-    margin-left:0.3125rem;
+    margin-left: 0.3125rem;
   }
 
   summary h3, h4, h5, h6 {
@@ -376,7 +393,31 @@
       height: 50rem;
     }
   }
-/* 
+
+  .photo-grid {
+    display: flex;
+    flex-wrap: wrap;
+    /* Optional: Add spacing between items */
+    gap: 10px;
+    /* Optional: Center items if needed */
+    justify-content: center;
+    align-items: center;
+  }
+
+  .photo-item {
+    /* Optional: Control individual item size */
+    flex: 1 1 200px; /* Allow items to grow, shrink, and have a base size */
+    max-width: 300px; /*Limit the maximum width of each item */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+  }
+
+  .photo-item img {
+    width: 100%;
+    height: auto;
+    display: block; /* Remove extra space below inline images */
+  }
+
+/*
   @media (max-width: 1600px) and (max-height:900px) {
     .feature-dialog:deep(.dialog) {
       transform: translateY(-4rem);

@@ -349,6 +349,12 @@ button:focus-visible {
   justify-content: flex-start;
 }
 
+summary {
+  cursor: pointer;
+  font-family: Poppins;
+  color: var(--gcc-orange);
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: var(--gcc-black);

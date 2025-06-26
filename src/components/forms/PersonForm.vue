@@ -105,7 +105,6 @@ function age(person) {
     <p><strong>Census Year:</strong> {{ item.year }}</p>
     <p><strong>Notes:</strong> {{ item.notes }}</p>
     <div v-if="census_records && census_records.length">
-      <hr/>
       <details>
         <summary><h3>Census Records</h3></summary>
         <details v-for="(record,index) in census_records" :key="getrecordID">
@@ -149,5 +148,13 @@ function age(person) {
 <style scoped>
   summary h3, h4, h5, h6 {
     display: inline;
+  }
+
+  details > summary {
+    background: var(--gcc-white);
+  }
+
+  details {
+    background-color: #cca16183;
   }
 </style>

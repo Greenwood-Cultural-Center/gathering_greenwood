@@ -169,7 +169,7 @@
       width: 96%;
     }
   }
-/* 
+/*
   @media (max-width: 1600px) and (max-height:900px) {
     .result-modal:deep(.dialog) {
       transform: translateY(-4rem);
