@@ -27,7 +27,7 @@
   });
 
   function swapVideoSource(){
-    const video = document.querySelector("video.video");
+    const video = videoRef.value;
     const sources = video.getElementsByTagName("source");
     var oldsrc = sources[0].src;
     var oldtype = sources[0].type;
@@ -39,7 +39,7 @@
   }
 
   function stopVideo(){
-    const video = document.querySelector("video.video");
+    const video = videoRef.value;
     if (video) {
       video.pause();
       video.currentTime = 0;
@@ -48,10 +48,15 @@
 
   function onClose() {
     stopVideo();
+
+    window.removeEventListener('ended', (event) => {
+        stopVideo();
+        dialogRef.value?.closeDialog();
+      }, { once: true });
   }
 
   function onOpen() {
-    const video = document.querySelector("video.video");
+    const video = videoRef.value;
 
     if (!video) {
       console.error("Video element not found");
@@ -63,7 +68,7 @@
         video.play();
       }
 
-      window.addEventListener('ended', () => {
+      video.addEventListener('ended', (event) => {
         stopVideo();
         dialogRef.value?.closeDialog();
       }, { once: true });
