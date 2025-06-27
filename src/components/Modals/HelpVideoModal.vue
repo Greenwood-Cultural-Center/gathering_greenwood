@@ -1,5 +1,6 @@
 <script setup>
-  import { ref } from 'vue';
+  import { useTemplateRef } from 'vue';
+  import { useToast } from 'vue-toastification';
   import { HtmlDialog } from 'vue-html-dialog';
   import 'vue-html-dialog/vue-html-dialog.css';
 
@@ -9,7 +10,9 @@
     swapVideoSource: () => swapVideoSource()
   })
 
-  const dialogRef = ref(HtmlDialog);
+  const dialogRef = useTemplateRef('dialogRef');
+  const videoRef = useTemplateRef('videoRef');
+  const toast = useToast();
 
   const props = defineProps({
     url: {
@@ -49,8 +52,21 @@
 
   function onOpen() {
     const video = document.querySelector("video.video");
-    if (props.autoplay && video) {
-      video.play();
+
+    if (!video) {
+      console.error("Video element not found");
+      toast.error("Video element not found. Please notify an Administrator.");
+      return;
+    }
+    else {
+      if (props.autoplay) {
+        video.play();
+      }
+
+      window.addEventListener('ended', () => {
+        stopVideo();
+        dialogRef.value?.closeDialog();
+      }, { once: true });
     }
   }
 
@@ -58,7 +74,7 @@
 
 <template>
   <HtmlDialog ref="dialogRef" class="help-video-dialog" @open="onOpen" @close="onClose">
-    <video nonce="ajJERjdDc1g5MlFadlZfdGdFIWI4dVchQ3o4Q3ZRYlQ=" class="video" controls>
+    <video ref="videoRef" nonce="ajJERjdDc1g5MlFadlZfdGdFIWI4dVchQ3o4Q3ZRYlQ=" class="video" controls>
       <source nonce="ajJERjdDc1g5MlFadlZfdGdFIWI4dVchQ3o4Q3ZRYlQ=" :src="props.url" type="video/mp4">
       Your browser does not support the video tag.
     </video>
@@ -76,6 +92,7 @@
   }
 
   .video {
+    background-color: black;
     width: 100%;
     height: 100%;
   }
