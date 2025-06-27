@@ -15,10 +15,14 @@
   const toast = useToast();
 
   const props = defineProps({
-    url: {
-      type: String,
+    sources: {
+      type: Array,
       required: true,
-      validator: val => val && typeof val === 'string' && val.length > 0
+      validator: val => val && Array.isArray(val) && val.length > 0
+    },
+    textTracks : {
+      type: Array,
+      default: () => []
     },
     autoplay: {
       type: Boolean,
@@ -80,7 +84,8 @@
 <template>
   <HtmlDialog ref="dialogRef" class="help-video-dialog" @open="onOpen" @close="onClose">
     <video ref="videoRef" nonce="ajJERjdDc1g5MlFadlZfdGdFIWI4dVchQ3o4Q3ZRYlQ=" class="video" controls>
-      <source nonce="ajJERjdDc1g5MlFadlZfdGdFIWI4dVchQ3o4Q3ZRYlQ=" :src="props.url" type="video/mp4">
+      <source v-for="source in sources" nonce="ajJERjdDc1g5MlFadlZfdGdFIWI4dVchQ3o4Q3ZRYlQ=" :src="source.url" :type="source.type">
+      <track v-for="track in textTracks" :kind="track.kind" :src="track.src" :srclang="track.srclang" :label="track.langlabel" :default="track.default">
       Your browser does not support the video tag.
     </video>
   </HtmlDialog>

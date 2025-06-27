@@ -1,0 +1,120 @@
+00;00;00;22 - 00;00;04;27
+Welcome to Gathering Greenwood,a digital map and timeline
+
+00;00;05;00 - 00;00;08;18
+of the Greenwood neighborhoodpresented by the Greenwood Cultural Center.
+
+00;00;09;04 - 00;00;13;27
+This is the first program of its kindand will allow the user to locate buildings
+
+00;00;14;00 - 00;00;21;13
+and building types as well as the peoplewho lived in those buildings in Greenwood from 1910 and 1920.
+
+00;00;21;16 - 00;00;25;11
+Thousands of census and public recordshave been digitized in order
+
+00;00;25;14 - 00;00;29;19
+to bring you this informationand more will be added as the project continues.
+
+00;00;31;19 - 00;00;33;17
+From the home screen, click
+
+00;00;33;20 - 00;00;36;23
+explore the map to view a map of Greenwood.
+
+00;00;37;15 - 00;00;38;27
+The streets and buildings
+
+00;00;38;27 - 00;00;40;10
+you will see are from before
+
+00;00;40;13 - 00;00;42;20
+the 1921 Tulsa race massacre.
+
+00;00;43;18 - 00;00;45;06
+We have included a few landmarks
+
+00;00;45;06 - 00;00;46;24
+on the map for you to explore.
+
+00;00;47;18 - 00;00;50;12
+Click the points on the map to bring up details
+
+00;00;50;15 - 00;00;53;15
+of that location.
+
+00;00;53;23 - 00;00;55;03
+The timeline at the bottom of the screen
+
+00;00;55;03 - 00;00;58;22
+will allow you to switch
+
+00;00;58;22 - 00;01;01;01
+between the 1910 and 1920 map of Greenwood.
+
+00;01;02;03 - 00;01;04;02
+Clicking on a map location will show you
+
+00;01;04;02 - 00;01;06;02
+the details of that location.
+
+00;01;06;22 - 00;01;09;09
+You can find names listed in a particular building.
+
+00;01;09;26 - 00;01;14;09
+Remember that during these decadesit was common for people to live in hotels
+
+00;01;14;12 - 00;01;17;03
+or in rooming houses with multiple families.
+
+00;01;18;07 - 00;01;21;19
+Click the search button to search for a nameor an address.
+
+00;01;22;09 - 00;01;26;29
+The gathering Greenwood databaseincludes census records from the 1910
+
+00;01;27;05 - 00;01;30;07
+and 1920 US Census for Tulsa County.
+
+00;01;31;05 - 00;01;34;14
+The search results screenwill show you the names, buildings
+
+00;01;34;18 - 00;01;38;05
+and any public documentsthere are included in the database.
+
+00;01;39;18 - 00;01;42;04
+If you get a message that there are no results
+
+00;01;42;07 - 00;01;45;09
+found, click the search button to try again
+
+00;01;45;18 - 00;01;48;24
+with a different name or variation of that name.
+
+00;01;50;02 - 00;01;52;07
+From the search results box,
+
+00;01;52;10 - 00;01;54;15
+you can click a result to see details
+
+00;01;54;25 - 00;01;58;00
+or click on the mapto see the location of that result.
+
+00;02;05;21 - 00;02;06;25
+From the home screen,
+
+00;02;06;28 - 00;02;10;16
+click the buttonfor feedback to enter your name & phone number.
+
+00;02;11;04 - 00;02;13;24
+You will receive a text message with a short
+
+00;02;13;27 - 00;02;16;01
+five minute survey for us to know how we can continue
+
+00;02;16;01 - 00;02;17;11
+to make improvements
+
+00;02;17;28 - 00;02;21;29
+and make your experience with Gathering Greenwood better.
+

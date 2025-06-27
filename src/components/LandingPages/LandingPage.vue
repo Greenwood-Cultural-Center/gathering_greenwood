@@ -5,9 +5,12 @@ import LegalInfo from '@Landing/LegalInfo.vue';
 import FeedbackForm from '@Landing/FeedbackForm.vue';
 
 const videoModalRef = ref(null);
-const helpVideoUrl = 'GCC-Kiosk-April-2025.webm';
 const showInfo = ref(false);
 const showFeedback = ref(false);
+
+const howToVideoSources = [{url: 'how-to-062725.webm', type: 'video/webm'},{url: 'how-to-062725.mp4', type: 'video/mp4'}];
+const howToVideoTextTracks = [{src: 'subtitles/vtt/how-to-subtitles.en.vtt', kind: 'subtitles', srclang: 'en', langlabel: 'English'},
+                              {src: 'captions/vtt/how-to-captions.en.vtt', kind: 'captions', srclang: 'en', langlabel: 'English'}];
 
 const emit = defineEmits(['close']);
 
@@ -65,7 +68,7 @@ function openFeedback() {
           </div>
         </div>
         <!-- Video Modal Component to show help video -->
-        <HelpVideoModal ref="videoModalRef" :url="helpVideoUrl" :autoplay="true"></HelpVideoModal>
+        <HelpVideoModal ref="videoModalRef" :sources="howToVideoSources" :textTracks="howToVideoTextTracks" :autoplay="true"></HelpVideoModal>
       </div>
     </div>
     <LegalInfo v-if="showInfo" @close="closeInfoPage" />
