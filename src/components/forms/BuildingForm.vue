@@ -1,6 +1,8 @@
 <script setup>
 import { computed } from 'vue';
 import utils from '@utils/utils.js';
+import CensusRecordFields from '@forms/Partials/CensusRecordFields';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 const props = defineProps({ item: {type: Object, required: true} });
 
@@ -35,16 +37,6 @@ const census_records = () => {
 };
 
 const regex = /(?:<pre>)?(?:&lt;|<)i data-poi(?:=?(?:&quot;&quot;|""|\\\\"\\\\")?)?(?:&gt;|>)(?:&lt;\/|<\/)i(?:&gt;|>)(?:<\/pre>)?/gi;
-
-function getreadablePersonId(notes) {
-  const match = notes?.match(/ID: P-(\d+)/);
-  return match ? match[1] : null;
-}
-
-function getPersonID(notes) {
-  const match = notes?.match(/ID: P-(\d+)/);
-  return match ? `P-${match[1]}` : null;
-}
 
 function getRace(raceCode) {
   const raceMap = {
@@ -116,11 +108,71 @@ const rich_description = computed(() => {
   }
   return props.item?.description?.body?.replace(regex, "") || 'N/A';
 });
+
+// Example using JavaScript for dynamic positioning and showing/hiding
+const tooltip = document.querySelector('.tooltip');
+const tooltipText = document.querySelector('.tooltipText');
+
+tooltip.addEventListener('mouseover', () => {
+  tooltipText.style.visibility = 'visible';
+  tooltipText.style.opacity = '1';
+  // Calculate and set tooltip position dynamically based on tooltip and container positions
+});
+
+tooltip.addEventListener('mouseout', () => {
+  tooltipText.style.visibility = 'hidden';
+  tooltipText.style.opacity = '0';
+});
+
+document.addEventListener('click', function(event) {
+  const tooltipTrigger = document.querySelector('.tooltip'); // The element that shows the tooltip
+  const tooltipContent = document.querySelector('.tooltipText'); // The tooltip itself
+
+  // Check if the click is outside both the trigger and the tooltip
+  if (!tooltipTrigger.contains(event.target) && !tooltipContent.contains(event.target)) {
+    // Hide the tooltip
+    tooltipContent.style.visibility = 'hidden';
+    tooltipContent.style.opacity = '0';
+  } else if (tooltipTrigger.contains(event.target)) {
+    // If the click is on the trigger, toggle the tooltip's visibility
+    if (tooltipContent.style.visibility === 'visible') {
+      tooltipContent.style.visibility = 'hidden';
+      tooltipContent.style.opacity = '0';
+    } else {
+      tooltipContent.style.visibility = 'visible';
+      tooltipContent.style.opacity = '1';
+    }
+  }
+});
+
 </script>
 
 <template>
   <div>
     <h2>Building Details</h2>
+    <FontAwesomeIcon :icon="['far', 'circle-info']" class="tooltip">
+      <span class="tooltipText">
+        <table>
+          <caption>This result has a confidence score of {{ item.confidence_score }}. The above show the fields that matched the search query</caption>
+          <thead>
+            <tr>
+              <th>Record Type</th>
+              <th>Field</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <template v-for="detail in item.match_details" :key="detail.field+detail.value">
+                <td>detail.type</td>
+                <td>detail.field</td>
+                <td>detail.value</td>
+              </template>
+            </tr>
+          </tbody>
+        </table>
+      </span>
+    </FontAwesomeIcon>
     <p><strong>Name:</strong> {{ item.name || item.address.replaceAll("  "," ") }}</p>
     <p><strong>{{utils.titleCase(item.description.name)}}:</strong><span v-html="rich_description"></span></p>
     <p><strong>Address:</strong> {{ item.address.replaceAll("  "," ") }} </p>
@@ -143,35 +195,7 @@ const rich_description = computed(() => {
             <h4>Census Records:</h4>
             <details v-for="(record,index) in person.properties.census_records.filter((cr => cr.person_id === person.id))" name="people_census" :key="record.id">
               <summary><h6>{{ searchableName(record) + '(' + (record?.age || '') + ')'}}</h6></summary>
-              <p><strong>Age:</strong> {{ age(record) }}</p>
-              <p><strong>Gender:</strong> {{ getGender(record?.sex) }}</p>
-              <p><strong>Race:</strong> {{ getRace(record?.race) }}</p>
-              <p><strong>Primary Language Spoken:</strong> {{ record?.mother_tongue || 'N/A' }}</p>
-              <p><strong>Marital Status:</strong> {{ record?.marital_status || 'N/A' }}</p>
-              <p><strong>Foreign Born:</strong> {{ record?.foreign_born || 'N/A' }}</p>
-              <p><strong>Naturalized:</strong> {{ record?.naturalized_alien || 'N/A' }}</p>
-              <p><strong>Year Immigrated:</strong> {{ record?.year_immigrated || 'N/A' }}</p>
-              <p><strong>Birthplace:</strong> {{ record?.pob || 'N/A' }}</p>
-              <p><strong>Education:</strong> {{ record?.education || 'N/A' }}</p>
-              <p><strong>Attended School:</strong> {{ record?.attended_school || 'N/A' }}</p>
-              <p><strong>Can Read:</strong> {{ record?.can_read || 'N/A' }}</p>
-              <p><strong>Can Write:</strong> {{ record?.can_write || 'N/A' }}</p>
-              <p><strong>Can Speak English:</strong> {{ record?.can_speak_english || 'N/A' }}</p>
-              <p><strong>Employment:</strong> {{ record?.employment || 'N/A' }}</p>
-              <p><strong>Occupation:</strong> {{ record?.occupation || 'N/A' }}</p>
-              <p><strong>Industry:</strong> {{ record?.industry || 'N/A' }}</p>
-              <p><strong>Institution:</strong> {{ record?.institution || 'N/A' }}</p>
-              <p><strong>Relationship To Head of Household:</strong> {{ record?.relation_to_Head || 'N/A' }}</p>
-              <p><strong>Home Owned or Rented:</strong> {{ record?.home_owned_rented || 'N/A' }}</p>
-              <p><strong>Farm Schedule No.:</strong> {{ record?.farm_schedule_no_ || 'N/A' }}</p>
-              <p><strong>Mortgage:</strong> {{ record?.mortgage || 'N/A' }}</p>
-              <p><strong>Father's Birthplace:</strong> {{ record?.pob_Father || 'N/A' }}</p>
-              <p><strong>Father's Language:</strong> {{ record?.mother_tongue_father || 'N/A' }}</p>
-              <p><strong>Mother's Birthplace:</strong> {{ record?.pob_mother || 'N/A' }}</p>
-              <p><strong>Mother's Language:</strong> {{ record?.mother_tongue_mother || 'N/A' }}</p>
-              <p><strong>Page #:</strong> {{ record?.page_number || 'N/A' }}</p>
-              <p><strong>Side:</strong> {{ record?.page_side || 'N/A' }}</p>
-              <p><strong>Line #:</strong> {{ record?.line_number || 'N/A' }}</p>
+              <CensusRecordFields :record="record"></CensusRecordFields>
             </details>
           </div>
         </details>
@@ -183,35 +207,7 @@ const rich_description = computed(() => {
       <h3>Census Records Without Associated People</h3>
       <details v-for="(record,index) in census_records" name="census" :key="getPersonID">
         <summary><h4>{{ searchableName(record) + '(' + (record?.age || '') + ')'}}</h4></summary>
-        <p><strong>Age:</strong> {{ age(record) }}</p>
-        <p><strong>Gender:</strong> {{ record?.sex || 'N/A' }}</p>
-        <p><strong>Race:</strong> {{ record?.race || 'N/A' }}</p>
-        <p><strong>Primary Language Spoken:</strong> {{ record?.mother_tongue || 'N/A' }}</p>
-        <p><strong>Marital Status:</strong> {{ record?.marital_status || 'N/A' }}</p>
-        <p><strong>Foreign Born:</strong> {{ record?.foreign_born || 'N/A' }}</p>
-        <p><strong>Naturalized:</strong> {{ record?.naturalized_alien || 'N/A' }}</p>
-        <p><strong>Year Immigrated:</strong> {{ record?.year_immigrated || 'N/A' }}</p>
-        <p><strong>Birthplace:</strong> {{ record?.pob || 'N/A' }}</p>
-        <p><strong>Education:</strong> {{ record?.education || 'N/A' }}</p>
-        <p><strong>Attended School:</strong> {{ record?.attended_school || 'N/A' }}</p>
-        <p><strong>Can Read:</strong> {{ record?.can_read || 'N/A' }}</p>
-        <p><strong>Can Write:</strong> {{ record?.can_write || 'N/A' }}</p>
-        <p><strong>Can Speak English:</strong> {{ record?.can_speak_english || 'N/A' }}</p>
-        <p><strong>Employment:</strong> {{ record?.employment || 'N/A' }}</p>
-        <p><strong>Occupation:</strong> {{ record?.occupation || 'N/A' }}</p>
-        <p><strong>Industry:</strong> {{ record?.industry || 'N/A' }}</p>
-        <p><strong>Institution:</strong> {{ record?.institution || 'N/A' }}</p>
-        <p><strong>Relationship To Head of Household:</strong> {{ record?.relation_to_Head || 'N/A' }}</p>
-        <p><strong>Home Owned or Rented:</strong> {{ record?.home_owned_rented || 'N/A' }}</p>
-        <p><strong>Farm Schedule No.:</strong> {{ record?.farm_schedule_no_ || 'N/A' }}</p>
-        <p><strong>Mortgage:</strong> {{ record?.mortgage || 'N/A' }}</p>
-        <p><strong>Father's Birthplace:</strong> {{ record?.pob_Father || 'N/A' }}</p>
-        <p><strong>Father's Language:</strong> {{ record?.mother_tongue_father || 'N/A' }}</p>
-        <p><strong>Mother's Birthplace:</strong> {{ record?.pob_mother || 'N/A' }}</p>
-        <p><strong>Mother's Language:</strong> {{ record?.mother_tongue_mother || 'N/A' }}</p>
-        <p><strong>Page #:</strong> {{ record?.page_number || 'N/A' }}</p>
-        <p><strong>Side:</strong> {{ record?.page_side || 'N/A' }}</p>
-        <p><strong>Line #:</strong> {{ record?.line_number || 'N/A' }}</p>
+        <CensusRecordFields :record="record"></CensusRecordFields>
       </details>
     </div>
   </div>
@@ -229,5 +225,32 @@ const rich_description = computed(() => {
 
   summary h3, h4, h5, h6 {
     display: inline;
+  }
+
+  .tooltip {
+    position: relative;
+    display: inline-block;
+  }
+
+  .tooltip .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -60px;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
   }
 </style>

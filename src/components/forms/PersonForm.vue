@@ -109,36 +109,7 @@ function age(person) {
         <summary><h3>Census Records</h3></summary>
         <details v-for="(record,index) in census_records" :key="getrecordID">
           <summary><h4>{{ searchableName(record) + '(' + record?.age + ')'}}</h4></summary>
-          <p><strong>Age:</strong> {{ age(record) }}</p>
-          <p><strong>Gender:</strong> {{ getGender(record?.sex) }}</p>
-          <p><strong>Race:</strong> {{ getRace(record?.race) }}</p>
-          <p><strong>Primary Language Spoken:</strong> {{ record?.mother_tongue || 'N/A' }}</p>
-          <p><strong>Marital Status:</strong> {{ record?.marital_status || 'N/A' }}</p>
-          <p><strong>Foreign Born:</strong> {{ record?.foreign_born || 'N/A' }}</p>
-          <p><strong>Naturalized:</strong> {{ record?.naturalized_alien || 'N/A' }}</p>
-          <p><strong>Year Immigrated:</strong> {{ record?.year_immigrated || 'N/A' }}</p>
-          <p><strong>Birthplace:</strong> {{ record?.pob || 'N/A' }}</p>
-          <p><strong>Education:</strong> {{ record?.education || 'N/A' }}</p>
-          <p><strong>Attended School:</strong> {{ record?.attended_school || 'N/A' }}</p>
-          <p><strong>Can Read:</strong> {{ record?.can_read || 'N/A' }}</p>
-          <p><strong>Can Write:</strong> {{ record?.can_write || 'N/A' }}</p>
-          <p><strong>Can Speak English:</strong> {{ record?.can_speak_english || 'N/A' }}</p>
-          <p><strong>Employment:</strong> {{ record?.employment || 'N/A' }}</p>
-          <p><strong>Occupation:</strong> {{ record?.occupation || 'N/A' }}</p>
-          <p><strong>Industry:</strong> {{ record?.industry || 'N/A' }}</p>
-          <p><strong>Institution:</strong> {{ record?.institution || 'N/A' }}</p>
-          <p><strong>Relationship To Head of Household:</strong> {{ record?.relation_to_Head || 'N/A' }}</p>
-          <p><strong>Home Owned or Rented:</strong> {{ record?.home_owned_rented || 'N/A' }}</p>
-          <p><strong>Farm Schedule No.:</strong> {{ record?.farm_schedule_no_ || 'N/A' }}</p>
-          <p><strong>Mortgage:</strong> {{ record?.mortgage || 'N/A' }}</p>
-          <p><strong>Father's Birthplace:</strong> {{ record?.pob_Father || 'N/A' }}</p>
-          <p><strong>Father's Language:</strong> {{ record?.mother_tongue_father || 'N/A' }}</p>
-          <p><strong>Mother's Birthplace:</strong> {{ record?.pob_mother || 'N/A' }}</p>
-          <p><strong>Mother's Language:</strong> {{ record?.mother_tongue_mother || 'N/A' }}</p>
-          <p><strong>Page #:</strong> {{ record?.page_number || 'N/A' }}</p>
-          <p><strong>Side:</strong> {{ record?.page_side || 'N/A' }}</p>
-          <p><strong>Line #:</strong> {{ record?.line_number || 'N/A' }}</p>
-          <!-- <p><strong>Census Line:</strong> {{ person?.Census_Scope || 'N/A' }}</p> -->
+          <CensusRecordFields :record=record></CensusRecordFields>
         </details>
       </details>
     </div>

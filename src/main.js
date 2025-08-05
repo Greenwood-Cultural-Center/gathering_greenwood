@@ -38,8 +38,8 @@ import { faFileImage }        from '@awesome.me/kit-45e7af7a78/icons/classic/reg
 import { faFileVideo }        from '@awesome.me/kit-45e7af7a78/icons/classic/regular';
 import { faFileAudio }        from '@awesome.me/kit-45e7af7a78/icons/classic/regular';
 import { faFileText }         from '@awesome.me/kit-45e7af7a78/icons/classic/regular';
+import { faCircleInfo }       from '@awesome.me/kit-45e7af7a78/icons/classic/regular';
 import { faStar }             from '@awesome.me/kit-45e7af7a78/icons/duotone/regular';
-
 
 /* add icons to the library */
 library.add(faSearch,
@@ -68,6 +68,7 @@ library.add(faSearch,
   faFileVideo,
   faFileAudio,
   faFileText,
+  faCircleInfo,
   faStar);
 
 const toastOptions = {
