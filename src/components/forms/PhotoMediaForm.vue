@@ -8,7 +8,7 @@ const thumbnail = photo?.data_uri || photo?.URL;
 
 <template>
   <div>
-    <h2>Photo</h2>
+    <h3>Photo</h3>
     <img :src="thumbnail" :alt="photo.description" style="max-width: 100%" />
     <p><strong>Description:</strong> {{ photo.description }} </p>
     <p><strong>Caption:</strong> {{ photo.caption }} </p>

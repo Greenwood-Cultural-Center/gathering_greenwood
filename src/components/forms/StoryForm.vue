@@ -10,3 +10,13 @@ const props = defineProps({ item: {type: Object, required: true} });
     <p><strong>Sources:</strong> <span v-html="item.sources.body"></span></p>
   </div>
 </template>
+
+<style scoped>
+  h2 {
+    color: var(--gcc-dk-green);
+  }
+
+  p {
+    color: var(--gcc-black);
+  }
+</style>

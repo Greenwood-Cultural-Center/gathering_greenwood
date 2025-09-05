@@ -94,7 +94,7 @@ function age(person) {
 
 <template>
   <div>
-    <h2>Person Details</h2>
+    <h3>Person Details</h3>
     <p><strong>Name:</strong> {{ item.name }}</p>
     <p><strong>Description:</strong> {{ item.description }}</p>
     <p><strong>Race:</strong> {{ getRace(item.race) }}</p>
@@ -117,10 +117,6 @@ function age(person) {
 </template>
 
 <style scoped>
-  summary h3, h4, h5, h6 {
-    display: inline;
-  }
-
   details > summary {
     background: var(--gcc-white);
   }
@@ -128,4 +124,5 @@ function age(person) {
   details {
     background-color: #cca16183;
   }
+
 </style>

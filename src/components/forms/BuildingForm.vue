@@ -1,7 +1,8 @@
 <script setup>
 import { computed } from 'vue';
 import utils from '@utils/utils.js';
-import CensusRecordFields from '@forms/Partials/CensusRecordFields';
+import CensusRecordFields from '@FormsPartials/CensusRecordFields.vue';
+import InfoWindow from '@Utility/InfoWindow.vue';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 const props = defineProps({ item: {type: Object, required: true} });
@@ -71,6 +72,17 @@ const searchableName = (person) => {
     return 'Unknown';
   }};
 
+
+function getreadablePersonId(notes) {
+  const match = notes?.match(/ID: P-(\d+)/);
+  return match ? match[1] : null;
+}
+
+function getPersonID(notes) {
+  const match = notes?.match(/ID: P-(\d+)/);
+  return match ? `P-${match[1]}` : null;
+}
+
 function age(person) {
   if (person) {
     if (!person || !person?.Age || person?.age_months == null) {
@@ -103,85 +115,28 @@ function age(person) {
 };
 
 const rich_description = computed(() => {
-  if (!props.item || !props.item?.description) {
+  if (!props.item || !props.item?.rich_description) {
     return 'N/A';
   }
-  return props.item?.description?.body?.replace(regex, "") || 'N/A';
-});
-
-// Example using JavaScript for dynamic positioning and showing/hiding
-const tooltip = document.querySelector('.tooltip');
-const tooltipText = document.querySelector('.tooltipText');
-
-tooltip.addEventListener('mouseover', () => {
-  tooltipText.style.visibility = 'visible';
-  tooltipText.style.opacity = '1';
-  // Calculate and set tooltip position dynamically based on tooltip and container positions
-});
-
-tooltip.addEventListener('mouseout', () => {
-  tooltipText.style.visibility = 'hidden';
-  tooltipText.style.opacity = '0';
-});
-
-document.addEventListener('click', function(event) {
-  const tooltipTrigger = document.querySelector('.tooltip'); // The element that shows the tooltip
-  const tooltipContent = document.querySelector('.tooltipText'); // The tooltip itself
-
-  // Check if the click is outside both the trigger and the tooltip
-  if (!tooltipTrigger.contains(event.target) && !tooltipContent.contains(event.target)) {
-    // Hide the tooltip
-    tooltipContent.style.visibility = 'hidden';
-    tooltipContent.style.opacity = '0';
-  } else if (tooltipTrigger.contains(event.target)) {
-    // If the click is on the trigger, toggle the tooltip's visibility
-    if (tooltipContent.style.visibility === 'visible') {
-      tooltipContent.style.visibility = 'hidden';
-      tooltipContent.style.opacity = '0';
-    } else {
-      tooltipContent.style.visibility = 'visible';
-      tooltipContent.style.opacity = '1';
-    }
-  }
+  return props.item?.rich_description?.replace(regex, "") || 'N/A';
 });
 
 </script>
 
 <template>
   <div>
-    <h2>Building Details</h2>
-    <FontAwesomeIcon :icon="['far', 'circle-info']" class="tooltip">
-      <span class="tooltipText">
-        <table>
-          <caption>This result has a confidence score of {{ item.confidence_score }}. The above show the fields that matched the search query</caption>
-          <thead>
-            <tr>
-              <th>Record Type</th>
-              <th>Field</th>
-              <th>Value</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <template v-for="detail in item.match_details" :key="detail.field+detail.value">
-                <td>detail.type</td>
-                <td>detail.field</td>
-                <td>detail.value</td>
-              </template>
-            </tr>
-          </tbody>
-        </table>
-      </span>
-    </FontAwesomeIcon>
+    <h3>Building Details</h3>
+    <InfoWindow v-if="item.confidence_score" :item="item"></InfoWindow>
+    <img v-if="item.photo" :src="item.photo" :alt="item.name || item.address" style="max-width: 100%; height: auto; margin-bottom: 1rem;" />
     <p><strong>Name:</strong> {{ item.name || item.address.replaceAll("  "," ") }}</p>
-    <p><strong>{{utils.titleCase(item.description.name)}}:</strong><span v-html="rich_description"></span></p>
+    <p><strong>{{utils.titleCase(item.rich_description_name)}}:</strong><span v-html="rich_description"></span></p>
     <p><strong>Address:</strong> {{ item.address.replaceAll("  "," ") }} </p>
     <p><strong>Location:</strong> {{ formatLocation(item.location) }}</p>
-    <div v-if="people.length">
+    <div class="people_container" v-if="people.length">
       <h3>Associated People</h3>
-      <div v-for="(person,index) in people" name="person" :key="getPersonID(person?.notes) || person?.id">
+      <div v-for="(person,index) in people" :id="getPersonID(person?.notes)" :name="`person`" class="person_accordian" :key="getPersonID(person?.notes) || person?.id">
         <details>
-          <summary><h4>{{ searchableName(person) + '(' + (person?.age || '') + ')' }} </h4></summary>
+          <summary><h4>{{ searchableName(person) + '( Age: ' + (person?.age || '') + ')' }} </h4></summary>
           <p><strong>Name:</strong> {{ person?.name }}</p>
           <p><strong>Description:</strong> {{ person?.description }}</p>
           <p><strong>Race:</strong> {{ getRace(person?.race) }}</p>
@@ -199,7 +154,6 @@ document.addEventListener('click', function(event) {
             </details>
           </div>
         </details>
-        <hr class="section"/>
       </div>
     </div>
     <hr/>
@@ -214,18 +168,6 @@ document.addEventListener('click', function(event) {
 </template>
 
 <style scoped>
-  hr.section{
-    border: none;
-    border-top: 0.1875rem groove var(--gcc-black);
-    color: var(--gcc-black);
-    overflow: visible;
-    text-align: center;
-    height: 0.3125rem;
-  }
-
-  summary h3, h4, h5, h6 {
-    display: inline;
-  }
 
   .tooltip {
     position: relative;
@@ -249,8 +191,20 @@ document.addEventListener('click', function(event) {
     transition: opacity 0.3s;
   }
 
+  div.person_accordian {
+    padding: 1rem;
+  }
+
+  div.people_container div:nth-child(odd) {
+    background-color: #dbd3c6;
+  }
+
   .tooltip:hover .tooltiptext {
     visibility: visible;
     opacity: 1;
+  }
+
+  summary h4 {
+    color: var(--gcc-black);
   }
 </style>

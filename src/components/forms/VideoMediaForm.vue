@@ -11,3 +11,13 @@ const props = defineProps({ item: {type: Object, required: true} });
     <p><strong>Description:</strong> <a href="item.URL" target="_blank"> {{ item.URL }}</a> </p>
   </div>
 </template>
+
+<style scoped>
+  h2 {
+    color: var(--gcc-dk-green);
+  }
+
+  p {
+    color: var(--gcc-black);
+  }
+</style>

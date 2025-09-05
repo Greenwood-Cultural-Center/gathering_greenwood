@@ -5,7 +5,7 @@ const props = defineProps({ item: {type: Object, required: true} });
 
 <template>
   <div>
-    <h2>Audio</h2>
+    <h3>Audio</h3>
     <p><strong>Description:</strong> {{ item.description }} </p>
     <p><strong>Caption:</strong> {{ item.caption }} </p>
     <p><strong>Description:</strong> <a href="item.URL" target="_blank"> {{ item.URL }}</a> </p>

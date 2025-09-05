@@ -39,7 +39,7 @@ function buildCensusScope(record) {
   }
 
   if (!record.census_scope) {
-    return `Ward ${record.Ward} ED ${record.enum_dist} Sheet ${record.page_number}${record.page_side} #${line_number}`
+    return `Ward ${record.Ward} ED ${record.enum_dist} Sheet ${record.page_number}${record.page_side} #${record.line_number}`
   }
 
   return record.census_scope;

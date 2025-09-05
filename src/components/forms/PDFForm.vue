@@ -36,7 +36,7 @@ watch(
 </script>
 
 <template id="appTemplate">
-<h2>Document Details</h2>
+<h3>Document Details</h3>
 <p><strong>Title: </strong></p>
 <p><strong>Description:</strong> {{ item.description }}</p>
 
