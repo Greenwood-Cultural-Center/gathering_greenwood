@@ -166,3 +166,9 @@ stats.html
 public/how-to-062725.mp4
 
 .env.development
+
+src/components/DrawerExample.vue
+
+src/components/Utility/DetailDrawer.test.js
+
+src/components/Utility/DetailDrawerExample.vue
