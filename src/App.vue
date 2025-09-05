@@ -9,6 +9,8 @@
   import LandingPage from '@Landing/LandingPage.vue';
   import utils from '@utils/utils.js';
   import { useFaMapService } from '@Composables/useFaMapservice.js';
+  import DetailDrawer from './components/Utility/DetailDrawer.vue';
+  import DetailDrawerExample from './components/Utility/DetailDrawerExample.vue';
 
   const { fontAwesomeCharacterCode } = useFaMapService();
   const emptyGeoJson = {type:'geojson',data:{id: 'search-source', type: 'FeatureCollection', features: []}};
@@ -59,31 +61,44 @@
 
   const markerPaintOptions = {
     'Search Results' : {
-      'circle-color': '#f37021',     // orange inner circle
+      'circle-color': '#f37021',
       'circle-opacity': 1,
       'circle-radius': 8,
-      'circle-stroke-color': '#ffffff', // white border
+      'circle-stroke-color': '#ffffff',
       'circle-stroke-opacity': 1,
       'circle-stroke-width': 3,
       'circle-blur': 0
     },
     census1920GeoJsonFeaturePaint : {
       'circle-radius': 8,
-      'circle-color': '#405D47',     // orange inner circle
-      'circle-stroke-color': '#ffffff', // white border
+      'circle-color': '#405D47',
+      'circle-stroke-color': '#ffffff',
       'circle-stroke-width': 3,
       'visibility': false,
       'label': 'Census Records'
     },
     'Points of Interest' : {
       'circle-radius': 16,
-      'circle-color': '#FFCC00',     // orange inner circle
+      'circle-color': '#FFCC00',
       'circle-opacity': 1,
-      'circle-stroke-color': '#405D47', // white border
+      'circle-stroke-color': '#405D47',
       'circle-stroke-width': 5,
       'circle-stroke-opacity': 1,
       'circle-blur': 0,
+    },
+    nytBuildingPaint : {
+      'fill-color': '#666666',
+      'fill-opacity': 1
+    },
+    burnedAreaPaint : {
+      'fill-color': '#FF0000',
+      'fill-opacity': 0.2
+    },
+    street1920Paint : {
+      'line-color': '#000000',
+      'line-width': 2
     }
+
   }
 
   // Create an array of FAB button properties
@@ -121,10 +136,13 @@
   const videoModalRef = useTemplateRef('videoModalRef');
   const census1920GeoJson = ref(emptyGeoJson);
   const backendHost = import.meta.env.VITE_BACKEND_HOST;
-  const poiGeoJSON = ref({});
+  const poiGeoJSON = ref(emptyGeoJson);
+  const building1920GeoJSON = ref(emptyGeoJson);
+  const street1920GeoJSON = ref(emptyGeoJson);
+  const burnedAreaGeoJSON = ref(emptyGeoJson);
 
   async function fetchGeoJson (url) {
-    await fetch(`${url}`);
+    return await fetch(`${url}`,{method: 'GET', mode: 'cors'});
   }
 
   // Reset Functions
@@ -142,13 +160,21 @@
   }
 
   const dynamicLayers = [
+    "poi-layer",
     "search-layer",
-    "1920-census-layer"
+    "1920-building-layer",
+    "1920-street-layer",
+    "1920-burned-area-layer",
+    // "1920-census-layer"
   ]
 
   const dynamicSources = [
     "search-source",
-    "1920-census-source"
+    "poi-source",
+    "1920-building-source",
+    "1920-street-source",
+    "1920-burned-area-source",
+    // "1920-census-source"
   ];
 
   async function clearResults() {
@@ -248,6 +274,9 @@
   const handleMapCreated = async (mapbMap) => {
     mbMap.value = mapbMap;
     await getPOIs();
+    await getBuildings();
+    await getStreets();
+    await getBurnedArea();
     //poiLayerRef.value.fitMapToMarkers();
     // census1920GeoJson.value = await fetchGeoJson(census1920Url)
     //   .then(response =>
@@ -337,7 +366,7 @@
       }
     };
 
-    fetch(`${backendHost}/api/v2/search?search=data-poi&strict=false`,{method: 'GET', mode: 'cors'})
+    fetchGeoJson(`${backendHost}/api/search?search=data-poi&strict=false`)
     .then(response => response.json())
     .then(data => {
       let features = utils.dedupeByCustomKey(data.features, feature => feature.properties.location_id);
@@ -349,6 +378,48 @@
           poiLayerRef.value.fitMapToMarkers,
           1000);
     })
+  };
+
+  async function getBuildings() {
+    try {
+      const response = await fetch(`${import.meta.env.BASE_URL}tulsa-building-footprints.geojson`);
+      const data = await response.json();
+      building1920GeoJSON.value = {
+        type: 'geojson',
+        data: data
+      };
+      building1920GeoJSON.value.data.id = '1920-building-source';
+    } catch (error) {
+      console.error('Error loading buildings data:', error);
+    }
+  };
+
+  async function getStreets() {
+    try {
+      const response = await fetch(`${import.meta.env.BASE_URL}tulsa-roads.geojson`);
+      const data = await response.json();
+      street1920GeoJSON.value = {
+        type: 'geojson',
+        data: data
+      };
+      street1920GeoJSON.value.data.id = '1920-street-source';
+    } catch (error) {
+      console.error('Error loading streets data:', error);
+    }
+  };
+
+  async function getBurnedArea() {
+    try {
+      const response = await fetch(`${import.meta.env.BASE_URL}tulsa-burned-area.geojson`);
+      const data = await response.json();
+      burnedAreaGeoJSON.value = {
+        type: 'geojson',
+        data: data
+      };
+      burnedAreaGeoJSON.value.data.id = '1920-burned-area-source';
+    } catch (error) {
+      console.error('Error loading burned area data:', error);
+    }
   };
 
   function closeLandingPage() {
@@ -371,66 +442,105 @@
       @close="closeLandingPage">
     </LandingPage>
   </transition>
-    <!-- FAB Component to create menu with dynamic buttons-->
-    <FABMain nonce="ajJERjdDc1g5MlFadlZfdGdFIWI4dVchQ3o4Q3ZRYlQ=" @click="openLandingPage">
-    </FABMain>
+  <!-- FAB Component to create menu with dynamic buttons-->
+  <FABMain nonce="ajJERjdDc1g5MlFadlZfdGdFIWI4dVchQ3o4Q3ZRYlQ=" @click="openLandingPage">
+  </FABMain>
 
-    <!-- YearSelector Component to change year and perform searches -->
-    <YearSearchBar ref="yearSearchBarRef" @clear="clearResults" :onSearch="handleSearch" :onYearChange="updateYear" :years="years"></YearSearchBar>
+  <!-- YearSelector Component to change year and perform searches -->
+  <YearSearchBar ref="yearSearchBarRef" @clear="clearResults" :onSearch="handleSearch" :onYearChange="updateYear" :years="years"></YearSearchBar>
 
-    <!-- Map Component with layer containing dynamic GeoJSON search results-->
-    <MglMap nonce="ajJERjdDc1g5MlFadlZfdGdFIWI4dVchQ3o4Q3ZRYlQ=" :class="['map-area', { 'map-area-shrunk' : showResults }]" :year="appYear" ref="mglMapRef" @created="handleMapCreated" :dynamicGeoJsonIds="{'dynamicLayers': dynamicLayers, 'dynamicSources': dynamicSources}">
-    <!-- <MglMap :year="appYear" ref="mglMapRef" @created="handleMapCreated" :dynamicGeoJsonIds="{'dynamicLayers': dynamicLayers, 'dynamicSources': dynamicSources}" :paintOptions="markerPaintOptions"> -->
-      <DynamicGeoJsonLayer
-        v-if="geoJson && geoJson.data && geoJson.data.features && geoJson.data.features.length > 0"
-        :geojson="geoJson"
-        :type="'circle'"
-        :paint="markerPaintOptions['Search Results']"
-        :layout="{ 'visibility': 'visible' }"
-        layerId="search-layer"
-        :filterYear="appYear"
-        :map="mbMap"
-        :featureFormatter="formatFeature">
-      </DynamicGeoJsonLayer>
-      <DynamicGeoJsonLayer
-        v-if="poiGeoJSON && poiGeoJSON.data && poiGeoJSON.data.features && poiGeoJSON.data.features.length > 0"
-        ref="POILayerRef"
-        :geojson="poiGeoJSON"
-        :type="'circle'"
-        :paint="markerPaintOptions['Points of Interest']"
-        :layout="{ 'visibility': 'visible'
-        }"
-        layerId="poi-layer"
-        :filterYear="appYear"
-        :map="mbMap"
-        :featureFormatter="formatFeature"
-        :searchTerm="searchTerm">
-      </DynamicGeoJsonLayer>
-      <!-- <DynamicGeoJsonLayer
-        v-if="census1920GeoJson && census1920GeoJson.data && census1920GeoJson.data.features && census1920GeoJson.data.features.length > 0"
-        ref="census1920LayerRef"
-        :geojson="census1920GeoJson"
-        :type="'circle'"
-        :paint="census1920GeoJsonFeaturePaint"
-        :layout="{ 'visibility': 'visible' }"
-        layerId="1920-census-layer"
-        :filterYear="appYear"
-        :map="mbM ap"
-        :featureFormatter="formatFeature"
-        :searchTerm="searchTerm"
-      </DynamicGeoJsonLayer> -->
-    </MglMap>
-    <!-- Results Pane Component containing search results-->
-    <transition name="slide-results" mode="out-in">
-      <!-- <ResultsPane -->
-      <ResultsPane v-if="showResults"
-        ref="resultsPaneRef"
-        class="results-pane"
-        :years="years"
-        :year="appYear"
-        @update:geojson="handleGeojson">
-      </ResultsPane>
-    </transition>
+  <!-- Map Component with layer containing dynamic GeoJSON search results-->
+  <MglMap nonce="ajJERjdDc1g5MlFadlZfdGdFIWI4dVchQ3o4Q3ZRYlQ=" :class="['map-area', { 'map-area-shrunk' : showResults }]" :year="appYear" ref="mglMapRef" @created="handleMapCreated" :dynamicGeoJsonIds="{'dynamicLayers': dynamicLayers, 'dynamicSources': dynamicSources}">
+  <!-- <MglMap :year="appYear" ref="mglMapRef" @created="handleMapCreated" :dynamicGeoJsonIds="{'dynamicLayers': dynamicLayers, 'dynamicSources': dynamicSources}" :paintOptions="markerPaintOptions"> -->
+    <DynamicGeoJsonLayer
+      v-if="geoJson && geoJson.data && geoJson.data.features && geoJson.data.features.length > 0"
+      :geojson="geoJson"
+      :type="'circle'"
+      :paint="markerPaintOptions['Search Results']"
+      :layout="{ 'visibility': 'visible' }"
+      layerId="search-layer"
+      :filterYear="appYear"
+      :map="mbMap"
+      :featureFormatter="formatFeature">
+    </DynamicGeoJsonLayer>
+    <DynamicGeoJsonLayer
+      v-if="poiGeoJSON && poiGeoJSON.data && poiGeoJSON.data.features && poiGeoJSON.data.features.length > 0"
+      ref="POILayerRef"
+      :geojson="poiGeoJSON"
+      :type="'circle'"
+      :paint="markerPaintOptions['Points of Interest']"
+      :layout="{ 'visibility': 'visible'
+      }"
+      layerId="poi-layer"
+      :filterYear="appYear"
+      :map="mbMap"
+      :featureFormatter="formatFeature"
+      :searchTerm="searchTerm">
+    </DynamicGeoJsonLayer>
+    <DynamicGeoJsonLayer
+      v-if="building1920GeoJSON && building1920GeoJSON.data && building1920GeoJSON.data.features && building1920GeoJSON.data.features.length > 0"
+      ref="building1920LayerRef"
+      :geojson="building1920GeoJSON"
+      :type="'fill'"
+      :paint="markerPaintOptions['nytBuildingPaint']"
+      :layout="{ 'visibility': 'visible' }"
+      layerId="1920-building-layer"
+      :filterYear="appYear"
+      :map="mbMap"
+      :featureFormatter="formatFeature"
+      :searchTerm="searchTerm"
+    </DynamicGeoJsonLayer>
+    <DynamicGeoJsonLayer
+      v-if="street1920GeoJSON && street1920GeoJSON.data && street1920GeoJSON.data.features && street1920GeoJSON.data.features.length > 0"
+      ref="street1920LayerRef"
+      :geojson="street1920GeoJSON"
+      :type="'line'"
+      :paint="markerPaintOptions['street1920Paint']"
+      :layout="{ 'visibility': 'visible' }"
+      layerId="1920-street-layer"
+      :filterYear="appYear"
+      :map="mbMap"
+      :featureFormatter="formatFeature"
+      :searchTerm="searchTerm"
+    </DynamicGeoJsonLayer>
+    <DynamicGeoJsonLayer
+      v-if="burnedAreaGeoJSON && burnedAreaGeoJSON.data && burnedAreaGeoJSON.data.features && burnedAreaGeoJSON.data.features.length > 0"
+      ref="burnedArea1920LayerRef"
+      :geojson="burnedAreaGeoJSON"
+      :type="'fill'"
+      :paint="markerPaintOptions['burnedAreaPaint']"
+      :layout="{ 'visibility': 'visible' }"
+      layerId="1920-burned-area-layer"
+      :filterYear="appYear"
+      :map="mbMap"
+      :featureFormatter="formatFeature"
+      :searchTerm="searchTerm"
+    </DynamicGeoJsonLayer>
+    <!-- <DynamicGeoJsonLayer
+      v-if="census1920GeoJson && census1920GeoJson.data && census1920GeoJson.data.features && census1920GeoJson.data.features.length > 0"
+      ref="census1920LayerRef"
+      :geojson="census1920GeoJson"
+      :type="'circle'"
+      :paint="census1920GeoJsonFeaturePaint"
+      :layout="{ 'visibility': 'visible' }"
+      layerId="1920-census-layer"
+      :filterYear="appYear"
+      :map="mbMap"
+      :featureFormatter="formatFeature"
+      :searchTerm="searchTerm"
+    </DynamicGeoJsonLayer> -->
+  </MglMap>
+  <!-- Results Pane Component containing search results-->
+  <transition name="slide-results" mode="out-in">
+    <!-- <ResultsPane -->
+    <ResultsPane v-if="showResults"
+      ref="resultsPaneRef"
+      class="results-pane"
+      :years="years"
+      :year="appYear"
+      @update:geojson="handleGeojson">
+    </ResultsPane>
+  </transition>
 </template>
 
 <style scoped>
@@ -455,7 +565,7 @@
     height: 100vh;
     z-index: 10000;
   }
-/* 
+/*
   .mgl-map-wrapper {
     height: var(--map-height);
     width: var(--map-width);

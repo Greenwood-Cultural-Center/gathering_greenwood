@@ -97,6 +97,8 @@ class ResultsJson {
       throw new Error("Invalid year");
     }
 
+    year = Number.parseInt(year);
+
     return new ResultsJson({
       buildings: this.buildings.filter((b) => b.year === year),
       people: this.people.filter((p) => p.year === year),
