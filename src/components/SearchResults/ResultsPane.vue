@@ -97,7 +97,7 @@
     try {
       const [resultsRes, geoJsonRes] = await Promise.all([
         fetch(`${backendHost}/api/json?search=${searchTerm.value}`),
-        fetch(`${backendHost}/api/v2/search?search=${searchTerm.value}`)
+        fetch(`${backendHost}/api/search?search=${searchTerm.value}`)
       ]);
 
       resultsData.value = await resultsRes.json();
@@ -145,6 +145,7 @@
       emit('update:results', results.value);
     } catch (err) {
       console.error(err);
+
       toast.error(`There was an error fetching results: Server is not responding. Please notify Administrator.`);
     } finally {
       loading.value = false;

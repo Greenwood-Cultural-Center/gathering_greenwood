@@ -3,6 +3,7 @@
   import { MglGeojsonLayer, MglPopup } from 'vue-mapbox3';
   import FeatureModal from '@Modals/FeatureModal.vue';
   import utils from '@utils/utils.js';
+import DetailDrawer from '../Utility/DetailDrawer.vue';
 
   const props = defineProps({
     geojson: {
@@ -90,18 +91,20 @@
 
   const clickedfeature = ref({id:0, properties: {}, geometry: { type: 'Point', coordinates: [0, 0] } });
 
-  const dialogRef = ref(null);
+  const detailRef = ref(null);
+  const showDrawer = ref(false);
 
   // Conditionally apply filter based on string year
   const layerDefinition = computed(() => {
     const includeSearch = props.layerId.includes("search");
+    const YearExemptLayers = ['1920-burned-area-layer', 'poi-layer', '1920-street-layer', '1920-building-layer'];
     const hasYear = props.filterYear && utils.isYear(props.filterYear);
     const hasSearchTerm = !!props.searchTerm && includeSearch;
 
     const filterParts = ['all'];
 
-    if (hasYear) {
-      filterParts.push(['==', ['get', 'year'], props.filterYear]);
+    if (hasYear && !YearExemptLayers.includes(props.layerId)) {
+      filterParts.push(['==', ['get', 'year'], props.filterYear === "" ? "" : Number.parseInt(props.filterYear)]);
     }
 
     if (hasSearchTerm) {
@@ -123,6 +126,13 @@
 // Popup state
 const popupCoords = ref(null);
 const popupProps = ref(null);
+
+
+  function showDetails() {
+    // modalRef.value?.openDialog();
+    // modalHidden.value = false;
+    showDrawer.value = true;
+  }
 
 
   onMounted(() => {
@@ -167,8 +177,10 @@ const popupProps = ref(null);
       easing: (t) => t
     });
     console.log(clickedfeature)
-    var open = dialogRef.value?.openDialog;
-     // new MglPopup({
+    // var open = detailRef.value?.openDialog;
+    var open = showDetails;
+
+    // new MglPopup({
     //   closeButton: true,
     //   closeOnClick: false,
     //   coordinates: clickedfeature.value.geometry.coordinates,
@@ -195,16 +207,20 @@ const popupProps = ref(null);
   />
    <!-- Popup for selected feature -->
   <!-- <MglPopup :coordinates="popupCoords" anchor="bottom" @close="popupCoords = null">
-    <div @click="{ dialogRef.value?.openDialog; }">
+    <div @click="{ detailRef.value?.openDialog; }">
       <strong>{{ popupProps?.name || popupProps?.description }}</strong><br>
       <small>{{ popupProps?.type || 'Feature' }}</small>
     </div>
   </MglPopup> -->
   <!-- <slot name="modal" :feature="clickedfeature" />
   <slot /> -->
-  <FeatureModal
+  <DetailDrawer
+    v-if="clickedfeature"
+    :item="clickedfeature"
+    v-model="showDrawer"/>
+  <!-- <FeatureModal
     v-if="clickedfeature"
     :feature="clickedfeature"
-    ref="dialogRef"/>
+    ref="detailRef"/> -->
 
 </template>

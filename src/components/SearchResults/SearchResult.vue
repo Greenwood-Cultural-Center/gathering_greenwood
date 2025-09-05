@@ -2,6 +2,7 @@
   import { computed, ref, useId } from 'vue';
   import ListItem from '@Utility/ListItem.vue';
   import ResultModal from '@Modals/ResultModal.vue';
+  import DetailDrawer from '../Utility/DetailDrawer.vue';
 
   const props = defineProps({
     item: Object,
@@ -11,6 +12,7 @@
   const modalRef = ref(null);
 
   const modalHidden = ref(true);
+  const showDrawer = ref(false);
 
   const thisId = useId();
 
@@ -18,9 +20,10 @@
     return `result-modal-${props.category}-${thisId}`;
   });
 
-  function showDialog() {
-    modalRef.value?.openDialog();
-    modalHidden.value = false;
+  function showDetails() {
+    // modalRef.value?.openDialog();
+    // modalHidden.value = false;
+    showDrawer.value = true;
   }
 
   function modalClose() {
@@ -30,7 +33,7 @@
   const icon = computed(() => {
     switch (props.category.toLowerCase()) {
       case 'buildings':
-        switch (props.item.type[0]) {
+        switch (props.item.building_types.toLowerCase()) {
           case 'public': return 'building';
           case 'residential': return 'house';
           case 'religious': return 'church';
@@ -75,15 +78,16 @@
 
 <template>
   <ListItem class="search-result"
-    @click="showDialog"
+    @click="showDetails"
     aria-haspopup="dialog"
     :aria-controls="modalId"
-    @keydown.enter="showDialog"
-    @keydown.space.prevent="showDialog"
+    @keydown.enter="showDetails"
+    @keydown.space.prevent="showDetails"
     :icon="icon"
     :iconTitle="formatKey(category, 1)+' result-'+ thisId">
     {{ item?.name || item?.description || item?.caption || item?.story?.name }}
-    <ResultModal ref="modalRef" :aria-hidden="modalHidden" :dialogId="modalId" @close="modalClose" :item="item" :category="category" />
+    <DetailDrawer v-model="showDrawer" :item="item" :category="category" />
+    <!-- <ResultModal ref="modalRef" :aria-hidden="modalHidden" :dialogId="modalId" @close="modalClose" :item="item" :category="category" /> -->
   </ListItem>
 </template>
 

@@ -184,7 +184,7 @@
     :accessToken="accessToken"
     :mapStyle="style"
     :bounds="boundingBox"
-    :maxZoom=21
+    :maxZoom=19
     :maxBounds="maxBounds"
     :attributionControl="false"
     @load="onMapLoaded"

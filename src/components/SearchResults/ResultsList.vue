@@ -78,7 +78,7 @@
       height: 72%;
     }
   }
-/* 
+/*
   @media screen and (max-height: 700px) {
     .category-title {
       font-size: 1.7rem;
