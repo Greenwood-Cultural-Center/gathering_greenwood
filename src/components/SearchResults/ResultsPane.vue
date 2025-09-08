@@ -97,7 +97,7 @@
     try {
       const [resultsRes, geoJsonRes] = await Promise.all([
         fetch(`${backendHost}/api/json?search=${searchTerm.value}`),
-        fetch(`${backendHost}/api/search?search=${searchTerm.value}`)
+        fetch(`${backendHost}/api/v2/search?search=${searchTerm.value}`)
       ]);
 
       resultsData.value = await resultsRes.json();

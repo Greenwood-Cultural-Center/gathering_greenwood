@@ -7,10 +7,14 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 const props = defineProps({ item: {type: Object, required: true} });
 
-const formatLocation = (location) => {return location && location.every((coord) => coord) ? location.join(",") : 'Unknown'};
+const formatLocation = (item) => {
+  let location = item.location || item.geometry.coordinates;
+  return location && location.every((coord) => coord) ? location.join(",") : 'Unknown';
+};
 
+const person_array = props.item.properties?.people || props.item.people;
 
-const people = props.item.properties?.people?.sort((a,b) => {
+const people = person_array?.sort((a,b) => {
     const nameA = a?.sortable_name?.toUpperCase();
     const nameB = b?.sortable_name?.toUpperCase();
     if (nameA < nameB) {
@@ -23,18 +27,24 @@ const people = props.item.properties?.people?.sort((a,b) => {
 }) || [];
 
 const census_records = () => {
-  let people_census_ids = people.flatMap(person => person.properties?.census_records?.flatMap(record => record.id));
-  return props.item.properties?.census_records?.filter(record => !people_census_ids?.includes(record.id))?.sort((a,b) => {
-    const nameA = a?.sortable_name?.toUpperCase();
-    const nameB = b?.sortable_name?.toUpperCase();
-    if (nameA < nameB) {
-        return -1;
-    }
-    if (nameA > nameB) {
-        return 1;
-    }
-    return 0;
-}) || [];
+  let census_records = props.item.properties?.census_records || props.item.census_records;
+  if (census_records && Array.isArray(census_records) && census_records.length !== 0) {
+    let people_census_ids = people.flatMap(person => census_records?.flatMap(record => record.id));
+    return census_records?.filter(record => !people_census_ids?.includes(record.id))?.sort((a,b) => {
+      const nameA = a?.sortable_name?.toUpperCase();
+      const nameB = b?.sortable_name?.toUpperCase();
+      if (nameA < nameB) {
+          return -1;
+      }
+      if (nameA > nameB) {
+          return 1;
+      }
+      return 0;
+    }) || [];
+  }
+  else {
+    return [];
+  };
 };
 
 const regex = /(?:<pre>)?(?:&lt;|<)i data-poi(?:=?(?:&quot;&quot;|""|\\\\"\\\\")?)?(?:&gt;|>)(?:&lt;\/|<\/)i(?:&gt;|>)(?:<\/pre>)?/gi;
@@ -72,8 +82,22 @@ const searchableName = (person) => {
     return 'Unknown';
   }};
 
+function getAddress(item) {
+  if (item && item?.address) {
+    return item?.address;
+  }
+  else if (item && item?.addresses && item?.addresses.length) {
+    return getPrimaryAddress(item?.addresses).searchable_text;
+  }
+  else {
+    return 'Unknown';
+  }};
 
-function getreadablePersonId(notes) {
+function getPrimaryAddress(addresses){
+  return addresses.find((address) => address.is_primary)
+}
+
+function getReadablePersonId(notes) {
   const match = notes?.match(/ID: P-(\d+)/);
   return match ? match[1] : null;
 }
@@ -115,10 +139,10 @@ function age(person) {
 };
 
 const rich_description = computed(() => {
-  if (!props.item || !props.item?.rich_description) {
+  if (!props.item || !props.item?.rich_description?.body) {
     return 'N/A';
   }
-  return props.item?.rich_description?.replace(regex, "") || 'N/A';
+  return props.item?.rich_description?.body?.replace(regex, "") || 'N/A';
 });
 
 </script>
@@ -127,11 +151,11 @@ const rich_description = computed(() => {
   <div>
     <h3>Building Details</h3>
     <InfoWindow v-if="item.confidence_score" :item="item"></InfoWindow>
-    <img v-if="item.photo" :src="item.photo" :alt="item.name || item.address" style="max-width: 100%; height: auto; margin-bottom: 1rem;" />
-    <p><strong>Name:</strong> {{ item.name || item.address.replaceAll("  "," ") }}</p>
-    <p><strong>{{utils.titleCase(item.rich_description_name)}}:</strong><span v-html="rich_description"></span></p>
-    <p><strong>Address:</strong> {{ item.address.replaceAll("  "," ") }} </p>
-    <p><strong>Location:</strong> {{ formatLocation(item.location) }}</p>
+    <img v-if="item.photo" :src="item.photo" :alt="item.name || getAddress(item)" style="max-width: 100%; height: auto; margin-bottom: 1rem;" />
+    <p><strong>Name:</strong> {{ item.name || getAddress(item).replaceAll("  "," ") }}</p>
+    <p><strong>{{utils.titleCase(item.rich_description.name)}}:</strong><span v-html="rich_description"></span></p>
+    <p><strong>Address:</strong> {{ getAddress(item).replaceAll("  "," ") }} </p>
+    <p><strong>Location:</strong> {{ formatLocation(item) }}</p>
     <div class="people_container" v-if="people.length">
       <h3>Associated People</h3>
       <div v-for="(person,index) in people" :id="getPersonID(person?.notes)" :name="`person`" class="person_accordian" :key="getPersonID(person?.notes) || person?.id">
@@ -146,9 +170,9 @@ const rich_description = computed(() => {
           <p><strong>Birth Year:</strong> {{ person?.birth_year }}</p>
           <p><strong>Census Year:</strong> {{ person?.year }}</p>
           <p><strong>Notes:</strong> {{ person?.notes }}</p>
-          <div v-if="person.properties.census_records && person.properties.census_records.length">
+          <div v-if="person?.properties?.census_records && person?.properties?.census_records?.length">
             <h4>Census Records:</h4>
-            <details v-for="(record,index) in person.properties.census_records.filter((cr => cr.person_id === person.id))" name="people_census" :key="record.id">
+            <details v-for="(record,index) in person?.properties?.census_records?.filter((cr => cr.person_id === person.id))" name="people_census" :key="record.id">
               <summary><h6>{{ searchableName(record) + '(' + (record?.age || '') + ')'}}</h6></summary>
               <CensusRecordFields :record="record"></CensusRecordFields>
             </details>

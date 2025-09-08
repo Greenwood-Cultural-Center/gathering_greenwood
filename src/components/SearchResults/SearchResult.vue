@@ -33,7 +33,7 @@
   const icon = computed(() => {
     switch (props.category.toLowerCase()) {
       case 'buildings':
-        switch (props.item.building_types.toLowerCase()) {
+        switch (props.item.type[0].name.toLowerCase()) {
           case 'public': return 'building';
           case 'residential': return 'house';
           case 'religious': return 'church';

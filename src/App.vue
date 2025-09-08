@@ -273,10 +273,10 @@
 
   const handleMapCreated = async (mapbMap) => {
     mbMap.value = mapbMap;
-    await getPOIs();
-    await getBuildings();
     await getStreets();
+    await getBuildings();
     await getBurnedArea();
+    await getPOIs();
     //poiLayerRef.value.fitMapToMarkers();
     // census1920GeoJson.value = await fetchGeoJson(census1920Url)
     //   .then(response =>
@@ -366,7 +366,7 @@
       }
     };
 
-    fetchGeoJson(`${backendHost}/api/search?search=data-poi&strict=false`)
+    fetchGeoJson(`${backendHost}/api/v2/search?search=data-poi&strict=false`)
     .then(response => response.json())
     .then(data => {
       let features = utils.dedupeByCustomKey(data.features, feature => feature.properties.location_id);
@@ -563,7 +563,7 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    z-index: 10000;
+    z-index: 10001;
   }
 /*
   .mgl-map-wrapper {

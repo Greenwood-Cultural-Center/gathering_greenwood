@@ -88,10 +88,14 @@ class ResultsGeoJson {
   }
 
   filterByYear(year) {
+    const normalizedYear = year?.toString() || ''
     const filteredFeatures = this.features.length === 0
       ? []
-      : this.features.filter((feature) => feature.properties.year === year);
-
+      : this.features.filter((feature) => {
+          const featureYear = feature.properties?.year?.toString() || '';
+          return featureYear === normalizedYear;
+        });
+S
     return new ResultsGeoJson({
       type: this.type,
       features: filteredFeatures

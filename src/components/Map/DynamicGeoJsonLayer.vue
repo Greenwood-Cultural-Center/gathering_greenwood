@@ -104,7 +104,7 @@ import DetailDrawer from '../Utility/DetailDrawer.vue';
     const filterParts = ['all'];
 
     if (hasYear && !YearExemptLayers.includes(props.layerId)) {
-      filterParts.push(['==', ['get', 'year'], props.filterYear === "" ? "" : Number.parseInt(props.filterYear)]);
+      filterParts.push(['==', ['get', 'year'], props.filterYear === "" ? "" : Number.parseInt(props.filterYear).toString()]);
     }
 
     if (hasSearchTerm) {

@@ -93,20 +93,41 @@ class ResultsJson {
   }
 
   filterByYear(year) {
-    if (!year || typeof year !== "string") {
+    if (!year) {
       throw new Error("Invalid year");
     }
 
-    year = Number.parseInt(year);
+    const normalizedYear = Number.parseInt(year?.toString());
 
     return new ResultsJson({
-      buildings: this.buildings.filter((b) => b.year === year),
-      people: this.people.filter((p) => p.year === year),
-      census_records: this.census_records.filter((r) => r.year === year),
-      documents: this.documents.filter((d) => d.year === year),
-      media: this.media.filter((m) => m.year === year),
-      stories: this.stories.filter((s) => s.year === year),
-      count: this.count.filter((c) => c.year === year)
+      buildings: this.buildings.filter((b) => {
+        const buildingYear = Number.parseInt(b.year?.toString());
+        return buildingYear === normalizedYear;
+      }),
+      people: this.people.filter((p) => {
+        const personYear = Number.parseInt(p.year?.toString());
+        return personYear === normalizedYear;
+      }),
+      census_records: this.census_records.filter((r) => {
+        const recordYear = Number.parseInt(r.year?.toString());
+        return recordYear === normalizedYear;
+      }),
+      documents: this.documents.filter((d) => {
+        const documentYear = Number.parseInt(d.year?.toString());
+        return documentYear === normalizedYear;
+      }),
+      media: this.media.filter((m) => {
+        const mediaYear = Number.parseInt(m.year?.toString());
+        return mediaYear === normalizedYear;
+      }),
+      stories: this.stories.filter((s) => {
+        const storyYear = Number.parseInt(s.year?.toString());
+        return storyYear === normalizedYear;
+      }),
+      count: this.count.filter((c) => {
+        const countYear = Number.parseInt(c.year?.toString());
+        return countYear === normalizedYear;
+      })
     });
   }
 
