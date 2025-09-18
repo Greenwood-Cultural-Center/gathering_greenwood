@@ -194,6 +194,7 @@ const processedItem = computed(() => {
           :item="processedItem"
           v-if="getComponent"
           :key="`${getComponent.name || 'component'}-${JSON.stringify(processedItem).slice(0, 50)}`"
+          :year="item.year"
         />
         <div v-else class="unknown-type-message">
           <h3>Unknown Item Type</h3>

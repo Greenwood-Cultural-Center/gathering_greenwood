@@ -50,23 +50,49 @@ const census_records = () => {
 const regex = /(?:<pre>)?(?:&lt;|<)i data-poi(?:=?(?:&quot;&quot;|""|\\\\"\\\\")?)?(?:&gt;|>)(?:&lt;\/|<\/)i(?:&gt;|>)(?:<\/pre>)?/gi;
 
 function getRace(raceCode) {
+  const races = [
+    'White',
+    'Black',
+    'Native American',
+    'Asian',
+    'Hispanic',
+    'Mulatto',
+    'Other'
+  ]
   const raceMap = {
     'W': 'White',
     'B': 'Black',
     'I': 'Native American',
     'A': 'Asian',
     'H': 'Hispanic',
+    'M': 'Mulatto',
     'O': 'Other'
   };
+
+  if (races.includes(raceCode)) {
+    return raceCode;
+  }
+
   return raceMap[raceCode] || 'Unknown';
 };
 
-function getGender(genderCode) {
+function getGender(person) {
+  const genderCode = person?.gender || person?.sex;
+  const genders = [
+    'Male',
+    'Female',
+    'Other'
+  ];
   const genderMap = {
     'M': 'Male',
     'F': 'Female',
     'O': 'Other'
   };
+
+  if (genders.includes(genderCode)) {
+    return genderCode;
+  }
+
   return genderMap[genderCode] || 'Unknown';
 };
 
@@ -108,29 +134,39 @@ function getPersonID(notes) {
 }
 
 function age(person) {
+  let normalizedAge = person?.Age || person?.age;
   if (person) {
-    if (!person || !person?.Age || person?.age_months == null) {
+    if (!person) {
       return 'N/A';
     }
-    if (person?.Age === 0 && person?.age_months === 0) {
+    if (!person?.age) {
+      return props.item.year - person.birth_year;
+    }
+    if (normalizedAge > 0) {
+      return `${ normalizedAge } years`;
+    }
+    if (person?.age_months == null) {
+      return 'N/A';
+    }
+    if (normalizedAge === 0 && person?.age_months === 0) {
       return 'Newborn';
     }
-    if (person?.Age < 0 || person?.age_months < 0) {
+    if (normalizedAge < 0 || person?.age_months < 0) {
       return 'N/A';
     }
-    if (person?.Age === 0 && person?.age_months > 0) {
+    if (normalizedAge === 0 && person?.age_months > 0) {
       return `${ person?.age_months } months`;
     }
-    if (person?.Age > 0 && (person?.age_months === 0 || person?.age_months === '')) {
-      return `${ person?.Age } years`;
+    if (normalizedAge > 0 && (person?.age_months === 0 || person?.age_months === '')) {
+      return `${ normalizedAge } years`;
     }
-    if (person?.Age > 0 && person?.age_months > 0) {
-      return `${ person?.Age } years, ${ person?.age_months } months`;
+    if (normalizedAge > 0 && person?.age_months > 0) {
+      return `${ normalizedAge } years, ${ person?.age_months } months`;
     }
-    if (person?.Age > 0 && person?.age_months < 0) {
-      return `${ person?.Age } years`;
+    if (normalizedAge > 0 && person?.age_months < 0) {
+      return `${ normalizedAge } years`;
     }
-    if (person?.Age < 0 && person?.age_months > 0) {
+    if (normalizedAge < 0 && person?.age_months > 0) {
       return `${ person?.age_months } months`;
     }
     return `N/A`;
@@ -160,20 +196,20 @@ const rich_description = computed(() => {
       <h3>Associated People</h3>
       <div v-for="(person,index) in people" :id="getPersonID(person?.notes)" :name="`person`" class="person_accordian" :key="getPersonID(person?.notes) || person?.id">
         <details>
-          <summary><h4>{{ searchableName(person) + '( Age: ' + (person?.age || '') + ')' }} </h4></summary>
-          <p><strong>Name:</strong> {{ person?.name }}</p>
+          <summary><h4>{{ searchableName(person) + '( Age: ' + (age(person) || '') + ')' }} </h4></summary>
+          <p><strong>Name:</strong> {{ searchableName(person) }}</p>
           <p><strong>Description:</strong> {{ person?.description }}</p>
           <p><strong>Race:</strong> {{ getRace(person?.race) }}</p>
-          <p><strong>Gender:</strong> {{ getGender(person?.gender) }}</p>
-          <p><strong>Age:</strong> {{ person?.age }}</p>
-          <p><strong>Place of Birth:</strong> {{ person?.place_of_birth }}</p>
+          <p><strong>Gender:</strong> {{ getGender(person) }}</p>
+          <p><strong>Age:</strong> {{ age(person) }}</p>
+          <p><strong>Place of Birth:</strong> {{ person?.place_of_birth || person?.pob }}</p>
           <p><strong>Birth Year:</strong> {{ person?.birth_year }}</p>
-          <p><strong>Census Year:</strong> {{ person?.year }}</p>
+          <p><strong>Census Year:</strong> {{ item.year }}</p>
           <p><strong>Notes:</strong> {{ person?.notes }}</p>
           <div v-if="person?.properties?.census_records && person?.properties?.census_records?.length">
             <h4>Census Records:</h4>
             <details v-for="(record,index) in person?.properties?.census_records?.filter((cr => cr.person_id === person.id))" name="people_census" :key="record.id">
-              <summary><h6>{{ searchableName(record) + '(' + (record?.age || '') + ')'}}</h6></summary>
+              <summary><h6>{{ searchableName(record) + '(' + (age(record) || '') + ')'}}</h6></summary>
               <CensusRecordFields :record="record"></CensusRecordFields>
             </details>
           </div>
@@ -184,8 +220,8 @@ const rich_description = computed(() => {
     <div v-if="census_records.length">
       <h3>Census Records Without Associated People</h3>
       <details v-for="(record,index) in census_records" name="census" :key="getPersonID">
-        <summary><h4>{{ searchableName(record) + '(' + (record?.age || '') + ')'}}</h4></summary>
-        <CensusRecordFields :record="record"></CensusRecordFields>
+        <summary><h4>{{ searchableName(record) + '(' + (age(record) || '') + ')'}}</h4></summary>
+        <CensusRecordFields :record="record" :year="item.year"></CensusRecordFields>
       </details>
     </div>
   </div>
