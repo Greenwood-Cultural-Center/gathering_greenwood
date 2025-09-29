@@ -138,7 +138,7 @@
         count.value = JsonResponse.value.results.TotalCount();
       }
 
-      geojson.value = formatRawGeoJson(geoJsonResponse.value.results);
+      geojson.value = formatRawGeoJson(geoJsonResponse.value.results, 'search-source', null, 'location_id');
       lastSearch.value = searchTerm.value;
 
       emit('update:geojson', geojson.value);

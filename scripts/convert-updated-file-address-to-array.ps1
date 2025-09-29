@@ -1,0 +1,94 @@
+# Script to convert address property from string to array in Building_Footprints_updated.geojson
+Write-Host "Converting address property from string to array in Building_Footprints_updated.geojson..."
+
+# Read the GeoJSON file
+$geojsonPath = "d:\Jacrys Talach\Downloads\Building_Footprints_updated.geojson"
+Write-Host "Reading GeoJSON file: $geojsonPath"
+$geojsonContent = Get-Content -Path $geojsonPath -Raw
+$geojson = $geojsonContent | ConvertFrom-Json
+
+Write-Host "Found $($geojson.features.Count) features in GeoJSON"
+
+# Process each feature to convert address to array
+$processedCount = 0
+$convertedCount = 0
+$nullCount = 0
+
+foreach ($feature in $geojson.features) {
+    $processedCount++
+
+    if ($processedCount % 100 -eq 0) {
+        Write-Host "Processed $processedCount features..."
+    }
+
+    # Check if address exists and is not null
+    if ($feature.properties.address -ne $null -and $feature.properties.address.ToString().Trim() -ne "") {
+        $currentAddress = $feature.properties.address.ToString().Trim()
+
+        # Convert to array with single element
+        $addressArray = @($currentAddress)
+
+        # Replace the address property
+        $feature.properties.address = $addressArray
+        $convertedCount++
+
+        # Show first few examples
+        if ($convertedCount -le 5) {
+            Write-Host "Converted address '$currentAddress' to array: [$($addressArray -join ', ')]"
+        }
+    } else {
+        # Address is null or empty, leave as null
+        $feature.properties.address = $null
+        $nullCount++
+    }
+}
+
+Write-Host "`nCompleted processing $processedCount features"
+Write-Host "Converted $convertedCount addresses to arrays"
+Write-Host "Left $nullCount addresses as null"
+
+# Save back to the same file (overwrite the original)
+Write-Host "Saving updated GeoJSON back to: $geojsonPath"
+
+try {
+    # Convert to JSON with proper formatting
+    $jsonOutput = $geojson | ConvertTo-Json -Depth 10 -Compress:$false
+
+    # Write to file
+    [System.IO.File]::WriteAllText($geojsonPath, $jsonOutput, [System.Text.Encoding]::UTF8)
+
+    Write-Host "Successfully updated Building_Footprints_updated.geojson!"
+
+    # Verify the result by checking a few features
+    Write-Host "`nVerification: Checking address formats..."
+    $arrayCount = 0
+    $nullAddressCount = 0
+    $stringCount = 0
+
+    foreach ($feature in $geojson.features | Select-Object -First 10) {
+        if ($feature.properties.address -eq $null) {
+            $nullAddressCount++
+            if ($nullAddressCount -le 2) {
+                Write-Host "Feature has null address"
+            }
+        } elseif ($feature.properties.address -is [array]) {
+            $arrayCount++
+            if ($arrayCount -le 3) {
+                Write-Host "Feature has address array: [$($feature.properties.address -join ', ')]"
+            }
+        } else {
+            $stringCount++
+            Write-Host "WARNING: Feature still has string address: $($feature.properties.address)"
+        }
+    }
+
+    Write-Host "`nIn first 10 features: $arrayCount have address arrays, $nullAddressCount have null addresses, $stringCount have string addresses"
+
+    if ($stringCount -eq 0) {
+        Write-Host "✅ All addresses successfully converted to arrays!" -ForegroundColor Green
+    }
+
+} catch {
+    Write-Host "Error saving file: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "Error details: $($_.Exception)" -ForegroundColor Red
+}

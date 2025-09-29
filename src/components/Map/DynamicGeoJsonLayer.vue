@@ -1,9 +1,9 @@
 <script setup>
-  import { computed, onMounted, onUnmounted, ref, inject } from 'vue';
+  import { computed, onMounted, onUnmounted, ref, inject, watch } from 'vue';
   import { MglGeojsonLayer, MglPopup } from 'vue-mapbox3';
   import FeatureModal from '@Modals/FeatureModal.vue';
   import utils from '@utils/utils.js';
-import DetailDrawer from '../Utility/DetailDrawer.vue';
+  import DetailDrawer from '../Utility/DetailDrawer.vue';
 
   const props = defineProps({
     geojson: {
@@ -28,6 +28,7 @@ import DetailDrawer from '../Utility/DetailDrawer.vue';
       validator: val => typeof val === 'object' &&
         Object.keys(val).length > 0 &&
         Object.values(val).every(value => typeof value === 'string' ||
+          Array.isArray(value) ||
           typeof value === 'number'||
           typeof value === 'boolean')
     },
@@ -59,6 +60,14 @@ import DetailDrawer from '../Utility/DetailDrawer.vue';
     searchTerm: {
       type: String,
       default: ''
+    },
+    before: {
+      type: String,
+      default: null
+    },
+    poiGeoJson: {
+      type: Object,
+      default: null
     }
   })
 
@@ -94,10 +103,11 @@ import DetailDrawer from '../Utility/DetailDrawer.vue';
   const detailRef = ref(null);
   const showDrawer = ref(false);
 
+
   // Conditionally apply filter based on string year
   const layerDefinition = computed(() => {
     const includeSearch = props.layerId.includes("search");
-    const YearExemptLayers = ['1920-burned-area-layer', 'poi-layer', '1920-street-layer', '1920-building-layer'];
+    const YearExemptLayers = ['1920-burned-area-layer', 'poi-layer', '1920-street-layer', '1920-building-layer', '1920-all-building-layer'];
     const hasYear = props.filterYear && utils.isYear(props.filterYear);
     const hasSearchTerm = !!props.searchTerm && includeSearch;
 
@@ -155,12 +165,76 @@ const popupProps = ref(null);
     return json;
   }
 
+  function normalizeFeatureQuery(featureArray) {
+
+    const propertyDefinitions = {
+      "address": "Array",
+      "PRIMARY": "String",
+      "buildings": "Array",
+      "OBJECTID": "Number",
+      "STREET": "String"
+    }
+
+    featureArray.map(feature => {
+      Object.keys(feature.properties).map (prop => {
+        feature.properties[prop] = parseStringifiedValue(feature.properties[prop], propertyDefinitions[prop] || "String");
+      });
+    });
+
+    return featureArray;
+  }
+
+  function parseStringifiedValue(str, type) {
+    switch (type) {
+      case "Array":
+        try {
+          // Handle case where it might already be an array
+          if (Array.isArray(str)) return str;
+
+          // Handle null/undefined
+          if (!str) return [];
+
+          // Parse the encoded JSON string
+          return JSON.parse(str);
+        } catch (error) {
+          console.warn('Failed to parse stringified array:', str, error);
+          return [];
+        }
+      case "Number":
+        try {
+          // Handle case where it might already be an number
+          if (typeof(str) === 'number') return str;
+
+          // Handle null/undefined
+          if (!str) return null;
+
+          // Parse the encoded JSON string
+          return JSON.parse(str);
+        } catch (error) {
+          console.warn('Failed to parse stringified number:', str, error);
+          return null;
+        }
+      case "String":
+      default:
+        return String(str);
+    }
+  }
+
   async function handleClick(e) {
+    let matchingBuilding = null;
+
     if (!e || !e.features || e.features.length === 0) return;
     if (e.features.length > 1) {
       console.warn('Multiple features clicked, only the first will be processed.');
     }
-    if (!e.features[0].properties) {
+
+    if (props.layerId === '1920-all-building-layer' || props.layerId === '1920-street-layer' || props.layerId === '1920-burned-area-layer') {
+      return;
+    }
+
+    e.features = normalizeFeatureQuery(e.features);
+    let features = e.features;
+    if (!features[0].properties) {
       console.warn('Clicked feature has no properties, skipping.');
       return;
     }
@@ -168,9 +242,37 @@ const popupProps = ref(null);
       console.warn('featureFormatter is not a valid function, using default formatter.');
       props.featureFormatter = (feature) => feature;
     }
-    clickedfeature.value = props.featureFormatter(e.features[0]);
+
+    // Handle 1920-building-layer clicks - look up building data
+    if (props.layerId === '1920-building-layer' &&
+        features[0].properties.buildings &&
+        Array.isArray(features[0].properties.buildings) &&
+        features[0].properties.buildings.length > 0 &&
+        props.poiGeoJson) {
+
+      const firstBuildingId = features[0].properties.buildings[0];
+
+      matchingBuilding = props.poiGeoJson.data.features.find(building =>
+        building.properties.location_id && building.properties.location_id.toString() === firstBuildingId.toString()
+      );
+
+      if (matchingBuilding) {
+        // Spread matching building properties into features[0].properties
+        features[0].properties = {
+          ...features[0].properties,
+          ...matchingBuilding,
+          ...matchingBuilding.properties
+        };
+      }
+    }
+
+    delete features[0].properties.properties;
+
+    const combinedFeature = features[0];
+
+    clickedfeature.value = props.featureFormatter(combinedFeature);
     props.map.flyTo({
-      center: clickedfeature.value.geometry.coordinates,
+      center: clickedfeature.value.geometry?.coordinates[0][0] || clickedfeature.value.geometry?.coordinates[0] || clickedfeature.value.geometry.coordinates,
       zoom: 16,
       speed: 1.2,
       curve: 1.5,
@@ -204,6 +306,7 @@ const popupProps = ref(null);
     :source="validateJsonData(geojson)"
     :reactive="true"
     :layer="layerDefinition"
+    :before="before"
   />
    <!-- Popup for selected feature -->
   <!-- <MglPopup :coordinates="popupCoords" anchor="bottom" @close="popupCoords = null">
@@ -218,6 +321,7 @@ const popupProps = ref(null);
     v-if="clickedfeature"
     :item="clickedfeature"
     v-model="showDrawer"/>
+<!-- :category="layerId.includes('building') ? 'buildings' : (layerId.includes('poi') ? 'buildings' : null)" -->
   <!-- <FeatureModal
     v-if="clickedfeature"
     :feature="clickedfeature"

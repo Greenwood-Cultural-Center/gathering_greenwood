@@ -141,7 +141,7 @@
       const dynamicLayer = props.dynamicGeoJsonIds.dynamicLayers[dynamicIndex];
       const dynamicMapLayer = map.getLayer(dynamicLayer);
       if (dynamicMapLayer) {
-        map.on('mousemove', (e) => {
+        map.on('mouseenter', dynamicLayer, (e) => {
           var features = map.queryRenderedFeatures(e.point, {
               layers: [dynamicLayer]
           });
@@ -153,7 +153,7 @@
           }
         });
 
-        map.on('mouseleave', (e) => {
+        map.on('mouseleave', dynamicLayer, (e) => {
             map.getCanvasContainer().style.cursor = '';
         });
       }
@@ -187,11 +187,13 @@
     :maxZoom=19
     :maxBounds="maxBounds"
     :attributionControl="false"
+    :dragRotate="false"
+    :touchZoomRotate="{ pitchWithRotate: false, rotate: false }"
     @load="onMapLoaded"
     @sourcedata="onSourceUpdated"
   >
     <!-- Controls -->
-    <MglNavigationControl position="bottom-right"></MglNavigationControl>
+    <MglNavigationControl position="bottom-right" :showCompass=false></MglNavigationControl>
     <ContrastButton></ContrastButton>
     <!-- <Legend :markerPaintOptions="paintOptions" position="top-left"></Legend> -->
     <slot></slot>

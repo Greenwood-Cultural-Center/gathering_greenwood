@@ -38,7 +38,7 @@ export function titleCase(s) {
           .join(' ');
 };
 
-export function formatRawGeoJson(rawGeoJson, id='search-source', inject_year=null) {
+export function formatRawGeoJson(rawGeoJson, id='search-source', inject_year=null, promoteId=null) {
   if (rawGeoJson.type !== 'FeatureCollection') {
     console.warn('Invalid GeoJSON type, expected FeatureCollection.');
     return { type:'geojson', data: { id: id, type: 'FeatureCollection', features: [] } };
@@ -130,7 +130,8 @@ export function formatRawGeoJson(rawGeoJson, id='search-source', inject_year=nul
 
   return {
     type: 'geojson',
-    data: rawGeoJson
+    data: rawGeoJson,
+    promoteId: promoteId
   };
 };
 

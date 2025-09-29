@@ -110,7 +110,13 @@ const searchableName = (person) => {
 
 function getAddress(item) {
   if (item && item?.address) {
-    return item?.address;
+    if (Array.isArray(item?.address))
+    {
+      return item?.address[0];
+    }
+    else {
+      return item?.address;
+    }
   }
   else if (item && item?.addresses && item?.addresses.length) {
     return getPrimaryAddress(item?.addresses).searchable_text;
@@ -175,22 +181,22 @@ function age(person) {
 };
 
 const rich_description = computed(() => {
-  if (!props.item || !props.item?.rich_description?.body) {
+  if (!props.item || !props.item?.rich_description?.body || props.item?.rich_description?.body === '' || !props.item?.properties?.rich_description?.body) {
     return 'N/A';
   }
-  return props.item?.rich_description?.body?.replace(regex, "") || 'N/A';
+  return props.item?.rich_description?.body?.replace(regex, "") || props.item?.properties?.rich_description?.body?.replace(regex, "") ||'N/A';
 });
 
 </script>
 
 <template>
-  <div>
+  <div v-if="item.buildings && item.location_id">
     <h3>Building Details</h3>
     <InfoWindow v-if="item.confidence_score" :item="item"></InfoWindow>
-    <img v-if="item.photo" :src="item.photo" :alt="item.name || getAddress(item)" style="max-width: 100%; height: auto; margin-bottom: 1rem;" />
-    <p><strong>Name:</strong> {{ item.name || getAddress(item).replaceAll("  "," ") }}</p>
-    <p><strong>{{utils.titleCase(item.rich_description.name)}}:</strong><span v-html="rich_description"></span></p>
-    <p><strong>Address:</strong> {{ getAddress(item).replaceAll("  "," ") }} </p>
+    <img v-if="item.photo" :src="item.photo" :alt="item.name || item.title || getAddress(item)" style="max-width: 100%; height: auto; margin-bottom: 1rem;" />
+    <p><strong>Name:</strong> {{ item.name || item.title || item.POI || getAddress(item).replaceAll("  "," ") }}</p>
+    <p><strong>{{utils?.titleCase(item?.rich_description?.name || item?.properties?.rich_description?.name)}}:</strong><span v-html="rich_description"></span></p>
+    <p><strong>Address:</strong> {{ getAddress(item)?.replaceAll("  "," ") }} </p>
     <p><strong>Location:</strong> {{ formatLocation(item) }}</p>
     <div class="people_container" v-if="people.length">
       <h3>Associated People</h3>
@@ -204,7 +210,7 @@ const rich_description = computed(() => {
           <p><strong>Age:</strong> {{ age(person) }}</p>
           <p><strong>Place of Birth:</strong> {{ person?.place_of_birth || person?.pob }}</p>
           <p><strong>Birth Year:</strong> {{ person?.birth_year }}</p>
-          <p><strong>Census Year:</strong> {{ item.year }}</p>
+          <p><strong>Census Year:</strong> {{ item?.year }}</p>
           <p><strong>Notes:</strong> {{ person?.notes }}</p>
           <div v-if="person?.properties?.census_records && person?.properties?.census_records?.length">
             <h4>Census Records:</h4>
@@ -224,6 +230,12 @@ const rich_description = computed(() => {
         <CensusRecordFields :record="record" :year="item.year"></CensusRecordFields>
       </details>
     </div>
+  </div>
+  <div v-else>
+    <p><strong>Name:</strong> {{ item.name || item.title || item.POI || getAddress(item).replaceAll("  "," ") }}</p>
+    <p><strong>Address:</strong> {{ getAddress(item)?.replaceAll("  "," ") }} </p>
+    <p><strong>Location:</strong> {{ formatLocation(item) }}</p>
+    <p>No building information available.</p>
   </div>
 </template>
 

@@ -1,6 +1,7 @@
 <script setup>
   import { ref, computed, useTemplateRef, onMounted, inject, onUpdated, nextTick } from 'vue';
   import MglMap from '@/components/Map/MglMap.vue';
+  import { MglSymbolLayer } from 'vue-mapbox3';
   import FABMain from '@FAB/FABMain.vue';
   import FABButton from '@FAB/FABButton.vue';
   import ResultsPane from '@Results/ResultsPane.vue';
@@ -61,7 +62,7 @@
 
   const markerPaintOptions = {
     'Search Results' : {
-      'circle-color': '#f37021',
+      'circle-color': '#D36327',
       'circle-opacity': 1,
       'circle-radius': 8,
       'circle-stroke-color': '#ffffff',
@@ -87,6 +88,17 @@
       'circle-blur': 0,
     },
     nytBuildingPaint : {
+      'fill-color': ['case',
+        ['boolean', ['feature-state', 'search-item'], false ],'#D36327',
+        ['case',
+          ['==', ['get', 'POI'], null],
+          '#666666',
+          '#FFCC00'
+        ]
+      ],
+      'fill-opacity': 1
+    },
+    nytAllBuildingPaint : {
       'fill-color': '#666666',
       'fill-opacity': 1
     },
@@ -138,6 +150,7 @@
   const backendHost = import.meta.env.VITE_BACKEND_HOST;
   const poiGeoJSON = ref(emptyGeoJson);
   const building1920GeoJSON = ref(emptyGeoJson);
+  const building1920GeoJSONAll = ref(emptyGeoJson);
   const street1920GeoJSON = ref(emptyGeoJson);
   const burnedAreaGeoJSON = ref(emptyGeoJson);
 
@@ -160,20 +173,23 @@
   }
 
   const dynamicLayers = [
-    "poi-layer",
     "search-layer",
-    "1920-building-layer",
     "1920-street-layer",
     "1920-burned-area-layer",
+    "1920-all-building-layer",
+    "1920-building-layer",
+    "address-Layer",
+    // "poi-layer",
     // "1920-census-layer"
   ]
 
   const dynamicSources = [
     "search-source",
-    "poi-source",
-    "1920-building-source",
     "1920-street-source",
     "1920-burned-area-source",
+    "1920-all-building-source",
+    "1920-building-source",
+    // "poi-source",
     // "1920-census-source"
   ];
 
@@ -262,6 +278,142 @@
         mbMap.value.setLayoutProperty('search-layer', 'visibility', 'visible')
       }
     }
+
+    if (searchValue && geoJson?.data?.features) {
+      updateBuildingLayerPaint(geoJson.data.features);
+    }
+  }
+
+
+  function updateBuildingLayerPaint(searchFeatures) {
+    // Extract IDs from the search GeoJSON features
+    const searchIds = [];
+    searchFeatures.forEach(feature => {
+      if (feature.properties && feature.properties.location_id) {
+        searchIds.push(String(feature.properties.location_id)); // Ensure string comparison
+      }
+    });
+
+    if (searchIds.length === 0) {
+      // Reset building layer paint when no search results
+      resetBuildingLayerPaint();
+      return;
+    }
+
+    // Check if the building layer exists
+    const buildingLayerId = '1920-building-layer';
+    if (!props.map.getLayer(buildingLayerId)) {
+      console.warn('Building layer not found, cannot update paint');
+      return;
+    }
+
+    // Get the building layer source ID (should be from building1920GeoJSON)
+    const buildingLayer = props.map.getLayer(buildingLayerId);
+    const buildingSourceId = buildingLayer.source;
+
+    // Get all features from the building source
+    let buildingFeatures = props.map.querySourceFeatures(buildingSourceId);
+    const uniqueFeatures = [];
+    const uniqueIds = new Set();
+
+    for (const feature of buildingFeatures) {
+        if (feature.properties && feature.properties.OBJECTID && !uniqueIds.has(feature.properties.OBJECTID)) {
+            uniqueFeatures.push(feature);
+            uniqueIds.add(feature.properties.OBJECTID);
+        }
+    }
+
+    normalizeFeatureQuery(uniqueFeatures);
+
+    // Check which building features have matching IDs in their buildings array
+    const matchingBuildingIds = [];
+    uniqueFeatures.forEach(buildingFeature => {
+      if (buildingFeature.properties && buildingFeature.properties.buildings && Array.isArray(buildingFeature.properties.buildings)) {
+        const hasMatch = buildingFeature.properties.buildings.some(buildingId =>
+          searchIds.includes(String(buildingId))
+        );
+        if (hasMatch && buildingFeature.properties.OBJECTID) {
+          matchingBuildingIds.push(buildingFeature.properties.OBJECTID);
+        }
+      }
+    });
+
+    searchFeatures = uniqueFeatures.filter(feature => feature.properties && feature.properties.OBJECTID && searchIds.includes(String(feature.properties.OBJECTID)));
+
+    if (matchingBuildingIds.length > 0) {
+      for (const feature of searchFeatures) {
+        props.map.setFeatureState(
+          { source: buildingSourceId, id: feature.properties.OBJECTID },
+          { 'search-item': true }
+        );
+    };
+
+
+      console.log(`Highlighted ${matchingBuildingIds.length} buildings with matching IDs:`, matchingBuildingIds);
+    } else {
+      // Reset to default paint when no matches
+      resetBuildingLayerPaint();
+    }
+  }
+
+  function normalizeFeatureQuery(featureArray) {
+
+    const propertyDefinitions = {
+      "address": "Array",
+      "PRIMARY": "String",
+      "buildings": "Array",
+      "OBJECTID": "Number",
+      "STREET": "String"
+    }
+
+    featureArray.map(feature => {
+      Object.keys(feature.properties).map (prop => {
+        feature.properties[prop] = parseStringifiedValue(feature.properties[prop], propertyDefinitions[prop] || "String");
+      });
+    });
+  }
+
+  function parseStringifiedValue(str, type) {
+    switch (type) {
+      case "Array":
+        try {
+          // Handle case where it might already be an array
+          if (Array.isArray(str)) return str;
+
+          // Handle null/undefined
+          if (!str) return [];
+
+          // Parse the encoded JSON string
+          return JSON.parse(str);
+        } catch (error) {
+          console.warn('Failed to parse stringified array:', str, error);
+          return [];
+        }
+      case "Number":
+        try {
+          // Handle case where it might already be an number
+          if (typeof(str) === 'number') return str;
+
+          // Handle null/undefined
+          if (!str) return null;
+
+          // Parse the encoded JSON string
+          return JSON.parse(str);
+        } catch (error) {
+          console.warn('Failed to parse stringified number:', str, error);
+          return null;
+        }
+      case "String":
+      default:
+        return String(str);
+    }
+  }
+
+  function resetBuildingLayerPaint() {
+     const selectedFeatures = map.queryRenderedFeatures({
+        layers: ['1920-buildings-layer'], // Specify the layer(s) to query
+        filter: ['==', ['feature-state', 'search-item'], true]
+    });
   }
 
   function updateYear(newYear) {
@@ -273,10 +425,11 @@
 
   const handleMapCreated = async (mapbMap) => {
     mbMap.value = mapbMap;
-    await getStreets();
-    await getBuildings();
-    await getBurnedArea();
     await getPOIs();
+    await getStreets();
+    await getBurnedArea();
+    await getBuildings();
+    await getGreenwoodBuildings();
     //poiLayerRef.value.fitMapToMarkers();
     // census1920GeoJson.value = await fetchGeoJson(census1920Url)
     //   .then(response =>
@@ -291,7 +444,7 @@
 
   function formatFeature(feature) {
     return {
-      id: feature.id || feature.properties.id || feature.properties.location_id,
+      id: feature?.id || feature.properties?.id || feature.properties?.location_id || feature.properties?.OBJECTID,
       source: feature.source,
       layer: feature.layer,
       type: feature.type,
@@ -356,14 +509,15 @@
     }
   });
 
-  function getPOIs() {
+  async function getPOIs() {
     let poiGeoJSONTemplate = {
       type: 'geojson',
       data: {
         id: 'poi-source',
         type: 'FeatureCollection',
         features: []
-      }
+      },
+      promoteId: 'location_id'
     };
 
     fetchGeoJson(`${backendHost}/api/v2/search?search=data-poi&strict=false`)
@@ -373,20 +527,35 @@
       poiGeoJSONTemplate.data.features = features;
       poiGeoJSON.value = poiGeoJSONTemplate;
     })
-    .then(() => {
-      utils.delayedAction(
-          poiLayerRef.value.fitMapToMarkers,
-          1000);
-    })
+    // .then(() => {
+    //   utils.delayedAction(
+    //       poiLayerRef.value.fitMapToMarkers,
+    //       1000);
+    // })
   };
 
   async function getBuildings() {
     try {
       const response = await fetch(`${import.meta.env.BASE_URL}tulsa-building-footprints.geojson`);
       const data = await response.json();
-      building1920GeoJSON.value = {
+      building1920GeoJSONAll.value = {
         type: 'geojson',
         data: data
+      };
+      building1920GeoJSONAll.value.data.id = '1920-all-building-source';
+    } catch (error) {
+      console.error('Error loading buildings data:', error);
+    }
+  };
+
+  async function getGreenwoodBuildings() {
+    try {
+      const response = await fetch(`${import.meta.env.BASE_URL}Greenwood_Buildings_updated.geojson`);
+      const data = await response.json();
+      building1920GeoJSON.value = {
+        type: 'geojson',
+        data: data,
+        promoteId: 'OBJECTID'
       };
       building1920GeoJSON.value.data.id = '1920-building-source';
     } catch (error) {
@@ -431,6 +600,26 @@
     showLanding.value = true;
   }
 
+  function nameLayerDefinition(layerId, type, paint, layout) {
+    const hasYear = appYear.value && utils.isYear(appYear.value);
+
+    const filterParts = ['all'];
+
+    if (hasYear && !YearExemptLayers.includes(props.layerId)) {
+      filterParts.push(['==', ['get', 'year'], appYear.value === "" ? "" : Number.parseInt(appYear.value).toString()]);
+    }
+
+    const filter = filterParts;
+
+    return {
+      id: layerId,
+      type: type,
+      paint: paint,
+      layout: layout,
+      filter: filter,
+    }
+  }
+
 </script>
 
 <template>
@@ -463,7 +652,7 @@
       :map="mbMap"
       :featureFormatter="formatFeature">
     </DynamicGeoJsonLayer>
-    <DynamicGeoJsonLayer
+    <!--<DynamicGeoJsonLayer
       v-if="poiGeoJSON && poiGeoJSON.data && poiGeoJSON.data.features && poiGeoJSON.data.features.length > 0"
       ref="POILayerRef"
       :geojson="poiGeoJSON"
@@ -476,6 +665,42 @@
       :map="mbMap"
       :featureFormatter="formatFeature"
       :searchTerm="searchTerm">
+    </DynamicGeoJsonLayer>-->
+    <DynamicGeoJsonLayer
+      v-if="street1920GeoJSON && street1920GeoJSON.data && street1920GeoJSON.data.features && street1920GeoJSON.data.features.length > 0"
+      ref="street1920LayerRef"
+      :geojson="street1920GeoJSON"
+      :type="'line'"
+      :paint="markerPaintOptions['street1920Paint']"
+      :layout="{ 'visibility': 'visible' }"
+      layerId="1920-street-layer"
+      :filterYear="appYear"
+      :map="mbMap"
+      :featureFormatter="formatFeature">
+    </DynamicGeoJsonLayer>
+    <DynamicGeoJsonLayer
+      v-if="burnedAreaGeoJSON && burnedAreaGeoJSON.data && burnedAreaGeoJSON.data.features && burnedAreaGeoJSON.data.features.length > 0"
+      ref="burnedArea1920LayerRef"
+      :geojson="burnedAreaGeoJSON"
+      :type="'fill'"
+      :paint="markerPaintOptions['burnedAreaPaint']"
+      :layout="{ 'visibility': 'visible' }"
+      layerId="1920-burned-area-layer"
+      :filterYear="appYear"
+      :map="mbMap"
+      :featureFormatter="formatFeature">
+    </DynamicGeoJsonLayer>
+    <DynamicGeoJsonLayer
+      v-if="building1920GeoJSONAll && building1920GeoJSONAll.data && building1920GeoJSONAll.data.features && building1920GeoJSONAll.data.features.length > 0"
+      ref="allBuilding1920LayerRef"
+      :geojson="building1920GeoJSONAll"
+      :type="'fill'"
+      :paint="markerPaintOptions['nytAllBuildingPaint']"
+      :layout="{ 'visibility': 'visible' }"
+      layerId="1920-all-building-layer"
+      :filterYear="appYear"
+      :map="mbMap"
+      :featureFormatter="formatFeature">
     </DynamicGeoJsonLayer>
     <DynamicGeoJsonLayer
       v-if="building1920GeoJSON && building1920GeoJSON.data && building1920GeoJSON.data.features && building1920GeoJSON.data.features.length > 0"
@@ -488,34 +713,39 @@
       :filterYear="appYear"
       :map="mbMap"
       :featureFormatter="formatFeature"
-      :searchTerm="searchTerm"
+      :poiGeoJson="poiGeoJSON">
     </DynamicGeoJsonLayer>
-    <DynamicGeoJsonLayer
-      v-if="street1920GeoJSON && street1920GeoJSON.data && street1920GeoJSON.data.features && street1920GeoJSON.data.features.length > 0"
-      ref="street1920LayerRef"
-      :geojson="street1920GeoJSON"
-      :type="'line'"
-      :paint="markerPaintOptions['street1920Paint']"
-      :layout="{ 'visibility': 'visible' }"
-      layerId="1920-street-layer"
+    <!-- <MglSymbolLayer
+      v-if="building1920GeoJSON && building1920GeoJSON.data && building1920GeoJSON.data.features && building1920GeoJSON.data.features.length > 0"
+      ref="names1920LayerRef"
+      :geojson="building1920GeoJSON"
+      layerId="1920-names-layer"
+      sourceId="1920-building-source"
+      :layer="nameLayerDefinition('1920-names-layer', 'symbol', {}, {
+        'text-field': ['get', 'Name'],
+        'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+        'text-size': 12,
+        'text-offset': [0, 1.5],
+        'text-anchor': 'top',
+        'text-allow-overlap': false,
+        'text-ignore-placement': false,
+        'visibility': ['case', []]
+      })"
       :filterYear="appYear"
+      :layout = "{
+        'text-field': ['get', 'Name'],
+        'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+        'text-size': 12,
+        'text-offset': [0, 1.5],
+        'text-anchor': 'top',
+        'text-allow-overlap': false,
+        'text-ignore-placement': false,
+        'visibility': ['case', []]
+      }"
       :map="mbMap"
       :featureFormatter="formatFeature"
-      :searchTerm="searchTerm"
-    </DynamicGeoJsonLayer>
-    <DynamicGeoJsonLayer
-      v-if="burnedAreaGeoJSON && burnedAreaGeoJSON.data && burnedAreaGeoJSON.data.features && burnedAreaGeoJSON.data.features.length > 0"
-      ref="burnedArea1920LayerRef"
-      :geojson="burnedAreaGeoJSON"
-      :type="'fill'"
-      :paint="markerPaintOptions['burnedAreaPaint']"
-      :layout="{ 'visibility': 'visible' }"
-      layerId="1920-burned-area-layer"
-      :filterYear="appYear"
-      :map="mbMap"
-      :featureFormatter="formatFeature"
-      :searchTerm="searchTerm"
-    </DynamicGeoJsonLayer>
+      :searchTerm="searchTerm">
+    </MglSymbolLayer> -->
     <!-- <DynamicGeoJsonLayer
       v-if="census1920GeoJson && census1920GeoJson.data && census1920GeoJson.data.features && census1920GeoJson.data.features.length > 0"
       ref="census1920LayerRef"
