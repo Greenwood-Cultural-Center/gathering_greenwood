@@ -3,13 +3,16 @@ import { computed } from 'vue';
 import utils from '@utils/utils.js';
 import CensusRecordFields from '@FormsPartials/CensusRecordFields.vue';
 import InfoWindow from '@Utility/InfoWindow.vue';
+import { centroid } from "@turf/centroid";
+import { polygon } from "@turf/helpers";
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 const props = defineProps({ item: {type: Object, required: true} });
 
 const formatLocation = (item) => {
   let location = item.location || item.geometry.coordinates;
-  return location && location.every((coord) => coord) ? location.join(",") : 'Unknown';
+  //return location && location.every((coord) => coord) ? location.join(",") : 'Unknown';
+  return location && location.every((coord) => coord) ? (Array.isArray(location) && location.length !== 2 ? centroid(polygon(location)).geometry.coordinates.join(',') : location.join(',')) : 'Unknown';
 };
 
 const person_array = props.item.properties?.people || props.item.people;
@@ -232,6 +235,9 @@ const rich_description = computed(() => {
     </div>
   </div>
   <div v-else>
+    <h3>Building Details</h3>
+    <InfoWindow v-if="item.confidence_score" :item="item"></InfoWindow>
+    <img v-if="item.photo" :src="item.photo" :alt="item.name || item.title || getAddress(item)" style="max-width: 100%; height: auto; margin-bottom: 1rem;" />
     <p><strong>Name:</strong> {{ item.name || item.title || item.POI || getAddress(item).replaceAll("  "," ") }}</p>
     <p><strong>Address:</strong> {{ getAddress(item)?.replaceAll("  "," ") }} </p>
     <p><strong>Location:</strong> {{ formatLocation(item) }}</p>

@@ -25,6 +25,7 @@
 
   defineExpose({
     resetMap,
+    fitMapToMarkers,
   });
 
   const emit = defineEmits(['created']);
@@ -166,6 +167,7 @@
   async function onMapLoaded(event) {
     mapboxMap.value = event.map;
     let map = mapboxMap.value;
+    console.log('Map mounted, initial zoom is ', map?.getZoom());
     if (!utils.isEmpty(map)) {
       emit('created', map);
       changeYear(map, props.year);
@@ -175,7 +177,44 @@
       //   mb_logo.parentNode.parentNode.removeChild(mb_logo.parentNode)
       // }
     };
+    map.on('zoomend', () => {
+      const currentZoom = map.getZoom();
+      console.log('Zooming has finished. Current level:', currentZoom);
+    });
+    map.on('idle', () => {
+      var nameLayer = map.getLayer('1920-names-layer');
+      if (nameLayer) {
+        console.log('Map is idle, current zoom is ', map?.getZoom(), ' and nameLayer is ', nameLayer);
+      }
+    });
   };
+
+  function fitMapToMarkers() {
+    let map = mapboxMap.value;
+    // const bounds = new mapboxgl.LngLatBounds();
+
+    // // Get the features from the source
+    // const features = props.map.querySourceFeatures(props.geojson.data.id, {
+    //   sourceLayer: props.layerId // If using vector tiles, specify the source layer
+    // });
+
+    // // Extend the bounds for each feature
+    // for (const feature of features) {
+    //   if (feature.geometry.type === 'Point') {
+    //     bounds.extend(feature.geometry.coordinates);
+    //   }
+    // }
+
+    const bounds = [
+      [-95.99086391772016, 36.15750395590048], // Southwest coordinates
+      [-95.98425821948368, 36.16442765809438]  // Northeast coordinates
+    ];
+
+    // Fit the map to the calculated bounds
+    map.fitBounds(bounds, {
+      padding: 200
+    });
+  }
 </script>
 
 <template>

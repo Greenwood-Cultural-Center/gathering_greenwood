@@ -93,7 +93,7 @@
         ['case',
           ['==', ['get', 'POI'], null],
           '#666666',
-          '#FFCC00'
+          '#13331C'
         ]
       ],
       'fill-opacity': 1
@@ -145,6 +145,11 @@
   const yearSearchBarRef = useTemplateRef('yearSearchBarRef');
   const census1920LayerRef = useTemplateRef('census1920LayerRef');
   const poiLayerRef = useTemplateRef('POILayerRef');
+  const building1920LayerRef = useTemplateRef('building1920LayerRef');
+  const allBuilding1920LayerRef = useTemplateRef('allBuilding1920LayerRef');
+  const burnedAreaLayerRef = useTemplateRef('burnedAreaLayerRef');
+  const street1920LayerRef = useTemplateRef('street1920LayerRef');
+  const names1920LayerRef = useTemplateRef('names1920LayerRef');
   const videoModalRef = useTemplateRef('videoModalRef');
   const census1920GeoJson = ref(emptyGeoJson);
   const backendHost = import.meta.env.VITE_BACKEND_HOST;
@@ -282,8 +287,24 @@
     if (searchValue && geoJson?.data?.features) {
       updateBuildingLayerPaint(geoJson.data.features);
     }
+
+    fitMapToSearch();
   }
 
+
+  function fitMapToSearch() {
+    let map = mbMap.value;
+
+    const bounds = [
+      [-95.9920116989025, 36.158007967977824], // Southwest coordinates
+      [-95.9832913934226, 36.1651567575813]  // Northeast coordinates
+    ];
+
+    // Fit the map to the calculated bounds
+    map.fitBounds(bounds, {
+      padding: 100
+    });
+  }
 
   function updateBuildingLayerPaint(searchFeatures) {
     // Extract IDs from the search GeoJSON features
@@ -527,11 +548,11 @@
       poiGeoJSONTemplate.data.features = features;
       poiGeoJSON.value = poiGeoJSONTemplate;
     })
-    // .then(() => {
-    //   utils.delayedAction(
-    //       poiLayerRef.value.fitMapToMarkers,
-    //       1000);
-    // })
+    .then(() => {
+      utils.delayedAction(
+          mglMapRef.value.fitMapToMarkers,
+          1000);
+    })
   };
 
   async function getBuildings() {
@@ -600,13 +621,18 @@
     showLanding.value = true;
   }
 
-  function nameLayerDefinition(layerId, type, paint, layout) {
+  function nameLayerDefinition(layerId, type, paint, layout, ...addlOptions) {
     const hasYear = appYear.value && utils.isYear(appYear.value);
+    const YearExemptLayers = ['1920-burned-area-layer', 'poi-layer', '1920-street-layer', '1920-building-layer', '1920-all-building-layer', '1920-names-layer'];
 
     const filterParts = ['all'];
 
-    if (hasYear && !YearExemptLayers.includes(props.layerId)) {
+    if (hasYear && !YearExemptLayers.includes(layerId)) {
       filterParts.push(['==', ['get', 'year'], appYear.value === "" ? "" : Number.parseInt(appYear.value).toString()]);
+    }
+
+    if (layerId === '1920-names-layer') {
+      filterParts.push(['>=', ['zoom'], 16]);
     }
 
     const filter = filterParts;
@@ -617,6 +643,7 @@
       paint: paint,
       layout: layout,
       filter: filter,
+      ...addlOptions
     }
   }
 
@@ -715,37 +742,66 @@
       :featureFormatter="formatFeature"
       :poiGeoJson="poiGeoJSON">
     </DynamicGeoJsonLayer>
-    <!-- <MglSymbolLayer
+    <MglSymbolLayer
       v-if="building1920GeoJSON && building1920GeoJSON.data && building1920GeoJSON.data.features && building1920GeoJSON.data.features.length > 0"
       ref="names1920LayerRef"
       :geojson="building1920GeoJSON"
       layerId="1920-names-layer"
       sourceId="1920-building-source"
-      :layer="nameLayerDefinition('1920-names-layer', 'symbol', {}, {
-        'text-field': ['get', 'Name'],
-        'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
-        'text-size': 12,
-        'text-offset': [0, 1.5],
-        'text-anchor': 'top',
+      :layer="nameLayerDefinition('1920-names-layer', 'symbol',
+      {
+        'text-color': '#010101',
+        'text-halo-color': '#FFFFFF',
+        'text-halo-width': 3,
+        'text-halo-blur': 1
+      },
+      {
+        'text-field': [
+          'format',
+            [
+              'case',
+              ['has', 'title'],
+              ['get', 'title'],
+              ['get', 'POI']
+            ],
+            {
+              'text-color': '#006636'
+            },
+            '\n',
+            {},
+            [
+              'case',
+              ['has', 'address'],
+              [
+                'case',
+                ['>', ['length', ['get', 'address']], 0],
+                ['at', 0, ['get', 'address']],
+                ''
+              ],
+              ''
+            ],
+            { 'font-scale': 0.75}
+        ],
+        'text-font': ['Figtree'],
+        'text-anchor': 'center',
         'text-allow-overlap': false,
         'text-ignore-placement': false,
-        'visibility': ['case', []]
+        'text-letter-spacing': 0.1,
+        'visibility': 'visible'
       })"
       :filterYear="appYear"
-      :layout = "{
-        'text-field': ['get', 'Name'],
-        'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
-        'text-size': 12,
-        'text-offset': [0, 1.5],
-        'text-anchor': 'top',
-        'text-allow-overlap': false,
-        'text-ignore-placement': false,
-        'visibility': ['case', []]
-      }"
       :map="mbMap"
       :featureFormatter="formatFeature"
       :searchTerm="searchTerm">
-    </MglSymbolLayer> -->
+    </MglSymbolLayer>
+
+    <!--
+        'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+        'text-size': 12,
+        'text-offset': [0, 1.5],
+        'text-anchor': 'top',
+        'text-allow-overlap': false,
+        'text-ignore-placement': false-->
     <!-- <DynamicGeoJsonLayer
       v-if="census1920GeoJson && census1920GeoJson.data && census1920GeoJson.data.features && census1920GeoJson.data.features.length > 0"
       ref="census1920LayerRef"

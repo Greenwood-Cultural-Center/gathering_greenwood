@@ -221,6 +221,7 @@ const processedItem = computed(() => {
   height: 85%;
   padding: 1rem;
   overflow-y: auto;
+  word-wrap: break-word;
   line-height: 1;
 }
 

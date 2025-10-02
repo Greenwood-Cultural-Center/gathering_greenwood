@@ -78,19 +78,24 @@
   });
 
   function fitMapToMarkers() {
-    const bounds = new mapboxgl.LngLatBounds();
+    // const bounds = new mapboxgl.LngLatBounds();
 
-    // Get the features from the source
-    const features = props.map.querySourceFeatures(props.geojson.data.id, {
-      sourceLayer: props.layerId // If using vector tiles, specify the source layer
-    });
+    // // Get the features from the source
+    // const features = props.map.querySourceFeatures(props.geojson.data.id, {
+    //   sourceLayer: props.layerId // If using vector tiles, specify the source layer
+    // });
 
-    // Extend the bounds for each feature
-    for (const feature of features) {
-      if (feature.geometry.type === 'Point') {
-        bounds.extend(feature.geometry.coordinates);
-      }
-    }
+    // // Extend the bounds for each feature
+    // for (const feature of features) {
+    //   if (feature.geometry.type === 'Point') {
+    //     bounds.extend(feature.geometry.coordinates);
+    //   }
+    // }
+
+    const bounds = [
+      [-95.99293819642854, 36.15576946455974], // Southwest coordinates
+      [-95.98273612672106, 36.16555066509859]  // Northeast coordinates
+    ];
 
     // Fit the map to the calculated bounds
     props.map.fitBounds(bounds, {
