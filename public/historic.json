@@ -33,7 +33,7 @@
     }
   },
   "sprite": "https://www.openhistoricalmap.org/map-styles/historical/historical_spritesheet",
-  "glyphs": "http://localhost:5173/fonts/{fontstack}/{range}.pbf",
+  "glyphs": "https://greenwood.jacrys.com/fonts/{fontstack}/{range}.pbf",
   "layers": [
     {
       "id": "background",

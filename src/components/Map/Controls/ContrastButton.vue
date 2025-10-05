@@ -19,6 +19,32 @@ function onClick() {
     map.value.setPaintProperty('roads_tertiarybridgetop','line-color',['interpolate',['linear'],['zoom'],10,'rgba(217, 217, 217, 1)',11,'#ffffff']);
     map.value.setPaintProperty('roads_residential','line-color','#ffffff');
     map.value.setPaintProperty('landuse_areas_z12_localized_land_use','fill-color', ['interpolate',['linear'],['zoom'],0,['match',['get','type'],'railway','rgba(214, 214, 214, 1)','transparent']]);
+    map.value.setPaintProperty('1920-burned-area-layer','fill-color','#333333');
+    map.value.setPaintProperty('1920-burned-area-layer','fill-opacity',0.5);
+    map.value.setPaintProperty('1920-burned-area-layer','fill-outline-color','#111111');
+    map.value.setPaintProperty('1920-burned-area-outline-layer','line-color','#111111');
+    map.value.setPaintProperty('1920-building-layer','fill-color',
+      ['case',
+        ['boolean', ['feature-state', 'search-item'], false ],'#D36327',
+        ['case',
+          ['==', ['get', 'POI'], null],
+          '#555555',
+          '#405D47'
+        ]
+      ]);
+    map.value.setPaintProperty('1920-building-layer','fill-opacity',
+      ['case',
+        ['boolean', ['feature-state', 'search-item'], false ],1,
+        ['case',
+          ['==', ['get', 'POI'], null],
+          0.4,
+          1
+        ]
+      ]);
+    map.value.setPaintProperty('1920-all-building-layer','fill-color','#666666');
+    map.value.setPaintProperty('1920-all-building-layer','fill-opacity',0.20);
+    map.value.setLayoutProperty('1920-names-layer','text-size',24)
+    map.value.setLayoutProperty('1920-names-layer','text-letter-spacing',0.15)
     //map.value.setStyle('https://www.openhistoricalmap.org/map-styles/main/main.json');
   } else {
     //map.value.setStyle('/historic.json');
@@ -29,6 +55,32 @@ function onClick() {
     map.value.setPaintProperty('roads_tertiarybridgetop','line-color',['interpolate',['linear'],['zoom'],10,'rgba(217, 217, 217, 1)',11,'#EEE']);
     map.value.setPaintProperty('roads_residential','line-color','#EEE');
     map.value.setPaintProperty('landuse_areas_z12_localized_land_use','fill-color', ['interpolate',['linear'],['zoom'],0,['match',['get','type'],'railway','rgba(224, 224, 224, 1)','transparent']]);
+    map.value.setPaintProperty('1920-burned-area-layer','fill-color','#FF0000');
+    map.value.setPaintProperty('1920-burned-area-layer','fill-opacity',0.2);
+    map.value.setPaintProperty('1920-burned-area-layer','fill-outline-color','rgba(64, 0, 0)');
+    map.value.setPaintProperty('1920-burned-area-outline-layer','line-color','rgba(64, 0, 0)');
+    map.value.setPaintProperty('1920-building-layer','fill-color',
+      ['case',
+        ['boolean', ['feature-state', 'search-item'], false ],'#D36327',
+        ['case',
+          ['==', ['get', 'POI'], null],
+          '#555555',
+          '#405D47'
+        ]
+      ]);
+    map.value.setPaintProperty('1920-building-layer','fill-opacity',
+      ['case',
+        ['boolean', ['feature-state', 'search-item'], false ],1,
+        ['case',
+          ['==', ['get', 'POI'], null],
+          0.6,
+          1
+        ]
+      ]);
+    map.value.setPaintProperty('1920-all-building-layer','fill-color','#666666');
+    map.value.setPaintProperty('1920-all-building-layer','fill-opacity',0.45);
+    map.value.setLayoutProperty('1920-names-layer','text-size',16)
+    map.value.setLayoutProperty('1920-names-layer','text-letter-spacing',0.1)
   }
 }
 

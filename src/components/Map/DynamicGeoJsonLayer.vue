@@ -1,9 +1,9 @@
 <script setup>
-  import { computed, onMounted, onUnmounted, ref, inject, watch } from 'vue';
+  import { computed, onMounted, onUnmounted, ref, inject } from 'vue';
   import { MglGeojsonLayer, MglPopup } from 'vue-mapbox3';
   import FeatureModal from '@Modals/FeatureModal.vue';
   import utils from '@utils/utils.js';
-  import DetailDrawer from '../Utility/DetailDrawer.vue';
+import DetailDrawer from '../Utility/DetailDrawer.vue';
 
   const props = defineProps({
     geojson: {
@@ -28,9 +28,9 @@
       validator: val => typeof val === 'object' &&
         Object.keys(val).length > 0 &&
         Object.values(val).every(value => typeof value === 'string' ||
-          Array.isArray(value) ||
           typeof value === 'number'||
-          typeof value === 'boolean')
+          typeof value === 'boolean'||
+          (Array.isArray(value) && value.length > 0))
     },
     layout: {
       type: Object,
@@ -78,24 +78,19 @@
   });
 
   function fitMapToMarkers() {
-    // const bounds = new mapboxgl.LngLatBounds();
+    const bounds = new mapboxgl.LngLatBounds();
 
-    // // Get the features from the source
-    // const features = props.map.querySourceFeatures(props.geojson.data.id, {
-    //   sourceLayer: props.layerId // If using vector tiles, specify the source layer
-    // });
+    // Get the features from the source
+    const features = props.map.querySourceFeatures(props.geojson.data.id, {
+      sourceLayer: props.layerId // If using vector tiles, specify the source layer
+    });
 
-    // // Extend the bounds for each feature
-    // for (const feature of features) {
-    //   if (feature.geometry.type === 'Point') {
-    //     bounds.extend(feature.geometry.coordinates);
-    //   }
-    // }
-
-    const bounds = [
-      [-95.99293819642854, 36.15576946455974], // Southwest coordinates
-      [-95.98273612672106, 36.16555066509859]  // Northeast coordinates
-    ];
+    // Extend the bounds for each feature
+    for (const feature of features) {
+      if (feature.geometry.type === 'Point') {
+        bounds.extend(feature.geometry.coordinates);
+      }
+    }
 
     // Fit the map to the calculated bounds
     props.map.fitBounds(bounds, {
@@ -108,18 +103,17 @@
   const detailRef = ref(null);
   const showDrawer = ref(false);
 
-
   // Conditionally apply filter based on string year
   const layerDefinition = computed(() => {
     const includeSearch = props.layerId.includes("search");
-    const YearExemptLayers = ['1920-burned-area-layer', 'poi-layer', '1920-street-layer', '1920-building-layer', '1920-all-building-layer'];
+    const YearExemptLayers = ['1920-burned-area-layer', '1920-burned-area-outline-layer', 'poi-layer', '1920-street-layer', '1920-building-layer', '1920-all-building-layer'];
     const hasYear = props.filterYear && utils.isYear(props.filterYear);
     const hasSearchTerm = !!props.searchTerm && includeSearch;
 
     const filterParts = ['all'];
 
     if (hasYear && !YearExemptLayers.includes(props.layerId)) {
-      filterParts.push(['==', ['get', 'year'], props.filterYear === "" ? "" : Number.parseInt(props.filterYear).toString()]);
+      filterParts.push(['==', ['get', 'year'], props.filterYear === "" ? "" : Number.parseInt(props.filterYear)]);
     }
 
     if (hasSearchTerm) {
@@ -276,26 +270,25 @@ const popupProps = ref(null);
     const combinedFeature = features[0];
 
     clickedfeature.value = props.featureFormatter(combinedFeature);
-    props.map.flyTo({
-      center: clickedfeature.value.geometry?.coordinates[0][0] || clickedfeature.value.geometry?.coordinates[0] || clickedfeature.value.geometry.coordinates,
-      zoom: 16,
-      speed: 1.2,
-      curve: 1.5,
-      easing: (t) => t
-    });
-    console.log(clickedfeature)
-    // var open = detailRef.value?.openDialog;
-    var open = showDetails;
+      props.map.flyTo({
+        center: clickedfeature.value.geometry?.coordinates[0][0] || clickedfeature.value.geometry?.coordinates[0] || clickedfeature.value.geometry.coordinates,
+        zoom: 16,
+        speed: 1.2,
+        curve: 1.5,
+        easing: (t) => t
+      });
+      console.log(clickedfeature)
+      // var open = detailRef.value?.openDialog;
+      var open = showDetails;
 
-    // new MglPopup({
-    //   closeButton: true,
-    //   closeOnClick: false,
-    //   coordinates: clickedfeature.value.geometry.coordinates,
-    //   anchor: 'top',
-    //   offset: [0, -20],
-
-    // })
-    await utils.delayedAction(open, 1300); // Open dialog with a delay
+      // new MglPopup({
+      //   closeButton: true,
+      //   closeOnClick: false,
+      //   coordinates: clickedfeature.value.geometry.coordinates,
+      //   anchor: 'top',
+      //   offset: [0, -20],
+      // })
+      await utils.delayedAction(open, 1300); // Open dialog with a delay
   }
 
   function openPopup()
@@ -311,7 +304,6 @@ const popupProps = ref(null);
     :source="validateJsonData(geojson)"
     :reactive="true"
     :layer="layerDefinition"
-    :before="before"
   />
    <!-- Popup for selected feature -->
   <!-- <MglPopup :coordinates="popupCoords" anchor="bottom" @close="popupCoords = null">
@@ -326,7 +318,6 @@ const popupProps = ref(null);
     v-if="clickedfeature"
     :item="clickedfeature"
     v-model="showDrawer"/>
-<!-- :category="layerId.includes('building') ? 'buildings' : (layerId.includes('poi') ? 'buildings' : null)" -->
   <!-- <FeatureModal
     v-if="clickedfeature"
     :feature="clickedfeature"

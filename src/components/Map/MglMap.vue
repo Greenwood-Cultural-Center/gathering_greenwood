@@ -3,6 +3,7 @@
   import { MglMap, MglNavigationControl } from "vue-mapbox3";
   import ContrastButton from '@MapControls/ContrastButton.vue';
   import Legend from '@MapControls/Legend.vue';
+  import ZoomLevel from '@MapControls/ZoomLevel.vue';
   import { filterByDate } from '@openhistoricalmap/maplibre-gl-dates';
   import utils from '@utils/utils.js';
 
@@ -37,8 +38,15 @@
   // Reactive references for GeoJSON data
   const geoJsonData = ref({});
 
+  let style = ref({});
+
   // Map style ref
-  const style = ref(`${import.meta.env.BASE_URL}historic.json`);
+  if (import.meta.env.DEV ) {
+    style = ref(`${import.meta.env.BASE_URL}historic-local.json`);
+  } else {
+    style = ref(`${import.meta.env.BASE_URL}historic.json`);
+  }
+
   const center = ref([-95.9872222, 36.1619444]); // starting position [lng, lat]
 
   // Define the bounding box for the map
@@ -89,9 +97,9 @@
       }
   };
 
-  function resetMap () {
+  function resetMap (zoomOut = true) {
     let map = mapboxMap.value;
-    if (!utils.isEmpty(map)) {
+    if (!utils.isEmpty(map) && zoomOut) {
       map.fitBounds(boundingBox.value);
     }
   };
@@ -167,7 +175,6 @@
   async function onMapLoaded(event) {
     mapboxMap.value = event.map;
     let map = mapboxMap.value;
-    console.log('Map mounted, initial zoom is ', map?.getZoom());
     if (!utils.isEmpty(map)) {
       emit('created', map);
       changeYear(map, props.year);
@@ -177,16 +184,16 @@
       //   mb_logo.parentNode.parentNode.removeChild(mb_logo.parentNode)
       // }
     };
-    map.on('zoomend', () => {
-      const currentZoom = map.getZoom();
-      console.log('Zooming has finished. Current level:', currentZoom);
-    });
-    map.on('idle', () => {
-      var nameLayer = map.getLayer('1920-names-layer');
-      if (nameLayer) {
-        console.log('Map is idle, current zoom is ', map?.getZoom(), ' and nameLayer is ', nameLayer);
-      }
-    });
+    // map.on('zoomend', () => {
+    //   const currentZoom = map.getZoom();
+    //   console.log('Zooming has finished. Current level:', currentZoom);
+    // });
+    // map.on('idle', () => {
+    //   var nameLayer = map.getLayer('1920-names-layer');
+    //   if (nameLayer) {
+    //     console.log('Map is idle, current zoom is ', map?.getZoom(), ' and nameLayer is ', nameLayer);
+    //   }
+    // });
   };
 
   function fitMapToMarkers() {

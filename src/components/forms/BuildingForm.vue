@@ -193,7 +193,7 @@ const rich_description = computed(() => {
 </script>
 
 <template>
-  <div v-if="item.buildings && item.location_id">
+  <div v-if="(item.buildings && item.location_id) || item.id">
     <h3>Building Details</h3>
     <InfoWindow v-if="item.confidence_score" :item="item"></InfoWindow>
     <img v-if="item.photo" :src="item.photo" :alt="item.name || item.title || getAddress(item)" style="max-width: 100%; height: auto; margin-bottom: 1rem;" />

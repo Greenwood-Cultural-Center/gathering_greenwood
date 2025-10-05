@@ -93,18 +93,30 @@
         ['case',
           ['==', ['get', 'POI'], null],
           '#666666',
-          '#13331C'
+          '#405D47'
         ]
       ],
-      'fill-opacity': 1
+      'fill-opacity': ['case',
+        ['boolean', ['feature-state', 'search-item'], false ],1,
+        ['case',
+          ['==', ['get', 'POI'], null],
+          0.6,
+          1
+        ]
+      ]
     },
     nytAllBuildingPaint : {
       'fill-color': '#666666',
-      'fill-opacity': 1
+      'fill-opacity': 0.45
     },
     burnedAreaPaint : {
       'fill-color': '#FF0000',
-      'fill-opacity': 0.2
+      'fill-opacity': 0.2,
+      'fill-outline-color': '#400000',
+    },
+    burnedAreaOutlinePaint : {
+      'line-color': '#400000',
+      'line-width': 3,
     },
     street1920Paint : {
       'line-color': '#000000',
@@ -166,7 +178,7 @@
   // Reset Functions
 
   // Reset handler for app state and map
-  function resetApp() {
+  function resetApp(zoomOut = true) {
     // Reset app year to default
     updateYear('');
 
@@ -174,13 +186,14 @@
     clearResults();
 
     // Reset map zoom and center to default values
-    resetMap();
+    resetMap(zoomOut);
   }
 
   const dynamicLayers = [
     "search-layer",
     "1920-street-layer",
     "1920-burned-area-layer",
+    "1920-burned-area-outline-layer",
     "1920-all-building-layer",
     "1920-building-layer",
     "address-Layer",
@@ -201,6 +214,7 @@
   async function clearResults() {
     searchTerm.value = '';
     showResults.value = false;
+    resetBuildingLayerPaint();
     if (resultsPaneRef && resultsPaneRef.value) {
       resultsPaneRef.value.resetState();
     }
@@ -220,10 +234,11 @@
     });
   }
 
-  function resetMap() {
+  function resetMap(zoomOut = true) {
     if (mglMapRef && mglMapRef.value) {
-      mglMapRef.value.resetMap();
+      mglMapRef.value.resetMap(zoomOut);
       geoJson.value = emptyGeoJson; // Reset geoJson to empty
+      resetBuildingLayerPaint();
     }
   }
 
@@ -259,7 +274,7 @@
       setTimeout(() => {
         if (mglMapRef.value && mbMap.value) {
           mbMap.value.resize();
-          resetMap();
+          resetMap(false);
         }
       }, 300);
       //clearResults();
@@ -284,8 +299,8 @@
       }
     }
 
-    if (searchValue && geoJson?.data?.features) {
-      updateBuildingLayerPaint(geoJson.data.features);
+    if (searchValue && geoJson?.value?.data?.features) {
+      updateBuildingLayerPaint(geoJson?.value?.data?.features);
     }
 
     fitMapToSearch();
@@ -307,73 +322,86 @@
   }
 
   function updateBuildingLayerPaint(searchFeatures) {
-    // Extract IDs from the search GeoJSON features
-    const searchIds = [];
+    // Reset all feature-states first
+    resetBuildingLayerPaint();
+
+    // Extract location IDs from the search GeoJSON features
+    const searchLocationIds = [];
     searchFeatures.forEach(feature => {
       if (feature.properties && feature.properties.location_id) {
-        searchIds.push(String(feature.properties.location_id)); // Ensure string comparison
+        searchLocationIds.push(String(feature.properties.location_id));
       }
     });
 
-    if (searchIds.length === 0) {
-      // Reset building layer paint when no search results
-      resetBuildingLayerPaint();
+    if (searchLocationIds.length === 0) {
+      console.log('No search features with location_id found');
       return;
     }
 
     // Check if the building layer exists
     const buildingLayerId = '1920-building-layer';
-    if (!props.map.getLayer(buildingLayerId)) {
+    if (!mbMap.value.getLayer(buildingLayerId)) {
       console.warn('Building layer not found, cannot update paint');
       return;
     }
 
-    // Get the building layer source ID (should be from building1920GeoJSON)
-    const buildingLayer = props.map.getLayer(buildingLayerId);
+    // Get the building layer source
+    const buildingLayer = mbMap.value.getLayer(buildingLayerId);
     const buildingSourceId = buildingLayer.source;
 
     // Get all features from the building source
-    let buildingFeatures = props.map.querySourceFeatures(buildingSourceId);
+    let buildingFeatures = mbMap.value.querySourceFeatures(buildingSourceId);
     const uniqueFeatures = [];
     const uniqueIds = new Set();
 
+    // Remove duplicates based on OBJECTID
     for (const feature of buildingFeatures) {
-        if (feature.properties && feature.properties.OBJECTID && !uniqueIds.has(feature.properties.OBJECTID)) {
-            uniqueFeatures.push(feature);
-            uniqueIds.add(feature.properties.OBJECTID);
-        }
+      if (feature.properties && feature.properties.OBJECTID && !uniqueIds.has(feature.properties.OBJECTID)) {
+        uniqueFeatures.push(feature);
+        uniqueIds.add(feature.properties.OBJECTID);
+      }
     }
 
+    // Normalize the features to parse stringified properties
     normalizeFeatureQuery(uniqueFeatures);
 
-    // Check which building features have matching IDs in their buildings array
-    const matchingBuildingIds = [];
+    // Find building features that have matching location IDs in their buildings array
+    const matchingFeatures = [];
     uniqueFeatures.forEach(buildingFeature => {
-      if (buildingFeature.properties && buildingFeature.properties.buildings && Array.isArray(buildingFeature.properties.buildings)) {
+      if (buildingFeature.properties && 
+          buildingFeature.properties.buildings && 
+          Array.isArray(buildingFeature.properties.buildings)) {
+
+        // Check if any location ID in the buildings array matches search location IDs
         const hasMatch = buildingFeature.properties.buildings.some(buildingId =>
-          searchIds.includes(String(buildingId))
+          searchLocationIds.includes(String(buildingId))
         );
+
         if (hasMatch && buildingFeature.properties.OBJECTID) {
-          matchingBuildingIds.push(buildingFeature.properties.OBJECTID);
+          matchingFeatures.push(buildingFeature);
         }
       }
     });
 
-    searchFeatures = uniqueFeatures.filter(feature => feature.properties && feature.properties.OBJECTID && searchIds.includes(String(feature.properties.OBJECTID)));
+    // Set feature-state for matching buildings using OBJECTID as the feature ID
+    if (matchingFeatures.length > 0) {
+      matchingFeatures.forEach(feature => {
+        try {
+          mbMap.value.setFeatureState(
+            { 
+              source: buildingSourceId, 
+              id: feature.properties.OBJECTID 
+            },
+            { 'search-item': true }
+          );
+        } catch (error) {
+          console.warn(`Failed to set feature state for OBJECTID ${feature.properties.OBJECTID}:`, error);
+        }
+      });
 
-    if (matchingBuildingIds.length > 0) {
-      for (const feature of searchFeatures) {
-        props.map.setFeatureState(
-          { source: buildingSourceId, id: feature.properties.OBJECTID },
-          { 'search-item': true }
-        );
-    };
-
-
-      console.log(`Highlighted ${matchingBuildingIds.length} buildings with matching IDs:`, matchingBuildingIds);
+      console.log(`Highlighted ${matchingFeatures.length} buildings with matching location IDs`);
     } else {
-      // Reset to default paint when no matches
-      resetBuildingLayerPaint();
+      console.log('No building matches found for search location IDs:', searchLocationIds);
     }
   }
 
@@ -431,10 +459,19 @@
   }
 
   function resetBuildingLayerPaint() {
-     const selectedFeatures = map.queryRenderedFeatures({
-        layers: ['1920-buildings-layer'], // Specify the layer(s) to query
-        filter: ['==', ['feature-state', 'search-item'], true]
-    });
+    const buildingSourceId = '1920-building-source';
+
+    if (!mbMap.value || !mbMap.value.getSource(buildingSourceId)) {
+      return;
+    }
+
+    try {
+      // Reset all feature states for the entire source at once - much more efficient!
+      mbMap.value.removeFeatureState({ source: buildingSourceId });
+      console.log('Reset all building feature states');
+    } catch (error) {
+      console.warn('Failed to reset building feature states:', error);
+    }
   }
 
   function updateYear(newYear) {
@@ -718,6 +755,17 @@
       :featureFormatter="formatFeature">
     </DynamicGeoJsonLayer>
     <DynamicGeoJsonLayer
+      v-if="burnedAreaGeoJSON && burnedAreaGeoJSON.data && burnedAreaGeoJSON.data.features && burnedAreaGeoJSON.data.features.length > 0"
+      :geojson="burnedAreaGeoJSON"
+      :type="'line'"
+      :paint="markerPaintOptions['burnedAreaOutlinePaint']"
+      :layout="{ 'visibility': 'visible' }"
+      layerId="1920-burned-area-outline-layer"
+      :filterYear="appYear"
+      :map="mbMap"
+      :featureFormatter="formatFeature">
+    </DynamicGeoJsonLayer>
+    <DynamicGeoJsonLayer
       v-if="building1920GeoJSONAll && building1920GeoJSONAll.data && building1920GeoJSONAll.data.features && building1920GeoJSONAll.data.features.length > 0"
       ref="allBuilding1920LayerRef"
       :geojson="building1920GeoJSONAll"
@@ -752,17 +800,21 @@
       {
         'text-color': '#010101',
         'text-halo-color': '#FFFFFF',
-        'text-halo-width': 3,
+        'text-halo-width': 4,
         'text-halo-blur': 1
       },
       {
         'text-field': [
           'format',
-            [
-              'case',
-              ['has', 'title'],
-              ['get', 'title'],
-              ['get', 'POI']
+            ['upcase',
+              [
+                'case',
+                ['has', 'title'],
+                ['get', 'title'],
+                ['has', 'POI'],
+                ['get', 'POI'],
+               ''
+              ]
             ],
             {
               'text-color': '#006636'
@@ -782,7 +834,7 @@
             ],
             { 'font-scale': 0.75}
         ],
-        'text-font': ['Figtree'],
+        'text-font': ['Poppins Bold'],
         'text-anchor': 'center',
         'text-allow-overlap': false,
         'text-ignore-placement': false,
@@ -790,9 +842,7 @@
         'visibility': 'visible'
       })"
       :filterYear="appYear"
-      :map="mbMap"
-      :featureFormatter="formatFeature"
-      :searchTerm="searchTerm">
+      :map="mbMap">
     </MglSymbolLayer>
 
     <!--
