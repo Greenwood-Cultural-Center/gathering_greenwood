@@ -5,11 +5,17 @@ import vue from '@vitejs/plugin-vue';
 import AutoZip from 'vite-plugin-auto-zip';
 import devtoolsJson from 'vite-plugin-devtools-json';
 import { visualizer } from 'rollup-plugin-visualizer';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+
 //import { VitePWA } from 'vite-plugin-pwa';
 
-const __APP_VERSION__ = process.env.npm_package_version;
-const __APP_NAME__ = process.env.npm_package_name;
-const __APP_DESCRIPTION__ = process.env.npm_package_description;
+// Read package.json to get app metadata
+const packageJson = JSON.parse(readFileSync(resolve('./package.json'), 'utf-8'));
+
+const __APP_VERSION__ = packageJson.version;
+const __APP_NAME__ = packageJson.name;
+const __APP_DESCRIPTION__ = packageJson.description;
 
 const zipName = `${__APP_NAME__}-${__APP_VERSION__}.zip`;
 
@@ -31,7 +37,7 @@ export default defineConfig({
     //   template: 'sunburst',
     // }),
     devtoolsJson({ uuid: "153818d3-0cf3-4c87-ac98-a49528d8db7a" }),
-    AutoZip('./dist','./dist',zipName)
+    //AutoZip({outName: `${zipName}`})
     // VitePWA({
     //   // generates 'manifest.webmanifest' file on build
     //   manifest: {

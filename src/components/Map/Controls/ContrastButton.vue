@@ -56,7 +56,7 @@ function onClick() {
     map.value.setPaintProperty('roads_residential','line-color','#EEE');
     map.value.setPaintProperty('landuse_areas_z12_localized_land_use','fill-color', ['interpolate',['linear'],['zoom'],0,['match',['get','type'],'railway','rgba(224, 224, 224, 1)','transparent']]);
     map.value.setPaintProperty('1920-burned-area-layer','fill-color','#FF0000');
-    map.value.setPaintProperty('1920-burned-area-layer','fill-opacity',0.2);
+    map.value.setPaintProperty('1920-burned-area-layer','fill-opacity',0.1);
     map.value.setPaintProperty('1920-burned-area-layer','fill-outline-color','rgba(64, 0, 0)');
     map.value.setPaintProperty('1920-burned-area-outline-layer','line-color','rgba(64, 0, 0)');
     map.value.setPaintProperty('1920-building-layer','fill-color',
@@ -65,7 +65,7 @@ function onClick() {
         ['case',
           ['==', ['get', 'POI'], null],
           '#555555',
-          '#405D47'
+          '#006636'
         ]
       ]);
     map.value.setPaintProperty('1920-building-layer','fill-opacity',

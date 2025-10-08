@@ -230,7 +230,7 @@
     :accessToken="accessToken"
     :mapStyle="style"
     :bounds="boundingBox"
-    :maxZoom=19
+    :maxZoom=20.99
     :maxBounds="maxBounds"
     :attributionControl="false"
     :dragRotate="false"

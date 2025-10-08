@@ -20,11 +20,28 @@
     return `result-modal-${props.category}-${thisId}`;
   });
 
-  function showDetails() {
+  function showDetails(e) {
     // modalRef.value?.openDialog();
     // modalHidden.value = false;
-    showDrawer.value = true;
+
+    if (e) {
+      emit('on:clicked', thisId);
+      showDrawer.value = true;
+    }
   }
+
+  function hideDetails() {
+    // modalRef.value?.openDialog();
+    // modalHidden.value = false;
+    showDrawer.value = false;
+  }
+
+  const emit = defineEmits(['on:clicked']);
+
+  defineExpose({
+    thisId,
+    hideDetails
+  });
 
   function modalClose() {
     modalHidden.value = true;
@@ -85,7 +102,7 @@
     @keydown.space.prevent="showDetails"
     :icon="icon"
     :iconTitle="formatKey(category, 1)+' result-'+ thisId">
-    {{ item?.name || item?.description || item?.caption || item?.story?.name }}
+    {{ `${item?.name}${category === 'people' ? (`, ${item?.age}` || `, ${item?.Age}` || '') : ''}` || item?.description || item?.caption || item?.story?.name }}
     <DetailDrawer v-model="showDrawer" :item="item" :category="category" />
     <!-- <ResultModal ref="modalRef" :aria-hidden="modalHidden" :dialogId="modalId" @close="modalClose" :item="item" :category="category" /> -->
   </ListItem>

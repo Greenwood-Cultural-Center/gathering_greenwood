@@ -15,10 +15,27 @@
     }
   });
 
+  let clickedId = ref('');
+
+  const searchResultRef = ref(null);
+
   function formatCategory(key) {
     //var key = Object.keys(results.value)[index];
     return key === 'narratives' ? 'Stories' : key.charAt(0).toUpperCase() + key.slice(1).replace('_', ' ');
   }
+
+  function recordId(id) {
+    clickedId.value = id;
+  }
+
+  function hideDetails() {
+    searchResultRef.value.find((val) => val.thisId == clickedId.value).hideDetails();
+  }
+
+  defineExpose({
+    hideDetails
+  });
+
 </script>
 
 <template>
@@ -33,8 +50,10 @@
       </h4>
       <ul class="fa-ul">
         <SearchResult
+          ref="searchResultRef"
           v-for="item in results[category || '']"
           :key="item?.id || item?.name || item?.description || item?.story?.name"
+          @on:clicked="recordId"
           :item="item"
           :category="category"></SearchResult>
       </ul>

@@ -148,16 +148,13 @@ function age(person) {
     if (!person) {
       return 'N/A';
     }
-    if (!person?.age) {
+    if (person?.age === undefined) {
       return props.item.year - person.birth_year;
     }
     if (normalizedAge > 0) {
       return `${ normalizedAge } years`;
     }
-    if (person?.age_months == null) {
-      return 'N/A';
-    }
-    if (normalizedAge === 0 && person?.age_months === 0) {
+    if (normalizedAge === 0 && ( person?.age_months === 0 || person?.age_months == null )) {
       return 'Newborn';
     }
     if (normalizedAge < 0 || person?.age_months < 0) {
@@ -219,7 +216,7 @@ const rich_description = computed(() => {
             <h4>Census Records:</h4>
             <details v-for="(record,index) in person?.properties?.census_records?.filter((cr => cr.person_id === person.id))" name="people_census" :key="record.id">
               <summary><h6>{{ searchableName(record) + '(' + (age(record) || '') + ')'}}</h6></summary>
-              <CensusRecordFields :record="record"></CensusRecordFields>
+              <CensusRecordFields :record="record" :year="Number.parseInt(item.year)"></CensusRecordFields>
             </details>
           </div>
         </details>
@@ -230,7 +227,7 @@ const rich_description = computed(() => {
       <h3>Census Records Without Associated People</h3>
       <details v-for="(record,index) in census_records" name="census" :key="getPersonID">
         <summary><h4>{{ searchableName(record) + '(' + (age(record) || '') + ')'}}</h4></summary>
-        <CensusRecordFields :record="record" :year="item.year"></CensusRecordFields>
+        <CensusRecordFields :record="record" :year="Number.parseInt(item.year)"></CensusRecordFields>
       </details>
     </div>
   </div>

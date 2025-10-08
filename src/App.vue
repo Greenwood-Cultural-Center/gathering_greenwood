@@ -93,7 +93,7 @@
         ['case',
           ['==', ['get', 'POI'], null],
           '#666666',
-          '#405D47'
+          '#006636'
         ]
       ],
       'fill-opacity': ['case',
@@ -111,7 +111,7 @@
     },
     burnedAreaPaint : {
       'fill-color': '#FF0000',
-      'fill-opacity': 0.2,
+      'fill-opacity': 0.10,
       'fill-outline-color': '#400000',
     },
     burnedAreaOutlinePaint : {
@@ -232,6 +232,9 @@
         }
       }, 300);
     });
+
+    building1920LayerRef.value.hideDetails();
+    resultsPaneRef.value.hideDetails();
   }
 
   function resetMap(zoomOut = true) {
@@ -270,6 +273,10 @@
 
   async function handleSearch(searchValue) {
     showResults.value = true;
+
+    building1920LayerRef.value?.hideDetails();
+    resultsPaneRef.value?.hideDetails();
+
     await nextTick(async() => {
       setTimeout(() => {
         if (mglMapRef.value && mbMap.value) {
@@ -488,6 +495,10 @@
     await getBurnedArea();
     await getBuildings();
     await getGreenwoodBuildings();
+
+    mbMap.value.on('zoomend', () => {
+      console.log('Zoom level changed to:', mbMap.value.getZoom());
+    });
     //poiLayerRef.value.fitMapToMarkers();
     // census1920GeoJson.value = await fetchGeoJson(census1920Url)
     //   .then(response =>

@@ -63,10 +63,13 @@
     lastSearch.value = '';
   }
 
+  const resultsListRef = ref(null);
+
   defineExpose({
     resetState,
     search,
-    yearChanged
+    yearChanged,
+    hideDetails: () => {resultsListRef.value?.hideDetails(); }
   });
 
   function yearChanged(newYear) {
@@ -160,7 +163,7 @@
       <div class="spinner"></div>
     </div>
     <ResultsCount v-if="count" :count="count" :loading="loading" />
-    <ResultsList v-if="!loading && results" :results="results" :categories="orderedResults" />
+    <ResultsList v-if="!loading && results" ref="resultsListRef" :results="results" :categories="orderedResults" />
   </div>
 </template>
 

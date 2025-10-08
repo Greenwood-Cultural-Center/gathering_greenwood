@@ -3,7 +3,7 @@
   import { MglGeojsonLayer, MglPopup } from 'vue-mapbox3';
   import FeatureModal from '@Modals/FeatureModal.vue';
   import utils from '@utils/utils.js';
-import DetailDrawer from '../Utility/DetailDrawer.vue';
+  import DetailDrawer from '../Utility/DetailDrawer.vue';
 
   const props = defineProps({
     geojson: {
@@ -75,6 +75,7 @@ import DetailDrawer from '../Utility/DetailDrawer.vue';
 
   defineExpose({
     fitMapToMarkers,
+    hideDetails,
   });
 
   function fitMapToMarkers() {
@@ -131,11 +132,9 @@ import DetailDrawer from '../Utility/DetailDrawer.vue';
     }
   })
 
-
-// Popup state
-const popupCoords = ref(null);
-const popupProps = ref(null);
-
+  // Popup state
+  const popupCoords = ref(null);
+  const popupProps = ref(null);
 
   function showDetails() {
     // modalRef.value?.openDialog();
@@ -143,6 +142,11 @@ const popupProps = ref(null);
     showDrawer.value = true;
   }
 
+  function hideDetails() {
+    // modalRef.value?.openDialog();
+    // modalHidden.value = false;
+    showDrawer.value = false;
+  }
 
   onMounted(() => {
     props.map.on('click', props.layerId, handleClick); // Attach click listener to the layer
@@ -272,7 +276,7 @@ const popupProps = ref(null);
     clickedfeature.value = props.featureFormatter(combinedFeature);
       props.map.flyTo({
         center: clickedfeature.value.geometry?.coordinates[0][0] || clickedfeature.value.geometry?.coordinates[0] || clickedfeature.value.geometry.coordinates,
-        zoom: 16,
+        zoom: 20.99,
         speed: 1.2,
         curve: 1.5,
         easing: (t) => t
