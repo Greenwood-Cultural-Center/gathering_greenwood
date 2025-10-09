@@ -29,6 +29,8 @@
   }
 
   function hideDetails() {
+    if (clickedId.value == '') return;
+    if (searchResultRef.value == null) return;
     searchResultRef.value.find((val) => val.thisId == clickedId.value).hideDetails();
   }
 

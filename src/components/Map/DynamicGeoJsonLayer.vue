@@ -4,6 +4,8 @@
   import FeatureModal from '@Modals/FeatureModal.vue';
   import utils from '@utils/utils.js';
   import DetailDrawer from '../Utility/DetailDrawer.vue';
+  import centroid from '@turf/centroid';
+  import { polygon } from '@turf/helpers';
 
   const props = defineProps({
     geojson: {
@@ -274,9 +276,19 @@
     const combinedFeature = features[0];
 
     clickedfeature.value = props.featureFormatter(combinedFeature);
+      let cent;
+      if (clickedfeature.value.geometry?.coordinates[0][0]){
+        let poly = polygon(clickedfeature.value.geometry?.coordinates);
+        cent = centroid(poly);
+        clickedfeature.value.geometry = cent.geometry;
+      } else {
+        clickedfeature.value.geometry = clickedfeature.value.geometry?.coordinates[0] ? { type: 'Point', coordinates: clickedfeature.value.geometry?.coordinates[0] } : { type: 'Point', coordinates: clickedfeature.value.geometry?.coordinates };
+      }
+
       props.map.flyTo({
-        center: clickedfeature.value.geometry?.coordinates[0][0] || clickedfeature.value.geometry?.coordinates[0] || clickedfeature.value.geometry.coordinates,
-        zoom: 20.99,
+        center: clickedfeature.value.geometry.coordinates,
+        zoom: 20,
+        padding: { top: 100, bottom:100, left: 100, right: 150 },
         speed: 1.2,
         curve: 1.5,
         easing: (t) => t

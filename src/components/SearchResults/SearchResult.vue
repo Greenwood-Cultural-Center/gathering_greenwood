@@ -91,6 +91,22 @@
     // Convert to lowercase and replace underscores or dashes with spaces
     return key.toLowerCase().replace(/_|-/g, ' ');
   }
+
+  function getDisplayName(item, category) {
+    switch (category) {
+      case 'people':
+        return `${item?.name}${item?.age ? `, ${item.age}` : ''}${item?.Age ? `, ${item.Age}` : ''}` || 'Unnamed';
+      case 'stories':
+        return item?.story?.name || 'Unnamed';
+      case 'media':
+      case 'documents':
+      case 'buildings':
+      case 'census_records':
+        return item?.name ||item?.description || item?.caption || 'Unnamed';
+      default:
+        return 'Unnamed';
+    }
+  }
 </script>
 
 <template>
@@ -102,7 +118,7 @@
     @keydown.space.prevent="showDetails"
     :icon="icon"
     :iconTitle="formatKey(category, 1)+' result-'+ thisId">
-    {{ `${item?.name}${category === 'people' ? (`, ${item?.age}` || `, ${item?.Age}` || '') : ''}` || item?.description || item?.caption || item?.story?.name }}
+    {{ getDisplayName(item, category) }}
     <DetailDrawer v-model="showDrawer" :item="item" :category="category" />
     <!-- <ResultModal ref="modalRef" :aria-hidden="modalHidden" :dialogId="modalId" @close="modalClose" :item="item" :category="category" /> -->
   </ListItem>
