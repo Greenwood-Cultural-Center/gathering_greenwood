@@ -107,7 +107,7 @@
     },
     nytAllBuildingPaint : {
       'fill-color': '#666666',
-      'fill-opacity': 0.45
+      'fill-opacity': 0.2
     },
     burnedAreaPaint : {
       'fill-color': '#FF0000',

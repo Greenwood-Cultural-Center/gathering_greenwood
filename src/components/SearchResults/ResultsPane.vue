@@ -189,8 +189,8 @@
     border: 0.25rem solid #eee;
     border-top: 0.25rem solid var(--gcc-orange);
     border-radius: 50%;
-    width: 1.5rem;
-    height: 1.5rem;
+    width: 3rem;
+    height: 3rem;
     animation: spin 0.8s linear infinite;
   }
 
