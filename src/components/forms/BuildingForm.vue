@@ -282,4 +282,8 @@ const rich_description = computed(() => {
   summary h4 {
     color: var(--gcc-black);
   }
+
+  details > div > h4 {
+    color: var(--gcc-dk-green);
+  }
 </style>

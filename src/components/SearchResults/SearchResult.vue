@@ -95,7 +95,7 @@
   function getDisplayName(item, category) {
     switch (category) {
       case 'people':
-        return `${item?.name}${item?.age ? `, ${item.age}` : ''}${item?.Age ? `, ${item.Age}` : ''}` || 'Unnamed';
+        return `${item?.name}${item?.age ? `, ${item.age}` : item?.age === 0 ? `, ${item.age}` : '' }${item?.Age ? `, ${item.Age}` : item?.Age === 0 ? `, ${item.Age}` : ''}` || 'Unnamed';
       case 'stories':
         return item?.story?.name || 'Unnamed';
       case 'media':
