@@ -10,9 +10,10 @@
   import utils from '@utils/utils.js';
   import { useFaMapService } from '@Composables/useFaMapservice.js';
   import DetailDrawer from './components/Utility/DetailDrawer.vue';
-  import DetailDrawerExample from './components/Utility/DetailDrawerExample.vue';
+  import { useToast } from 'vue-toastification';
 
   const { fontAwesomeCharacterCode } = useFaMapService();
+  const toast = useToast();
   const emptyGeoJson = {type:'geojson',data:{id: 'search-source', type: 'FeatureCollection', features: []}};
   const mbMap = ref({});
 
@@ -26,6 +27,7 @@
   const showLanding = ref(true);
 
   const contrastMode = ref(false);
+  const searchSuggestions = ref([]);
 
   // define available years
   const years = [
@@ -372,6 +374,30 @@
       let features = utils.dedupeByCustomKey(data.features, feature => feature.properties.location_id);
       poiGeoJSONTemplate.data.features = features;
       poiGeoJSON.value = poiGeoJSONTemplate;
+
+      const poiNames = features
+        .map((f) => f?.properties?.title)
+        .filter(Boolean);
+
+      const poiAddresses = features
+        .flatMap((f) => f?.properties?.addresses || [])
+        .map((addr) => {
+          const parts = [
+            addr.house_number,
+            addr.prefix,
+            addr.name,
+            addr.suffix,
+            addr.city
+          ].filter(Boolean);
+          return parts.join(' ').replace(/\s+/g, ' ').trim();
+        })
+        .filter(Boolean);
+
+      searchSuggestions.value = utils.uniqueArray([
+        ...searchSuggestions.value,
+        ...poiNames,
+        ...poiAddresses
+      ]);
     })
     .then(() => {
       utils.delayedAction(
@@ -431,6 +457,23 @@
     showLanding.value = true;
   }
 
+  function focusFeature(feature) {
+    if (!feature || !mbMap.value) return;
+    const coords = feature.geometry?.coordinates;
+    if (Array.isArray(coords) && coords.length === 2) {
+      const numericCoords = coords.map((c) => Number(c));
+      if (numericCoords.every((c) => Number.isFinite(c))) {
+        mbMap.value.flyTo({ center: numericCoords, zoom: 17 });
+      }
+    }
+  }
+
+  function handleMissingFeature(item) {
+    const label = item?.address || item?.name || 'this result';
+    toast.dismiss('missing-feature');
+    toast.warning(`No map location available for ${label}.`, { id: 'missing-feature' });
+  }
+
 </script>
 
 <template>
@@ -447,7 +490,14 @@
   </FABMain>
 
   <!-- YearSelector Component to change year and perform searches -->
-  <YearSearchBar ref="yearSearchBarRef" @clear="clearResults" :onSearch="handleSearch" :onYearChange="updateYear" :years="years"></YearSearchBar>
+  <YearSearchBar
+    ref="yearSearchBarRef"
+    @clear="clearResults"
+    :onSearch="handleSearch"
+    :onYearChange="updateYear"
+    :years="years"
+    :suggestions="searchSuggestions"
+  ></YearSearchBar>
 
   <!-- Map Component with layer containing dynamic GeoJSON search results-->
   <MglMap nonce="ajJERjdDc1g5MlFadlZfdGdFIWI4dVchQ3o4Q3ZRYlQ=" :class="['map-area', { 'map-area-shrunk' : showResults }]" :year="appYear" ref="mglMapRef" @created="handleMapCreated" :dynamicGeoJsonIds="{'dynamicLayers': dynamicLayers, 'dynamicSources': dynamicSources}">
@@ -538,7 +588,9 @@
       class="results-pane"
       :years="years"
       :year="appYear"
-      @update:geojson="handleGeojson">
+      @update:geojson="handleGeojson"
+      @focus-feature="focusFeature"
+      @focus-feature-missing="handleMissingFeature">
     </ResultsPane>
   </transition>
 </template>
